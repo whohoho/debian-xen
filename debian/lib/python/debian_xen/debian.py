@@ -4,28 +4,17 @@ from debian_linux.debian import Version
 
 class VersionXen(Version):
     _version_xen_rules = r"""
-^
-(?P<version>
-    \d+\.\d+
-)
-(?:
-    \.\d+
-    (?:
-        ~rc\d+
-    )?
-    (?:
-        \+hg-\d+.[a-z0-9]+
-    )?
-    (?:
-        ~pre\.\d{4,}\.\d{2}\.\d{2}(?:\b[-+0-9a-z])?
-    )?
-    |
-    ~hg-\d+.[a-z0-9]+
-)
--
-(?:[^-]+)
-$
-"""
+        ^
+        (?P<version>\d+\.\d+)
+        (?:
+         \.\d+(?:~pre(?:\+\d+\.[0-9a-f]{10}))?
+         |
+         ~rc\d+(?:\+\d+\.[0-9a-f]{10})?
+        )
+        -
+        (?:[^-]+)
+        $
+        """
     _version_xen_re = re.compile(_version_xen_rules, re.X)
 
     def __init__(self, version):
