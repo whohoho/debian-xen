@@ -1,7 +1,8 @@
+From e54bc7e99b7a7006ff40ee1c1d7eea1f207b8671 Mon Sep 17 00:00:00 2001
 From: George Dunlap <george.dunlap@citrix.com>
-Date: Fri, 10 Nov 2017 16:53:55 +0000
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj 4a02bbc1ec375493ecb7938d626034b76e1d1a7c
-Subject: p2m: Check return value of p2m_set_entry() when decreasing reservation
+Date: Tue, 28 Nov 2017 13:39:29 +0100
+Subject: p2m: Check return value of p2m_set_entry() when decreasing
+ reservation
 
 If the entire range specified to p2m_pod_decrease_reservation() is marked
 populate-on-demand, then it will make a single p2m_set_entry() call,
@@ -28,12 +29,17 @@ This is part of XSA-247.
 
 Signed-off-by: George Dunlap <george.dunlap@citrix.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
-
+master commit: a3d64de8e86f5812917d2d0af28298f80debdf9a
+master date: 2017-11-28 13:13:26 +0100
 ---
+ xen/arch/x86/mm/p2m-pod.c | 42 +++++++++++++++++++++++++++++++++---------
+ 1 file changed, 33 insertions(+), 9 deletions(-)
 
---- xen-4.8.2+xsa243.orig/xen/arch/x86/mm/p2m-pod.c
-+++ xen-4.8.2+xsa243/xen/arch/x86/mm/p2m-pod.c
-@@ -557,11 +557,23 @@ p2m_pod_decrease_reservation(struct doma
+diff --git a/xen/arch/x86/mm/p2m-pod.c b/xen/arch/x86/mm/p2m-pod.c
+index f4077a8391..e415b1b1cb 100644
+--- a/xen/arch/x86/mm/p2m-pod.c
++++ b/xen/arch/x86/mm/p2m-pod.c
+@@ -557,11 +557,23 @@ p2m_pod_decrease_reservation(struct domain *d,
  
      if ( !nonpod )
      {
@@ -62,7 +68,7 @@ Reviewed-by: Jan Beulich <jbeulich@suse.com>
          BUG_ON(p2m->pod.entry_count < 0);
          ret = 1;
          goto out_entry_check;
-@@ -602,8 +614,14 @@ p2m_pod_decrease_reservation(struct doma
+@@ -602,8 +614,14 @@ p2m_pod_decrease_reservation(struct domain *d,
          n = 1UL << cur_order;
          if ( t == p2m_populate_on_demand )
          {
@@ -79,7 +85,7 @@ Reviewed-by: Jan Beulich <jbeulich@suse.com>
              p2m->pod.entry_count -= n;
              BUG_ON(p2m->pod.entry_count < 0);
              pod -= n;
-@@ -624,8 +642,14 @@ p2m_pod_decrease_reservation(struct doma
+@@ -624,8 +642,14 @@ p2m_pod_decrease_reservation(struct domain *d,
  
              page = mfn_to_page(mfn);
  
@@ -96,3 +102,6 @@ Reviewed-by: Jan Beulich <jbeulich@suse.com>
              p2m_tlb_flush_sync(p2m);
              for ( j = 0; j < n; ++j )
                  set_gpfn_from_mfn(mfn_x(mfn), INVALID_M2P_ENTRY);
+-- 
+2.11.0
+

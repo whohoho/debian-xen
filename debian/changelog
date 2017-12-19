@@ -1,3 +1,18 @@
+xen (4.8.2+xsa245-0+deb9u2) UNRELEASED; urgency=medium
+
+  * Additional fix for: Unlimited recursion in linear pagetable de-typing
+    XSA-240 CVE-2017-15595 (listed as xsa240-4.8/0004)
+  * Fix x86 PV guests may gain access to internally used pages
+    XSA-248 CVE-2017-17566
+  * Fix broken x86 shadow mode refcount overflow check
+    XSA-249 CVE-2017-17563
+  * Fix improper x86 shadow mode refcount error handling
+    XSA-250 CVE-2017-17564
+  * Fix improper bug check in x86 log-dirty handling
+    XSA-251 CVE-2017-17565
+
+ -- Hans van Kranenburg <hans@knorrie.org>  Tue, 19 Dec 2017 14:34:42 +0100
+
 xen (4.8.2+xsa245-0+deb9u1) stretch-security; urgency=high
 
   * Update to upstream stable 4.8 branch, which is currently at Xen 4.8.2

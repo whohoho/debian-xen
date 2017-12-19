@@ -1,6 +1,6 @@
+From fcc60bc5ad48750bc0fa790e7a9c3be0e09317ab Mon Sep 17 00:00:00 2001
 From: George Dunlap <george.dunlap@citrix.com>
-Date: Fri, 10 Nov 2017 16:53:54 +0000
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj e16fe21c1b7e2b52dae414fd64f6771f92640fed
+Date: Tue, 28 Nov 2017 13:38:16 +0100
 Subject: p2m: Always check to see if removing a p2m entry actually worked
 
 The PoD zero-check functions speculatively remove memory from the p2m,
@@ -32,12 +32,17 @@ This is part of XSA-247.
 
 Signed-off-by: George Dunlap <george.dunlap@citrix.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
-
+master commit: 92790672dedf2eab042e04ecc277c19d40fd348a
+master date: 2017-11-28 13:13:03 +0100
 ---
+ xen/arch/x86/mm/p2m-pod.c | 77 +++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 61 insertions(+), 16 deletions(-)
 
---- xen-4.8.2+xsa243.orig/xen/arch/x86/mm/p2m-pod.c
-+++ xen-4.8.2+xsa243/xen/arch/x86/mm/p2m-pod.c
-@@ -754,8 +754,10 @@ p2m_pod_zero_check_superpage(struct p2m_
+diff --git a/xen/arch/x86/mm/p2m-pod.c b/xen/arch/x86/mm/p2m-pod.c
+index 0e15290390..f4077a8391 100644
+--- a/xen/arch/x86/mm/p2m-pod.c
++++ b/xen/arch/x86/mm/p2m-pod.c
+@@ -754,8 +754,10 @@ p2m_pod_zero_check_superpage(struct p2m_domain *p2m, unsigned long gfn)
      }
  
      /* Try to remove the page, restoring old mapping if it fails. */
@@ -50,7 +55,7 @@ Reviewed-by: Jan Beulich <jbeulich@suse.com>
      p2m_tlb_flush_sync(p2m);
  
      /* Make none of the MFNs are used elsewhere... for example, mapped
-@@ -812,9 +814,18 @@ p2m_pod_zero_check_superpage(struct p2m_
+@@ -812,9 +814,18 @@ p2m_pod_zero_check_superpage(struct p2m_domain *p2m, unsigned long gfn)
      ret = SUPERPAGE_PAGES;
  
  out_reset:
@@ -72,7 +77,7 @@ Reviewed-by: Jan Beulich <jbeulich@suse.com>
  out:
      gfn_unlock(p2m, gfn, SUPERPAGE_ORDER);
      return ret;
-@@ -871,19 +882,30 @@ p2m_pod_zero_check(struct p2m_domain *p2
+@@ -871,19 +882,30 @@ p2m_pod_zero_check(struct p2m_domain *p2m, unsigned long *gfns, int count)
          }
  
          /* Try to remove the page, restoring old mapping if it fails. */
@@ -108,7 +113,7 @@ Reviewed-by: Jan Beulich <jbeulich@suse.com>
              continue;
          }
      }
-@@ -902,12 +924,25 @@ p2m_pod_zero_check(struct p2m_domain *p2
+@@ -902,12 +924,25 @@ p2m_pod_zero_check(struct p2m_domain *p2m, unsigned long *gfns, int count)
  
          unmap_domain_page(map[i]);
  
@@ -139,7 +144,7 @@ Reviewed-by: Jan Beulich <jbeulich@suse.com>
          }
          else
          {
-@@ -931,7 +966,17 @@ p2m_pod_zero_check(struct p2m_domain *p2
+@@ -931,7 +966,17 @@ p2m_pod_zero_check(struct p2m_domain *p2m, unsigned long *gfns, int count)
              p2m->pod.entry_count++;
          }
      }
@@ -158,3 +163,6 @@ Reviewed-by: Jan Beulich <jbeulich@suse.com>
  }
  
  #define POD_SWEEP_LIMIT 1024
+-- 
+2.11.0
+

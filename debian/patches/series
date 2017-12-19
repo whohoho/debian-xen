@@ -26,6 +26,12 @@ tools-xenmon-install.diff
 tools-xenstore-compatibility.diff
 ubuntu-tools-libs-abiname.diff
 toolstestsx86_emulator-pass--no-pie--fno.patch
-x86pod-prevent-infinite-loop-when-shatte.patch
-p2m-always-check-to-see-if-removing-a-p2.patch
-p2m-check-return-value-of-p2m_set_entry-.patch
+
+security/0001-x86-pod-prevent-infinite-loop-when-shattering-large-.patch
+security/0002-p2m-Always-check-to-see-if-removing-a-p2m-entry-actu.patch
+security/0003-p2m-Check-return-value-of-p2m_set_entry-when-decreas.patch
+security/0004-x86-don-t-wrongly-trigger-linear-page-table-assertio.patch
+security/0005-x86-mm-don-t-wrongly-set-page-ownership.patch
+security/0006-x86-shadow-fix-refcount-overflow-check.patch
+security/0007-x86-shadow-fix-ref-counting-error-handling.patch
+security/0008-x86-paging-don-t-unconditionally-BUG-on-finding-SHAR.patch
