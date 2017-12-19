@@ -7,7 +7,7 @@ Subject: ubuntu-tools-libs-abiname
 
 --- a/tools/libs/call/Makefile
 +++ b/tools/libs/call/Makefile
-@@ -39,22 +39,22 @@ headers.chk: $(wildcard include/*.h)
+@@ -56,22 +56,22 @@ headers.chk: $(wildcard include/*.h)
  libxencall.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
  
@@ -35,20 +35,20 @@ Subject: ubuntu-tools-libs-abiname
 +	$(SYMLINK_SHLIB) libxencall-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)/libxencall-$(PACKAGE_VERSION).so.$(MAJOR)
 +	$(SYMLINK_SHLIB) libxencall-$(PACKAGE_VERSION).so.$(MAJOR) $(DESTDIR)$(libdir)/libxencall.so
  	$(INSTALL_DATA) include/xencall.h $(DESTDIR)$(includedir)
+ 	$(INSTALL_DATA) xencall.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
- .PHONY: TAGS
-@@ -64,7 +64,7 @@ TAGS:
+@@ -82,7 +82,7 @@ TAGS:
  .PHONY: clean
  clean:
  	rm -rf *.rpm $(LIB) *~ $(DEPS) $(LIB_OBJS) $(PIC_OBJS)
 -	rm -f libxencall.so.$(MAJOR).$(MINOR) libxencall.so.$(MAJOR)
 +	rm -f libxencall-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) libxencall-$(PACKAGE_VERSION).so.$(MAJOR)
  	rm -f headers.chk
+ 	rm -f xencall.pc
  
- .PHONY: distclean
 --- a/tools/libs/evtchn/Makefile
 +++ b/tools/libs/evtchn/Makefile
-@@ -39,22 +39,22 @@ headers.chk: $(wildcard include/*.h)
+@@ -55,22 +55,22 @@ headers.chk: $(wildcard include/*.h)
  libxenevtchn.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
  
@@ -76,20 +76,20 @@ Subject: ubuntu-tools-libs-abiname
 +	$(SYMLINK_SHLIB) libxenevtchn-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)/libxenevtchn-$(PACKAGE_VERSION).so.$(MAJOR)
 +	$(SYMLINK_SHLIB) libxenevtchn-$(PACKAGE_VERSION).so.$(MAJOR) $(DESTDIR)$(libdir)/libxenevtchn.so
  	$(INSTALL_DATA) include/xenevtchn.h $(DESTDIR)$(includedir)
+ 	$(INSTALL_DATA) xenevtchn.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
- .PHONY: TAGS
-@@ -64,7 +64,7 @@ TAGS:
+@@ -81,7 +81,7 @@ TAGS:
  .PHONY: clean
  clean:
  	rm -rf *.rpm $(LIB) *~ $(DEPS) $(LIB_OBJS) $(PIC_OBJS)
 -	rm -f libxenevtchn.so.$(MAJOR).$(MINOR) libxenevtchn.so.$(MAJOR)
 +	rm -f libxenevtchn-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) libxenevtchn-$(PACKAGE_VERSION).so.$(MAJOR)
  	rm -f headers.chk
+ 	rm -f xenevtchn.pc
  
- .PHONY: distclean
 --- a/tools/libs/foreignmemory/Makefile
 +++ b/tools/libs/foreignmemory/Makefile
-@@ -39,22 +39,22 @@ headers.chk: $(wildcard include/*.h)
+@@ -56,22 +56,22 @@ headers.chk: $(wildcard include/*.h)
  libxenforeignmemory.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
  
@@ -117,20 +117,20 @@ Subject: ubuntu-tools-libs-abiname
 +	$(SYMLINK_SHLIB) libxenforeignmemory-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)/libxenforeignmemory-$(PACKAGE_VERSION).so.$(MAJOR)
 +	$(SYMLINK_SHLIB) libxenforeignmemory-$(PACKAGE_VERSION).so.$(MAJOR) $(DESTDIR)$(libdir)/libxenforeignmemory.so
  	$(INSTALL_DATA) include/xenforeignmemory.h $(DESTDIR)$(includedir)
+ 	$(INSTALL_DATA) xenforeignmemory.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
- .PHONY: TAGS
-@@ -64,7 +64,7 @@ TAGS:
+@@ -82,7 +82,7 @@ TAGS:
  .PHONY: clean
  clean:
  	rm -rf *.rpm $(LIB) *~ $(DEPS) $(LIB_OBJS) $(PIC_OBJS)
 -	rm -f libxenforeignmemory.so.$(MAJOR).$(MINOR) libxenforeignmemory.so.$(MAJOR)
 +	rm -f libxenforeignmemory-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) libxenforeignmemory-$(PACKAGE_VERSION).so.$(MAJOR)
  	rm -f headers.chk
+ 	rm -f xenforeignmemory.pc
  
- .PHONY: distclean
 --- a/tools/libs/gnttab/Makefile
 +++ b/tools/libs/gnttab/Makefile
-@@ -41,22 +41,22 @@ headers.chk: $(wildcard include/*.h)
+@@ -58,22 +58,22 @@ headers.chk: $(wildcard include/*.h)
  libxengnttab.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
  
@@ -158,20 +158,20 @@ Subject: ubuntu-tools-libs-abiname
 +	$(SYMLINK_SHLIB) libxengnttab-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)/libxengnttab-$(PACKAGE_VERSION).so.$(MAJOR)
 +	$(SYMLINK_SHLIB) libxengnttab-$(PACKAGE_VERSION).so.$(MAJOR) $(DESTDIR)$(libdir)/libxengnttab.so
  	$(INSTALL_DATA) include/xengnttab.h $(DESTDIR)$(includedir)
+ 	$(INSTALL_DATA) xengnttab.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
- .PHONY: TAGS
-@@ -66,7 +66,7 @@ TAGS:
+@@ -84,7 +84,7 @@ TAGS:
  .PHONY: clean
  clean:
  	rm -rf *.rpm $(LIB) *~ $(DEPS) $(LIB_OBJS) $(PIC_OBJS)
 -	rm -f libxengnttab.so.$(MAJOR).$(MINOR) libxengnttab.so.$(MAJOR)
 +	rm -f libxengnttab-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) libxengnttab-$(PACKAGE_VERSION).so.$(MAJOR)
  	rm -f headers.chk
+ 	rm -f xengnttab.pc
  
- .PHONY: distclean
 --- a/tools/libs/toollog/Makefile
 +++ b/tools/libs/toollog/Makefile
-@@ -34,22 +34,22 @@ headers.chk: $(wildcard include/*.h)
+@@ -50,22 +50,22 @@ headers.chk: $(wildcard include/*.h)
  libxentoollog.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
  
@@ -199,14 +199,55 @@ Subject: ubuntu-tools-libs-abiname
 +	$(SYMLINK_SHLIB) libxentoollog-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)/libxentoollog-$(PACKAGE_VERSION).so.$(MAJOR)
 +	$(SYMLINK_SHLIB) libxentoollog-$(PACKAGE_VERSION).so.$(MAJOR) $(DESTDIR)$(libdir)/libxentoollog.so
  	$(INSTALL_DATA) include/xentoollog.h $(DESTDIR)$(includedir)
+ 	$(INSTALL_DATA) xentoollog.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
- .PHONY: TAGS
-@@ -59,7 +59,7 @@ TAGS:
+@@ -76,7 +76,7 @@ TAGS:
  .PHONY: clean
  clean:
  	rm -rf *.rpm $(LIB) *~ $(DEPS) $(LIB_OBJS) $(PIC_OBJS)
 -	rm -f libxentoollog.so.$(MAJOR).$(MINOR) libxentoollog.so.$(MAJOR)
 +	rm -f libxentoollog-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) libxentoollog-$(PACKAGE_VERSION).so.$(MAJOR)
  	rm -f headers.chk
+ 	rm -f xentoollog.pc
  
- .PHONY: distclean
+--- a/tools/libs/devicemodel/Makefile
++++ b/tools/libs/devicemodel/Makefile
+@@ -57,22 +57,22 @@ headers.chk: $(wildcard include/*.h)
+ libxendevicemodel.a: $(LIB_OBJS)
+ 	$(AR) rc $@ $^
+ 
+-libxendevicemodel.so: libxendevicemodel.so.$(MAJOR)
++libxendevicemodel.so: libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR)
+ 	$(SYMLINK_SHLIB) $< $@
+-libxendevicemodel.so.$(MAJOR): libxendevicemodel.so.$(MAJOR).$(MINOR)
++libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR): libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR)
+ 	$(SYMLINK_SHLIB) $< $@
+ 
+-libxendevicemodel.so.$(MAJOR).$(MINOR): $(PIC_OBJS) libxendevicemodel.map
+-	$(CC) $(LDFLAGS) $(PTHREAD_LDFLAGS) -Wl,$(SONAME_LDFLAG) -Wl,libxendevicemodel.so.$(MAJOR) $(SHLIB_LDFLAGS) -o $@ $(PIC_OBJS) $(LDLIBS_libxentoollog) $(LDLIBS_libxencall) $(APPEND_LDFLAGS)
++libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR): $(PIC_OBJS) libxendevicemodel.map
++	$(CC) $(LDFLAGS) $(PTHREAD_LDFLAGS) -Wl,$(SONAME_LDFLAG) -Wl,libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR) $(SHLIB_LDFLAGS) -o $@ $(PIC_OBJS) $(LDLIBS_libxentoollog) $(LDLIBS_libxencall) $(APPEND_LDFLAGS)
+ 
+ .PHONY: install
+ install: build
+ 	$(INSTALL_DIR) $(DESTDIR)$(libdir)
+ 	$(INSTALL_DIR) $(DESTDIR)$(includedir)
+-	$(INSTALL_SHLIB) libxendevicemodel.so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)
++	$(INSTALL_SHLIB) libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)
+ 	$(INSTALL_DATA) libxendevicemodel.a $(DESTDIR)$(libdir)
+-	$(SYMLINK_SHLIB) libxendevicemodel.so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)/libxendevicemodel.so.$(MAJOR)
+-	$(SYMLINK_SHLIB) libxendevicemodel.so.$(MAJOR) $(DESTDIR)$(libdir)/libxendevicemodel.so
++	$(SYMLINK_SHLIB) libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)/libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR)
++	$(SYMLINK_SHLIB) libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR) $(DESTDIR)$(libdir)/libxendevicemodel.so
+ 	$(INSTALL_DATA) include/xendevicemodel.h $(DESTDIR)$(includedir)
+ 	$(INSTALL_DATA) xendevicemodel.pc $(DESTDIR)$(PKG_INSTALLDIR)
+ 
+@@ -83,7 +83,7 @@ TAGS:
+ .PHONY: clean
+ clean:
+ 	rm -rf *.rpm $(LIB) *~ $(DEPS) $(LIB_OBJS) $(PIC_OBJS)
+-	rm -f libxendevicemodel.so.$(MAJOR).$(MINOR) libxendevicemodel.so.$(MAJOR)
++	rm -f libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR).$(MINOR) libxendevicemodel-$(PACKAGE_VERSION).so.$(MAJOR)
+ 	rm -f headers.chk
+ 	rm -f xendevicemodel.pc
+ 

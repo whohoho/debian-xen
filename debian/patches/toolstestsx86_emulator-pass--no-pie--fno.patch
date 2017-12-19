@@ -34,14 +34,14 @@ Signed-off-by: Ian Jackson <ian.jackson@citrix.com>
 
 --- a/tools/tests/x86_emulator/Makefile
 +++ b/tools/tests/x86_emulator/Makefile
-@@ -45,6 +45,10 @@ x86_emulate/x86_emulate.c x86_emulate/x8
+@@ -100,6 +100,10 @@ asm/%: asm ;
  
- HOSTCFLAGS += $(CFLAGS_xeninclude)
+ HOSTCFLAGS += $(CFLAGS_xeninclude) -I.
  
 +ifeq ($(XEN_TARGET_ARCH),x86_32)
 +HOSTCFLAGS += -no-pie -fno-pic
 +endif
 +
- x86_emulate.o: x86_emulate.c x86_emulate/x86_emulate.c x86_emulate/x86_emulate.h
- 	$(HOSTCC) $(HOSTCFLAGS) -c -g -o $@ $<
+ x86.h := asm/x86-vendors.h asm/x86-defns.h asm/msr-index.h
+ x86_emulate.h := x86_emulate.h x86_emulate/x86_emulate.h $(x86.h)
  

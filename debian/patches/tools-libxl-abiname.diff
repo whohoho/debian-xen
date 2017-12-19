@@ -3,7 +3,6 @@ Date: Sat, 5 Jul 2014 11:46:49 +0200
 Subject: tools-libxl-abiname.diff
 
 Patch-Name: tools-libxl-abiname.diff
-
 ---
 
 --- a/tools/libxl/Makefile
@@ -12,18 +11,45 @@ Patch-Name: tools-libxl-abiname.diff
  XEN_ROOT = $(CURDIR)/../..
  include $(XEN_ROOT)/tools/Rules.mk
  
--MAJOR = 4.8
+-MAJOR = 4.9
 -MINOR = 0
 -
--XLUMAJOR = 4.8
+-XLUMAJOR = 4.9
 -XLUMINOR = 0
 -
  CFLAGS += -Werror -Wno-format-zero-length -Wmissing-declarations \
  	-Wno-declaration-after-statement -Wformat-nonliteral
  CFLAGS += -I. -fPIC
-@@ -258,29 +252,23 @@ _libxl_type%.h _libxl_type%_json.h _libx
- 	$(call move-if-changed,__libxl_type$*_json.h,_libxl_type$*_json.h)
- 	$(call move-if-changed,__libxl_type$*.c,_libxl_type$*.c)
+@@ -189,12 +183,12 @@ SAVE_HELPER_OBJS = libxl_save_helper.o _
+ $(SAVE_HELPER_OBJS): CFLAGS += $(CFLAGS_libxenctrl) $(CFLAGS_libxenevtchn)
+ 
+ PKG_CONFIG = xenlight.pc xlutil.pc
+-PKG_CONFIG_VERSION := $(MAJOR).$(MINOR)
++PKG_CONFIG_VERSION := $(PACKAGE_VERSION)
+ 
+ ifneq ($(CONFIG_LIBXC_MINIOS),y)
+ PKG_CONFIG_INST := $(PKG_CONFIG)
+-xenlight.pc: PKG_CONFIG_VERSION = $(MAJOR).$(MINOR)
+-xlutil.pc: PKG_CONFIG_VERSION = $(XLUMAJOR).$(XLUMINOR)
++xenlight.pc: PKG_CONFIG_VERSION = $(PACKAGE_VERSION)
++xlutil.pc: PKG_CONFIG_VERSION = $(PACKAGE_VERSION)
+ $(PKG_CONFIG_INST): PKG_CONFIG_PREFIX = $(prefix)
+ $(PKG_CONFIG_INST): PKG_CONFIG_INCDIR = $(includedir)
+ $(PKG_CONFIG_INST): PKG_CONFIG_LIBDIR = $(libdir)
+@@ -202,8 +196,8 @@ endif
+ 
+ PKG_CONFIG_LOCAL := $(foreach pc,$(PKG_CONFIG),$(PKG_CONFIG_DIR)/$(pc))
+ 
+-$(PKG_CONFIG_DIR)/xenlight.pc: PKG_CONFIG_VERSION = $(MAJOR).$(MINOR)
+-$(PKG_CONFIG_DIR)/xlutil.pc: PKG_CONFIG_VERSION = $(XLUMAJOR).$(XLUMINOR)
++$(PKG_CONFIG_DIR)/xenlight.pc: PKG_CONFIG_VERSION = $(PACKAGE_VERSION)
++$(PKG_CONFIG_DIR)/xlutil.pc: PKG_CONFIG_VERSION = $(PACKAGE_VERSION)
+ $(PKG_CONFIG_LOCAL): PKG_CONFIG_PREFIX = $(XEN_ROOT)
+ $(PKG_CONFIG_LOCAL): PKG_CONFIG_INCDIR = $(CURDIR)
+ $(PKG_CONFIG_LOCAL): PKG_CONFIG_LIBDIR = $(CURDIR)
+@@ -273,29 +267,23 @@ _libxl_type%.h _libxl_type%_json.h _libx
+ 	$(call move-if-changed,__libxl_type$(stem)_json.h,_libxl_type$(stem)_json.h)
+ 	$(call move-if-changed,__libxl_type$(stem).c,_libxl_type$(stem).c)
  
 -libxenlight.so: libxenlight.so.$(MAJOR)
 -	$(SYMLINK_SHLIB) $< $@
@@ -58,18 +84,9 @@ Patch-Name: tools-libxl-abiname.diff
  
  libxlutil.a: $(LIBXLU_OBJS)
  	$(AR) rcs libxlutil.a $^
-@@ -298,7 +286,7 @@ testidl: testidl.o libxlutil.so libxenli
- 	$(CC) $(LDFLAGS) -o $@ testidl.o libxlutil.so $(LDLIBS_libxenlight) $(LDLIBS_libxentoollog) $(APPEND_LDFLAGS)
- 
- $(PKG_CONFIG): % : %.in Makefile
--	@sed -e 's/@@version@@/$(MAJOR).$(MINOR)/g' < $< > $@.new
-+	@sed -e 's/@@version@@/$(PACKAGE_VERSION)/g' < $< > $@.new
- 	@mv -f $@.new $@
- 
- .PHONY: install
-@@ -311,13 +299,11 @@ install: all
- 	$(INSTALL_DIR) $(DESTDIR)$(PKG_INSTALLDIR)
- 	$(INSTALL_PROG) xl $(DESTDIR)$(sbindir)
+@@ -315,13 +303,11 @@ install: all
+ 	$(INSTALL_DIR) $(DESTDIR)$(includedir)
+ 	$(INSTALL_DIR) $(DESTDIR)$(LIBEXEC_BIN)
  	$(INSTALL_PROG) libxl-save-helper $(DESTDIR)$(LIBEXEC_BIN)
 -	$(INSTALL_SHLIB) libxenlight.so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)
 -	$(SYMLINK_SHLIB) libxenlight.so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)/libxenlight.so.$(MAJOR)
@@ -84,4 +101,4 @@ Patch-Name: tools-libxl-abiname.diff
 +	$(SYMLINK_SHLIB) libxlutil-$(PACKAGE_VERSION).so $(DESTDIR)$(libdir)/libxlutil.so
  	$(INSTALL_DATA) libxlutil.a $(DESTDIR)$(libdir)
  	$(INSTALL_DATA) libxl.h libxl_event.h libxl_json.h _libxl_types.h _libxl_types_json.h _libxl_list.h libxl_utils.h libxl_uuid.h libxlutil.h $(DESTDIR)$(includedir)
- 	$(INSTALL_DATA) bash-completion $(DESTDIR)$(BASH_COMPLETION_DIR)/xl.sh
+ 	$(INSTALL_DATA) xenlight.pc $(DESTDIR)$(PKG_INSTALLDIR)

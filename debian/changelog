@@ -1,3 +1,21 @@
+xen (4.9.2~pre+1.32e364c4e7-1) UNRELEASED; urgency=medium
+
+  * Update to upstream release 4.9.1 plus latest security patches. This is
+    upstream commit 32e364c4e72157f144574796ac9ea021e3417d47
+  * Merge changes for 4.9 from the ubuntu packaging:
+    - Rebase patches against upstream source (line numbers etc).
+    - debian/rules.real:
+      - Add a call to build common tool headers.
+      - Add a call to install common tool headers.
+    - debian/libxen-dev.install, d/p/ubuntu-tools-libs-abiname.diff:
+      - Add additional modifications for new libxendevicemodel.
+    - debian/patches/tools-fake-xs-restrict.patch:
+      - Re-introduce (fake) xs_restrict call to keep libxenstore version at
+        3.0 for now.
+    - debian/libxenstore3.0.symbols: add xs_control_command
+
+ -- Hans van Kranenburg <hans@knorrie.org>  Tue, 19 Dec 2017 18:44:47 +0100
+
 xen (4.8.2+xsa245-0+deb9u1) stretch-security; urgency=high
 
   * Update to upstream stable 4.8 branch, which is currently at Xen 4.8.2

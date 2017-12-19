@@ -18,6 +18,8 @@ usr/lib/*/libxengnttab.a
 usr/lib/*/libxengnttab.so
 usr/lib/*/libxentoollog.a
 usr/lib/*/libxentoollog.so
+usr/lib/*/libxendevicemodel.a
+usr/lib/*/libxendevicemodel.so
 usr/include/_libxl*.h
 usr/include/libxl*.h
 usr/include/xenctrl.h
@@ -25,6 +27,7 @@ usr/include/xenguest.h
 usr/include/xenstore*.h
 usr/include/xenstore-compat/xs* usr/include
 usr/include/xentoollog.h
+usr/include/xendevicemodel.h
 usr/include/xen
 usr/lib/*/pkgconfig/*.pc
 # New headers in xen-4.8

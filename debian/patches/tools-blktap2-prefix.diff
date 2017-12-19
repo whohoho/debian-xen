@@ -19,7 +19,7 @@ Patch-Name: tools-blktap2-prefix.diff
  
  IBIN               = tap-ctl
  
-@@ -38,39 +35,32 @@ OBJS = $(CTL_OBJS) tap-ctl.o
+@@ -38,11 +35,11 @@ OBJS = $(CTL_OBJS) tap-ctl.o
  PICS = $(CTL_PICS)
  
  LIB_STATIC = $(LIBNAME).a
@@ -27,9 +27,15 @@ Patch-Name: tools-blktap2-prefix.diff
 +LIB_SHARED = $(LIBNAME).so
  IBIN = tap-ctl
  
- all: build
+ PKG_CONFIG := xenblktapctl.pc
+-PKG_CONFIG_VERSION := $(MAJOR).$(MINOR)
++PKG_CONFIG_VERSION := $(PACKAGE_VERSION)
  
- build: $(IBIN) $(LIB_STATIC) $(LIB_SHARED)
+ ifneq ($(CONFIG_LIBXC_MINIOS),y)
+ PKG_CONFIG_INST := $(PKG_CONFIG)
+@@ -62,33 +59,26 @@ all: build
+ 
+ build: $(IBIN) $(LIB_STATIC) $(LIB_SHARED) $(PKG_CONFIG_INST) $(PKG_CONFIG_LOCAL)
  
 -$(LIBNAME).so: $(LIBSONAME)
 -	ln -sf $< $@
@@ -46,9 +52,9 @@ Patch-Name: tools-blktap2-prefix.diff
  
  $(LIB_SHARED): $(CTL_PICS)
 -	$(CC) $(LDFLAGS) -fPIC  -Wl,$(SONAME_LDFLAG) -Wl,$(LIBSONAME) $(SHLIB_LDFLAGS) -rdynamic $^ -o $@  $(APPEND_LDFLAGS)
-+	$(CC) $(LDFLAGS) -fPIC $(SHLIB_LDFLAGS) -rdynamic $^ -o $@ $(APPEND_LDFLAGS)
++	$(CC) $(LDFLAGS) -fPIC  $(SHLIB_LDFLAGS) -rdynamic $^ -o $@  $(APPEND_LDFLAGS)
  
- install: $(IBIN) $(LIB_STATIC) $(LIB_SHARED)
+ install: build
 -	$(INSTALL_DIR) -p $(DESTDIR)$(sbindir)
 -	$(INSTALL_PROG) $(IBIN) $(DESTDIR)$(sbindir)
 +	$(INSTALL_DIR) -p $(DESTDIR)$(libdir)
@@ -60,13 +66,14 @@ Patch-Name: tools-blktap2-prefix.diff
 -	ln -sf $(LIBSONAME) $(DESTDIR)$(libdir)/$(LIBNAME).so
 -	ln -sf $(LIB_SHARED) $(DESTDIR)$(libdir)/$(LIBSONAME)
 +	$(INSTALL_PROG) $(LIB_SHARED) $(DESTDIR)$(LIBEXEC_LIB)
+ 	$(INSTALL_DATA) xenblktapctl.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
  clean:
  	rm -f $(OBJS) $(PICS) $(DEPS) $(IBIN) $(LIB_STATIC) $(LIB_SHARED)
 -	rm -f $(LIBNAME).so $(LIBSONAME)
  	rm -f *~
+ 	rm -f xenblktapctl.pc
  
- distclean: clean
 --- a/tools/blktap2/vhd/Makefile
 +++ b/tools/blktap2/vhd/Makefile
 @@ -12,6 +12,7 @@ CFLAGS            += -Werror

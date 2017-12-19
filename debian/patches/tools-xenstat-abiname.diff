@@ -33,13 +33,22 @@ Patch-Name: tools-xenstat-abiname.diff
 @@ -38,7 +34,7 @@ LDLIBS-y = $(LDLIBS_libxenstore) $(LDLIB
  LDLIBS-$(CONFIG_SunOS) += -lkstat
  
+ PKG_CONFIG := xenstat.pc
+-PKG_CONFIG_VERSION := $(MAJOR).$(MINOR)
++PKG_CONFIG_VERSION := $(PACKAGE_VERSION)
+ 
+ ifneq ($(CONFIG_LIBXC_MINIOS),y)
+ PKG_CONFIG_INST := $(PKG_CONFIG)
+@@ -54,7 +50,7 @@ $(PKG_CONFIG_LOCAL): PKG_CONFIG_INCDIR =
+ $(PKG_CONFIG_LOCAL): PKG_CONFIG_LIBDIR = $(CURDIR)
+ 
  .PHONY: all
--all: $(LIB) $(SHLIB) $(SHLIB_LINKS)
-+all: $(LIB) $(SHLIB)
+-all: $(LIB) $(SHLIB) $(SHLIB_LINKS) $(PKG_CONFIG_INST) $(PKG_CONFIG_LOCAL)
++all: $(LIB) $(SHLIB) $(PKG_CONFIG_INST) $(PKG_CONFIG_LOCAL)
  
  $(OBJECTS-y): src/_paths.h
  
-@@ -50,19 +46,11 @@ $(SHLIB): $(OBJECTS-y)
+@@ -66,19 +62,11 @@ $(SHLIB): $(OBJECTS-y)
  	$(CC) $(LDFLAGS) $(SONAME_FLAGS) $(SHLIB_LDFLAGS) -o $@ \
  	    $(OBJECTS-y) $(LDLIBS-y) $(APPEND_LDFLAGS)
  
@@ -57,6 +66,6 @@ Patch-Name: tools-xenstat-abiname.diff
 -	ln -sf libxenstat.so.$(MAJOR).$(MINOR) $(DESTDIR)$(libdir)/libxenstat.so.$(MAJOR)
 -	ln -sf libxenstat.so.$(MAJOR) $(DESTDIR)$(libdir)/libxenstat.so
 +	$(INSTALL_PROG) src/libxenstat.so $(DESTDIR)$(libdir)
+ 	$(INSTALL_DATA) xenstat.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
  PYLIB=bindings/swig/python/_xenstat.so
- PYMOD=bindings/swig/python/xenstat.py
