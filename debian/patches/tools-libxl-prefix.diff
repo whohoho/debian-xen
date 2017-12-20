@@ -6,8 +6,8 @@ Patch-Name: tools-libxl-prefix.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/libxl/Makefile
-+++ xen-4.8.2+xsa243/tools/libxl/Makefile
+--- a/tools/libxl/Makefile
++++ b/tools/libxl/Makefile
 @@ -12,6 +12,8 @@ CFLAGS += -I. -fPIC
  ifeq ($(CONFIG_Linux),y)
  LIBUUID_LIBS += -luuid

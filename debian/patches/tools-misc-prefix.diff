@@ -6,8 +6,8 @@ Patch-Name: tools-misc-prefix.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/misc/Makefile
-+++ xen-4.8.2+xsa243/tools/misc/Makefile
+--- a/tools/misc/Makefile
++++ b/tools/misc/Makefile
 @@ -54,12 +54,8 @@ all build: $(TARGETS_BUILD)
  
  .PHONY: install

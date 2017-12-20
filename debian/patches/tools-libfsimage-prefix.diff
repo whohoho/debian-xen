@@ -6,8 +6,8 @@ Patch-Name: tools-libfsimage-prefix.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/libfsimage/Rules.mk
-+++ xen-4.8.2+xsa243/tools/libfsimage/Rules.mk
+--- a/tools/libfsimage/Rules.mk
++++ b/tools/libfsimage/Rules.mk
 @@ -3,10 +3,11 @@ include $(XEN_ROOT)/tools/Rules.mk
  CFLAGS += -Wno-unknown-pragmas -I$(XEN_ROOT)/tools/libfsimage/common/ -DFSIMAGE_FSDIR=\"$(FSDIR)\"
  CFLAGS += -Werror -D_GNU_SOURCE
@@ -21,8 +21,8 @@ Patch-Name: tools-libfsimage-prefix.diff
  
  FSLIB = fsimage.so
  
---- xen-4.8.2+xsa243.orig/tools/libfsimage/common/Makefile
-+++ xen-4.8.2+xsa243/tools/libfsimage/common/Makefile
+--- a/tools/libfsimage/common/Makefile
++++ b/tools/libfsimage/common/Makefile
 @@ -1,6 +1,8 @@
  XEN_ROOT = $(CURDIR)/../../..
  include $(XEN_ROOT)/tools/libfsimage/Rules.mk

@@ -6,8 +6,8 @@ Patch-Name: tools-rpath.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/Rules.mk
-+++ xen-4.8.2+xsa243/tools/Rules.mk
+--- a/tools/Rules.mk
++++ b/tools/Rules.mk
 @@ -9,6 +9,8 @@ include $(XEN_ROOT)/Config.mk
  export _INSTALL := $(INSTALL)
  INSTALL = $(XEN_ROOT)/tools/cross-install

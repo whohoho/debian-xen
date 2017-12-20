@@ -32,8 +32,8 @@ Signed-off-by: Ian Jackson <ian.jackson@citrix.com>
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/tests/x86_emulator/Makefile
-+++ xen-4.8.2+xsa243/tools/tests/x86_emulator/Makefile
+--- a/tools/tests/x86_emulator/Makefile
++++ b/tools/tests/x86_emulator/Makefile
 @@ -45,6 +45,10 @@ x86_emulate/x86_emulate.c x86_emulate/x8
  
  HOSTCFLAGS += $(CFLAGS_xeninclude)

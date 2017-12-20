@@ -6,8 +6,8 @@ Patch-Name: tools-xenpmd-prefix.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/xenpmd/Makefile
-+++ xen-4.8.2+xsa243/tools/xenpmd/Makefile
+--- a/tools/xenpmd/Makefile
++++ b/tools/xenpmd/Makefile
 @@ -11,8 +11,8 @@ all: xenpmd
  
  .PHONY: install

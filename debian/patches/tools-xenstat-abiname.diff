@@ -6,8 +6,8 @@ Patch-Name: tools-xenstat-abiname.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/xenstat/libxenstat/Makefile
-+++ xen-4.8.2+xsa243/tools/xenstat/libxenstat/Makefile
+--- a/tools/xenstat/libxenstat/Makefile
++++ b/tools/xenstat/libxenstat/Makefile
 @@ -18,18 +18,14 @@ include $(XEN_ROOT)/tools/Rules.mk
  LDCONFIG=ldconfig
  MAKE_LINK=ln -sf

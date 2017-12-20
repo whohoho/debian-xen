@@ -6,8 +6,8 @@ Patch-Name: tools-libxl-abiname.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/libxl/Makefile
-+++ xen-4.8.2+xsa243/tools/libxl/Makefile
+--- a/tools/libxl/Makefile
++++ b/tools/libxl/Makefile
 @@ -5,12 +5,6 @@
  XEN_ROOT = $(CURDIR)/../..
  include $(XEN_ROOT)/tools/Rules.mk

@@ -5,8 +5,8 @@ Subject: ubuntu-tools-libs-abiname
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/libs/call/Makefile
-+++ xen-4.8.2+xsa243/tools/libs/call/Makefile
+--- a/tools/libs/call/Makefile
++++ b/tools/libs/call/Makefile
 @@ -39,22 +39,22 @@ headers.chk: $(wildcard include/*.h)
  libxencall.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
@@ -46,8 +46,8 @@ Subject: ubuntu-tools-libs-abiname
  	rm -f headers.chk
  
  .PHONY: distclean
---- xen-4.8.2+xsa243.orig/tools/libs/evtchn/Makefile
-+++ xen-4.8.2+xsa243/tools/libs/evtchn/Makefile
+--- a/tools/libs/evtchn/Makefile
++++ b/tools/libs/evtchn/Makefile
 @@ -39,22 +39,22 @@ headers.chk: $(wildcard include/*.h)
  libxenevtchn.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
@@ -87,8 +87,8 @@ Subject: ubuntu-tools-libs-abiname
  	rm -f headers.chk
  
  .PHONY: distclean
---- xen-4.8.2+xsa243.orig/tools/libs/foreignmemory/Makefile
-+++ xen-4.8.2+xsa243/tools/libs/foreignmemory/Makefile
+--- a/tools/libs/foreignmemory/Makefile
++++ b/tools/libs/foreignmemory/Makefile
 @@ -39,22 +39,22 @@ headers.chk: $(wildcard include/*.h)
  libxenforeignmemory.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
@@ -128,8 +128,8 @@ Subject: ubuntu-tools-libs-abiname
  	rm -f headers.chk
  
  .PHONY: distclean
---- xen-4.8.2+xsa243.orig/tools/libs/gnttab/Makefile
-+++ xen-4.8.2+xsa243/tools/libs/gnttab/Makefile
+--- a/tools/libs/gnttab/Makefile
++++ b/tools/libs/gnttab/Makefile
 @@ -41,22 +41,22 @@ headers.chk: $(wildcard include/*.h)
  libxengnttab.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
@@ -169,8 +169,8 @@ Subject: ubuntu-tools-libs-abiname
  	rm -f headers.chk
  
  .PHONY: distclean
---- xen-4.8.2+xsa243.orig/tools/libs/toollog/Makefile
-+++ xen-4.8.2+xsa243/tools/libs/toollog/Makefile
+--- a/tools/libs/toollog/Makefile
++++ b/tools/libs/toollog/Makefile
 @@ -34,22 +34,22 @@ headers.chk: $(wildcard include/*.h)
  libxentoollog.a: $(LIB_OBJS)
  	$(AR) rc $@ $^

@@ -6,8 +6,8 @@ Patch-Name: tools-xenmon-install.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/xenmon/Makefile
-+++ xen-4.8.2+xsa243/tools/xenmon/Makefile
+--- a/tools/xenmon/Makefile
++++ b/tools/xenmon/Makefile
 @@ -13,6 +13,10 @@
  XEN_ROOT=$(CURDIR)/../..
  include $(XEN_ROOT)/tools/Rules.mk

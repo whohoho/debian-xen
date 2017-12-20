@@ -6,8 +6,8 @@ Patch-Name: tools-xentrace-prefix.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/xentrace/Makefile
-+++ xen-4.8.2+xsa243/tools/xentrace/Makefile
+--- a/tools/xentrace/Makefile
++++ b/tools/xentrace/Makefile
 @@ -8,6 +8,7 @@ CFLAGS += $(CFLAGS_libxenctrl)
  LDLIBS += $(LDLIBS_libxenevtchn)
  LDLIBS += $(LDLIBS_libxenctrl)

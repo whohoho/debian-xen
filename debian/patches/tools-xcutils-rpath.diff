@@ -6,8 +6,8 @@ Patch-Name: tools-xcutils-rpath.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/xcutils/Makefile
-+++ xen-4.8.2+xsa243/tools/xcutils/Makefile
+--- a/tools/xcutils/Makefile
++++ b/tools/xcutils/Makefile
 @@ -19,6 +19,8 @@ CFLAGS += -Werror
  CFLAGS_readnotes.o  := $(CFLAGS_libxenevtchn) $(CFLAGS_libxenctrl) $(CFLAGS_libxenguest) -I$(XEN_ROOT)/tools/libxc $(CFLAGS_libxencall)
  CFLAGS_lsevtchn.o   := $(CFLAGS_libxenevtchn) $(CFLAGS_libxenctrl)

@@ -6,8 +6,8 @@ Patch-Name: tools-xenstat-prefix.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/xenstat/libxenstat/Makefile
-+++ xen-4.8.2+xsa243/tools/xenstat/libxenstat/Makefile
+--- a/tools/xenstat/libxenstat/Makefile
++++ b/tools/xenstat/libxenstat/Makefile
 @@ -20,7 +20,7 @@ MAKE_LINK=ln -sf
  
  LIB=src/libxenstat.a
@@ -30,8 +30,8 @@ Patch-Name: tools-xenstat-prefix.diff
  
  PYLIB=bindings/swig/python/_xenstat.so
  PYMOD=bindings/swig/python/xenstat.py
---- xen-4.8.2+xsa243.orig/tools/xenstat/xentop/Makefile
-+++ xen-4.8.2+xsa243/tools/xenstat/xentop/Makefile
+--- a/tools/xenstat/xentop/Makefile
++++ b/tools/xenstat/xentop/Makefile
 @@ -19,7 +19,9 @@ all install xentop:
  else
  

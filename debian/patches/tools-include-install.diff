@@ -6,8 +6,8 @@ Patch-Name: tools-include-install.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/include/Makefile
-+++ xen-4.8.2+xsa243/tools/include/Makefile
+--- a/tools/include/Makefile
++++ b/tools/include/Makefile
 @@ -14,7 +14,6 @@ xen-foreign:
  xen/.dir:
  	@rm -rf xen

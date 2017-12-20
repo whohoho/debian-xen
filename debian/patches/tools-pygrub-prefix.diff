@@ -6,8 +6,8 @@ Patch-Name: tools-pygrub-prefix.diff
 
 ---
 
---- xen-4.8.2+xsa243.orig/tools/pygrub/Makefile
-+++ xen-4.8.2+xsa243/tools/pygrub/Makefile
+--- a/tools/pygrub/Makefile
++++ b/tools/pygrub/Makefile
 @@ -16,11 +16,6 @@ install: all
  	CC="$(CC)" CFLAGS="$(PY_CFLAGS)" LDFLAGS="$(PY_LDFLAGS)" $(PYTHON) \
  		setup.py install $(PYTHON_PREFIX_ARG) --root="$(DESTDIR)"  \
@@ -20,8 +20,8 @@ Patch-Name: tools-pygrub-prefix.diff
  
  .PHONY: clean
  clean:
---- xen-4.8.2+xsa243.orig/tools/pygrub/setup.py
-+++ xen-4.8.2+xsa243/tools/pygrub/setup.py
+--- a/tools/pygrub/setup.py
++++ b/tools/pygrub/setup.py
 @@ -4,11 +4,13 @@ import os
  import sys
  
@@ -36,8 +36,8 @@ Patch-Name: tools-pygrub-prefix.diff
      include_dirs = [ XEN_ROOT + "/tools/libfsimage/common/" ],
      library_dirs = [ XEN_ROOT + "/tools/libfsimage/common/" ],
      libraries = ["fsimage"],
---- xen-4.8.2+xsa243.orig/tools/pygrub/src/pygrub
-+++ xen-4.8.2+xsa243/tools/pygrub/src/pygrub
+--- a/tools/pygrub/src/pygrub
++++ b/tools/pygrub/src/pygrub
 @@ -21,6 +21,8 @@ import xen.lowlevel.xc
  import curses, _curses, curses.wrapper, curses.textpad, curses.ascii
  import getopt
