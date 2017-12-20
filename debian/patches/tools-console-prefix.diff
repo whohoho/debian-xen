@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:46:54 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj 4c7cc00207cb2cac7ef786652df95d85a923703b
 Subject: tools-console-prefix.diff
 
 Patch-Name: tools-console-prefix.diff

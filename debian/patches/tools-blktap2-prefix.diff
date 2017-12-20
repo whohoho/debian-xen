@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:46:53 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj 0159b73b9c47b35c4a6917fdea1004dded20e1f8
 Subject: tools-blktap2-prefix.diff
 
 Patch-Name: tools-blktap2-prefix.diff

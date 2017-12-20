@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:30 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj eae2c48fd40d1cdc627726980dc7bf44f3cdd7fc
 Subject: tools-include-install.diff
 
 Patch-Name: tools-include-install.diff

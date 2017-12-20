@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:14 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj 6de3ffde542ea38cec1846ed54b3abe0fcd6dcd3
 Subject: tools-xentrace-prefix.diff
 
 Patch-Name: tools-xentrace-prefix.diff

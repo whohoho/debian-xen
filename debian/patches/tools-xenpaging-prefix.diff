@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:08 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj 10d8b0b95dae3ac2aea2682b77cc4e68d6387560
 Subject: tools-xenpaging-prefix.diff
 
 Patch-Name: tools-xenpaging-prefix.diff

@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:01 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj be2729d17fb2b9d9651f1841ef0797506e96fb14
 Subject: tools-pygrub-prefix.diff
 
 Patch-Name: tools-pygrub-prefix.diff

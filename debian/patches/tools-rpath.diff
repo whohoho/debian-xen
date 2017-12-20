@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:46:51 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj 591afd0a98e287c614046121ea4c0620a94c0db0
 Subject: tools-rpath.diff
 
 Patch-Name: tools-rpath.diff

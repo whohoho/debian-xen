@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:02 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj ecf14c38c7e28151f5c195bb6029927e380e8f4f
 Subject: tools-python-prefix.diff
 
 Patch-Name: tools-python-prefix.diff

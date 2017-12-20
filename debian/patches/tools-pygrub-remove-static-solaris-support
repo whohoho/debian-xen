@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:29 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj b61ab328a81e6372628a45c85215231af20c07a7
 Subject: Remove static solaris support from pygrub
 
 Patch-Name: tools-pygrub-remove-static-solaris-support

@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:46:57 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj a06a5bb0d6c5a1790dc47c0e7e25d13f1f523bff
 Subject: tools-libxl-prefix.diff
 
 Patch-Name: tools-libxl-prefix.diff

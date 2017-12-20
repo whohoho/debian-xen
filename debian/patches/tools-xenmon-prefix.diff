@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:06 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj d6f16824c5d2bdff3067ca951bbf96c57f842656
 Subject: tools-xenmon-prefix.diff
 
 Patch-Name: tools-xenmon-prefix.diff

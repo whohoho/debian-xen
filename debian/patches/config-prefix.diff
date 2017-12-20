@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:46:45 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj aad02d1d6bad6b2baaa72b2703caae4d89f93d7d
 Subject: config-prefix.diff
 
 Patch-Name: config-prefix.diff

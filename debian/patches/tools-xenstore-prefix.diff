@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:12 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj 38cbba1595aacd084f3c066720860197cf515a7a
 Subject: tools-xenstore-prefix.diff
 
 Patch-Name: tools-xenstore-prefix.diff

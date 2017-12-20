@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:36 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj 45541c516337b27ba321a2a6a53c7a31eea96930
 Subject: tools-xenstore-compatibility.diff
 
 Patch-Name: tools-xenstore-compatibility.diff

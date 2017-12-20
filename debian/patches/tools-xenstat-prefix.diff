@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:09 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj 4f4c54df5da5d353d3d11ba73c5eb3bbdadbe4e2
 Subject: tools-xenstat-prefix.diff
 
 Patch-Name: tools-xenstat-prefix.diff

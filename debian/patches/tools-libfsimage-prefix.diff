@@ -1,6 +1,5 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:46:55 +0200
-X-Dgit-Generated: 4.8.2+xsa243-0+deb9u1~iwj b6a859a279f1f4c38444aadaf50442edf4921aa9
 Subject: tools-libfsimage-prefix.diff
 
 Patch-Name: tools-libfsimage-prefix.diff
