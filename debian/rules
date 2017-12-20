@@ -5,8 +5,11 @@
 
 include /usr/share/dpkg/default.mk
 
-SOURCE := $(shell dpkg-parsechangelog | sed -ne 's,^Source: *\(.*\)$$,\1,p')
-VERSION_BINNMU := $(shell echo "$(DEB_VERSION)" | sed -ne 's,.*\+b\(.*\)$$,\1,p')
+SHELL    := sh -e
+SOURCE := $(shell dpkg-parsechangelog -SSource)
+VERSION := $(shell dpkg-parsechangelog -SVersion)
+VERSION_UPSTREAM := $(shell echo "$(VERSION)" | sed -e 's,-[^-]*$$,,')
+VERSION_BINNMU := $(shell echo "$(VERSION)" | sed -rne 's,.*\+b([0-9]+)$$,\1,p')
 
 include debian/rules.defs
 
@@ -41,6 +44,22 @@ binary-arch:
 	$(MAKE) -f debian/rules.gen binary-arch_$(DEB_HOST_ARCH)
 
 binary:	binary-indep binary-arch
+
+DIR_ORIG = ../orig/$(SOURCE)-$(VERSION_UPSTREAM)
+TAR_ORIG_NAME = $(SOURCE)_$(VERSION_UPSTREAM).orig.tar.xz
+TAR_ORIG = $(firstword $(wildcard ../$(TAR_ORIG_NAME)) $(wildcard ../orig/$(TAR_ORIG_NAME)))
+
+orig: $(DIR_ORIG)
+	rsync --delete --exclude /debian --exclude .git -a $(DIR_ORIG)/ .
+	QUILT_PATCHES='$(CURDIR)/debian/patches' QUILT_PC=.pc quilt push --quiltrc - -a -q --fuzz=0
+
+$(DIR_ORIG):
+ifeq ($(TAR_ORIG),)
+	$(error Cannot find orig tarball $(TAR_ORIG_NAME))
+else
+	mkdir -p ../orig
+	tar -C ../orig -xaf $(TAR_ORIG)
+endif
 
 CONTROL_FILES += debian/changelog debian/bin/gencontrol.py $(wildcard debian/templates/*.in) 
 CONTROL_FILES += $(wildcard debian/arch/defines) $(wildcard debian/arch/*/defines)
