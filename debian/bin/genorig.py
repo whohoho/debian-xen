@@ -32,12 +32,20 @@ class Main(object):
         else:
             self.orig_dir = '%s-%s' % (self.source, self.version.upstream)
             self.orig_tar = '%s_%s.orig.tar.xz' % (self.source, self.version.upstream)
-            if options.tag is None:
-                options.tag = 'RELEASE-' + self.version.upstream
 
     def __call__(self):
         out = "../orig/%s" % self.orig_tar
         self.log("Generate tarball %s\n" % out)
+
+        if self.options.tag:
+            treeish = self.options.tag
+        else:
+            if self.changelog_entry.version.pre_commit:
+                treeish = self.changelog_entry.version.pre_commit
+            elif self.changelog_entry.version.rc_commit:
+                treeish = self.changelog_entry.version.rc_commit
+            else:
+                treeish = 'RELEASE-%s' % self.version.upstream
 
         try:
             os.stat(out)
@@ -46,8 +54,7 @@ class Main(object):
 
         try:
             with open(out, 'wb') as f:
-                tag = self.options.tag or 'HEAD'
-                _cmd = ('git', 'archive', '--prefix', '%s/' % self.orig_dir, tag)
+                _cmd = ('git', 'archive', '--prefix', '%s/' % self.orig_dir, treeish)
                 p1 = subprocess.Popen(_cmd, stdout=subprocess.PIPE, cwd=self.repo)
                 subprocess.check_call(('xz', ), stdin=p1.stdout, stdout=f)
                 if p1.wait():
