@@ -17,6 +17,7 @@ class Main(object):
 
     def __init__(self, options, repo):
         self.options = options
+        self.repo = repo
 
         self.changelog_entry = Changelog(version=VersionXen)[0]
         self.source = self.changelog_entry.source
@@ -46,7 +47,8 @@ class Main(object):
         try:
             with open(out, 'wb') as f:
                 tag = self.options.tag or 'HEAD'
-                p1 = subprocess.Popen(('git', 'archive', '--prefix', '%s/' % self.orig_dir, tag), stdout=subprocess.PIPE)
+                _cmd = ('git', 'archive', '--prefix', '%s/' % self.orig_dir, tag)
+                p1 = subprocess.Popen(_cmd, stdout=subprocess.PIPE, cwd=self.repo)
                 subprocess.check_call(('xz', ), stdin=p1.stdout, stdout=f)
                 if p1.wait():
                     raise RuntimeError
