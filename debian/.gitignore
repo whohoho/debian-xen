@@ -1,12 +1,10 @@
 __pycache__
-*.debhelper*
-*.substvars
 /build/
 /control
 /control.md5sum
 /files
 /libxen-*.*/
-!/libxen-dev.*
+!/libxen-dev.install
 /libxen-dev/
 /libxenstore3.0/
 /rules.gen
@@ -14,6 +12,9 @@ __pycache__
 /xen-hypervisor-*.*-*
 /xenstore-utils/
 /xen-system-*/
+/xen-utils-*.*/
 /xen-utils-*.*.*
 !/xen-utils-common.*
 /xen-utils-common/
+*.debhelper*
+*.substvars
