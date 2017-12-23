@@ -11,7 +11,6 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Multi-Arch: same
 Description: Xenstore communications library for Xen
  This package contains the client library interface to XenStore.
- .
 
 Package: libxen-dev
 Section: libdevel
