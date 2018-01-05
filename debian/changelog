@@ -1,3 +1,9 @@
+xen (4.10.0-1) UNRELEASED; urgency=medium
+
+  * Update to 4.10
+
+ -- Hans van Kranenburg <hans@knorrie.org>  Fri, 05 Jan 2018 21:14:38 +0100
+
 xen (4.9.2~pre+1.32e364c4e7-1) UNRELEASED; urgency=medium
 
   * Update to upstream release 4.9.1 plus latest security patches. This is
