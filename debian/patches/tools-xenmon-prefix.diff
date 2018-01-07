@@ -16,7 +16,7 @@ Patch-Name: tools-xenmon-prefix.diff
  
  SCRIPTS = xenmon.py
  
-@@ -29,10 +30,10 @@ build: xentrace_setmask xenbaked
+@@ -29,16 +30,16 @@ build: xentrace_setmask xenbaked
  
  .PHONY: install
  install: build
@@ -28,6 +28,15 @@ Patch-Name: tools-xenmon-prefix.diff
 +	$(INSTALL_PROG) xenbaked $(DESTDIR)$(LIBEXEC_BIN)/xenbaked
 +	$(INSTALL_PROG) xentrace_setmask  $(DESTDIR)$(LIBEXEC_BIN)/xentrace_setmask
 +	$(INSTALL_PROG) xenmon.py  $(DESTDIR)$(LIBEXEC_BIN)/xenmon.py
+ 
+ .PHONY: uninstall
+ uninstall:
+-	rm -f $(DESTDIR)$(sbindir)/xenbaked
+-	rm -f $(DESTDIR)$(sbindir)/xentrace_setmask
+-	rm -f $(DESTDIR)$(sbindir)/xenmon.py
++	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenbaked
++	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xentrace_setmask
++	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenmon.py
  
  .PHONY: clean
  clean:

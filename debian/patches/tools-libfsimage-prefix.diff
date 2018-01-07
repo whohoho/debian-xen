@@ -44,3 +44,12 @@ Patch-Name: tools-libfsimage-prefix.diff
  	$(INSTALL_DATA) fsimage.h $(DESTDIR)$(includedir)
  	$(INSTALL_DATA) fsimage_plugin.h $(DESTDIR)$(includedir)
  	$(INSTALL_DATA) fsimage_grub.h $(DESTDIR)$(includedir)
+@@ -31,7 +33,7 @@ uninstall:
+ 	rm -f $(DESTDIR)$(includedir)/fsimage_grub.h
+ 	rm -f $(DESTDIR)$(includedir)/fsimage_plugin.h
+ 	rm -f $(DESTDIR)$(includedir)/fsimage.h
+-	rm -f $(DESTDIR)$(libdir)/libfsimage.so
++	rm -f $(DESTDIR)$(LIBEXEC_LIB)/libfsimage.so
+ 
+ clean distclean::
+ 	rm -f $(LIB)

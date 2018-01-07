@@ -19,3 +19,12 @@ Patch-Name: tools-xenpmd-prefix.diff
  
  .PHONY: clean
  clean:
+@@ -23,7 +23,7 @@ distclean: clean
+ 
+ .PHONY: uninstall
+ uninstall:
+-	rm -f $(DESTDIR)$(sbindir)/xenpmd
++	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenpmd
+ 
+ xenpmd: xenpmd.o Makefile
+ 	$(CC) $(LDFLAGS) $< -o $@ $(LDLIBS) $(APPEND_LDFLAGS)

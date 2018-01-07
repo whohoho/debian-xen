@@ -11,16 +11,16 @@ Patch-Name: tools-libxl-abiname.diff
  XEN_ROOT = $(CURDIR)/../..
  include $(XEN_ROOT)/tools/Rules.mk
  
--MAJOR = 4.9
+-MAJOR = 4.10
 -MINOR = 0
 -
--XLUMAJOR = 4.9
+-XLUMAJOR = 4.10
 -XLUMINOR = 0
 -
  CFLAGS += -Werror -Wno-format-zero-length -Wmissing-declarations \
  	-Wno-declaration-after-statement -Wformat-nonliteral
  CFLAGS += -I. -fPIC
-@@ -189,12 +183,12 @@ SAVE_HELPER_OBJS = libxl_save_helper.o _
+@@ -190,12 +184,12 @@ SAVE_HELPER_OBJS = libxl_save_helper.o _
  $(SAVE_HELPER_OBJS): CFLAGS += $(CFLAGS_libxenctrl) $(CFLAGS_libxenevtchn)
  
  PKG_CONFIG = xenlight.pc xlutil.pc
@@ -36,7 +36,7 @@ Patch-Name: tools-libxl-abiname.diff
  $(PKG_CONFIG_INST): PKG_CONFIG_PREFIX = $(prefix)
  $(PKG_CONFIG_INST): PKG_CONFIG_INCDIR = $(includedir)
  $(PKG_CONFIG_INST): PKG_CONFIG_LIBDIR = $(libdir)
-@@ -202,8 +196,8 @@ endif
+@@ -203,8 +197,8 @@ endif
  
  PKG_CONFIG_LOCAL := $(foreach pc,$(PKG_CONFIG),$(PKG_CONFIG_DIR)/$(pc))
  
@@ -47,7 +47,7 @@ Patch-Name: tools-libxl-abiname.diff
  $(PKG_CONFIG_LOCAL): PKG_CONFIG_PREFIX = $(XEN_ROOT)
  $(PKG_CONFIG_LOCAL): PKG_CONFIG_INCDIR = $(CURDIR)
  $(PKG_CONFIG_LOCAL): PKG_CONFIG_LIBDIR = $(CURDIR)
-@@ -273,29 +267,23 @@ _libxl_type%.h _libxl_type%_json.h _libx
+@@ -274,29 +268,23 @@ _libxl_type%.h _libxl_type%_json.h _libx
  	$(call move-if-changed,__libxl_type$(stem)_json.h,_libxl_type$(stem)_json.h)
  	$(call move-if-changed,__libxl_type$(stem).c,_libxl_type$(stem).c)
  
@@ -84,7 +84,7 @@ Patch-Name: tools-libxl-abiname.diff
  
  libxlutil.a: $(LIBXLU_OBJS)
  	$(AR) rcs libxlutil.a $^
-@@ -315,13 +303,11 @@ install: all
+@@ -316,13 +304,11 @@ install: all
  	$(INSTALL_DIR) $(DESTDIR)$(includedir)
  	$(INSTALL_DIR) $(DESTDIR)$(LIBEXEC_BIN)
  	$(INSTALL_PROG) libxl-save-helper $(DESTDIR)$(LIBEXEC_BIN)
@@ -102,3 +102,18 @@ Patch-Name: tools-libxl-abiname.diff
  	$(INSTALL_DATA) libxlutil.a $(DESTDIR)$(libdir)
  	$(INSTALL_DATA) libxl.h libxl_event.h libxl_json.h _libxl_types.h _libxl_types_json.h _libxl_list.h libxl_utils.h libxl_uuid.h libxlutil.h $(DESTDIR)$(includedir)
  	$(INSTALL_DATA) xenlight.pc $(DESTDIR)$(PKG_INSTALLDIR)
+@@ -334,12 +320,10 @@ uninstall:
+ 	rm -f $(addprefix $(DESTDIR)$(includedir)/,libxl.h libxl_event.h libxl_json.h _libxl_types.h _libxl_types_json.h _libxl_list.h libxl_utils.h libxl_uuid.h libxlutil.h)
+ 	rm -f $(DESTDIR)$(libdir)/libxlutil.a
+ 	rm -f $(DESTDIR)$(libdir)/libxlutil.so
+-	rm -f $(DESTDIR)$(libdir)/libxlutil.so.$(XLUMAJOR)
+-	rm -f $(DESTDIR)$(libdir)/libxlutil.so.$(XLUMAJOR).$(XLUMINOR)
++	rm -f $(DESTDIR)$(libdir)/libxlutil-$(PACKAGE_VERSION).so
+ 	rm -f $(DESTDIR)$(libdir)/libxenlight.a
+ 	rm -f $(DESTDIR)$(libdir)/libxenlight.so
+-	rm -f $(DESTDIR)$(libdir)/libxenlight.so.$(MAJOR)
+-	rm -f $(DESTDIR)$(libdir)/libxenlight.so.$(MAJOR).$(MINOR)
++	rm -f $(DESTDIR)$(libdir)/libxenlight-$(PACKAGE_VERSION).so
+ 	rm -f $(DESTDIR)$(LIBEXEC_BIN)/libxl-save-helper
+ 
+ .PHONY: clean

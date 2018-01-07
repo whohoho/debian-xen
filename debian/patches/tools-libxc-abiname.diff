@@ -12,7 +12,7 @@ Patch-Name: tools-libxc-abiname.diff
  XEN_ROOT = $(CURDIR)/../..
  include $(XEN_ROOT)/tools/Rules.mk
  
--MAJOR    = 4.9
+-MAJOR    = 4.10
 -MINOR    = 0
 -
  ifeq ($(CONFIG_LIBXC_MINIOS),y)
@@ -62,7 +62,25 @@ Patch-Name: tools-libxc-abiname.diff
  	$(INSTALL_DATA) include/xenguest.h $(DESTDIR)$(includedir)
  	$(INSTALL_DATA) xencontrol.pc $(DESTDIR)$(PKG_INSTALLDIR)
  	$(INSTALL_DATA) xenguest.pc $(DESTDIR)$(PKG_INSTALLDIR)
-@@ -233,22 +228,18 @@ rpm: build
+@@ -208,15 +203,13 @@ uninstall:
+ 	rm -f $(DESTDIR)$(PKG_INSTALLDIR)/xenguest.pc
+ 	rm -f $(DESTDIR)$(includedir)/xenguest.h
+ 	rm -f $(DESTDIR)$(libdir)/libxenguest.so
+-	rm -f $(DESTDIR)$(libdir)/libxenguest.so.$(MAJOR)
+-	rm -f $(DESTDIR)$(libdir)/libxenguest.so.$(MAJOR).$(MINOR)
++	rm -f $(DESTDIR)$(libdir)/libxenguest-$(PACKAGE_VERSION).so
+ 	rm -f $(DESTDIR)$(libdir)/libxenguest.a
+ 	rm -f $(DESTDIR)$(PKG_INSTALLDIR)/xencontrol.pc
+ 	rm -f $(DESTDIR)$(includedir)/xenctrl.h
+ 	rm -f $(DESTDIR)$(includedir)/xenctrl_compat.h
+ 	rm -f $(DESTDIR)$(libdir)/libxenctrl.so
+-	rm -f $(DESTDIR)$(libdir)/libxenctrl.so.$(MAJOR)
+-	rm -f $(DESTDIR)$(libdir)/libxenctrl.so.$(MAJOR).$(MINOR)
++	rm -f $(DESTDIR)$(libdir)/libxenctrl-$(PACKAGE_VERSION).so
+ 	rm -f $(DESTDIR)$(libdir)/libxenctrl.a
+ 
+ .PHONY: TAGS
+@@ -249,22 +242,18 @@ rpm: build
  libxenctrl.a: $(CTRL_LIB_OBJS)
  	$(AR) rc $@ $^
  
@@ -89,7 +107,7 @@ Patch-Name: tools-libxc-abiname.diff
  	$(SYMLINK_SHLIB) $< $@
  
  ifeq ($(CONFIG_MiniOS),y)
-@@ -260,9 +251,9 @@ endif
+@@ -276,9 +265,9 @@ endif
  xc_dom_bzimageloader.o: CFLAGS += $(filter -D%,$(zlib-options))
  xc_dom_bzimageloader.opic: CFLAGS += $(filter -D%,$(zlib-options))
  
@@ -100,5 +118,5 @@ Patch-Name: tools-libxc-abiname.diff
 +libxenguest-$(PACKAGE_VERSION).so: $(GUEST_PIC_OBJS) libxenctrl-$(PACKAGE_VERSION).so
 +	$(CC) $(LDFLAGS) -Wl,$(SONAME_LDFLAG),$@ $(SHLIB_LDFLAGS) -o $@ $(GUEST_PIC_OBJS) $(COMPRESSION_LIBS) -lz $(LDLIBS_libxenevtchn) $(LDLIBS_libxenctrl) $(PTHREAD_LIBS) $(APPEND_LDFLAGS)
  
- -include $(DEPS)
+ -include $(DEPS_INCLUDE)
  

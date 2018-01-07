@@ -19,7 +19,7 @@ Patch-Name: tools-xenstore-prefix.diff
  install: all
 --- a/tools/xenstore/Makefile
 +++ b/tools/xenstore/Makefile
-@@ -20,6 +20,8 @@ LDFLAGS-$(CONFIG_SYSTEMD) += $(SYSTEMD_L
+@@ -21,6 +21,8 @@ LDFLAGS-$(CONFIG_SYSTEMD) += $(SYSTEMD_L
  CFLAGS  += $(CFLAGS-y)
  LDFLAGS += $(LDFLAGS-y)
  
@@ -28,7 +28,7 @@ Patch-Name: tools-xenstore-prefix.diff
  CLIENTS := xenstore-exists xenstore-list xenstore-read xenstore-rm xenstore-chmod
  CLIENTS += xenstore-write xenstore-ls xenstore-watch
  
-@@ -76,7 +78,7 @@ endif
+@@ -77,7 +79,7 @@ endif
  $(XENSTORED_OBJS): CFLAGS += $(CFLAGS_libxengnttab)
  
  xenstored: $(XENSTORED_OBJS)
@@ -37,7 +37,7 @@ Patch-Name: tools-xenstore-prefix.diff
  
  xenstored.a: $(XENSTORED_OBJS)
  	$(AR) cr $@ $^
-@@ -149,13 +151,13 @@ tarball: clean
+@@ -150,13 +152,13 @@ tarball: clean
  install: all
  	$(INSTALL_DIR) $(DESTDIR)$(bindir)
  	$(INSTALL_DIR) $(DESTDIR)$(includedir)
@@ -54,3 +54,15 @@ Patch-Name: tools-xenstore-prefix.diff
  	$(INSTALL_PROG) xenstore $(DESTDIR)$(bindir)
  	set -e ; for c in $(CLIENTS) ; do \
  		ln -f $(DESTDIR)$(bindir)/xenstore $(DESTDIR)$(bindir)/$${c} ; \
+@@ -189,9 +191,9 @@ uninstall:
+ 	rm -f $(DESTDIR)$(libdir)/libxenstore.so.$(MAJOR).$(MINOR)
+ 	rm -f $(addprefix $(DESTDIR)$(bindir)/, $(CLIENTS))
+ 	rm -f $(DESTDIR)$(bindir)/xenstore
+-	rm -f $(DESTDIR)$(bindir)/xenstore-control
++	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenstore-control
+ ifeq ($(XENSTORE_XENSTORED),y)
+-	rm -f $(DESTDIR)$(sbindir)/xenstored
++	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenstored
+ 	if [ -d $(DESTDIR)$(XEN_LIB_STORED) ]; then \
+ 		rmdir --ignore-fail-on-non-empty $(DESTDIR)$(XEN_LIB_STORED); \
+ 	fi

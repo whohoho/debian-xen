@@ -48,7 +48,7 @@ Patch-Name: tools-xenstat-abiname.diff
  
  $(OBJECTS-y): src/_paths.h
  
-@@ -66,19 +62,11 @@ $(SHLIB): $(OBJECTS-y)
+@@ -66,27 +62,17 @@ $(SHLIB): $(OBJECTS-y)
  	$(CC) $(LDFLAGS) $(SONAME_FLAGS) $(SHLIB_LDFLAGS) -o $@ \
  	    $(OBJECTS-y) $(LDLIBS-y) $(APPEND_LDFLAGS)
  
@@ -68,4 +68,12 @@ Patch-Name: tools-xenstat-abiname.diff
 +	$(INSTALL_PROG) src/libxenstat.so $(DESTDIR)$(libdir)
  	$(INSTALL_DATA) xenstat.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
- PYLIB=bindings/swig/python/_xenstat.so
+ .PHONY: uninstall
+ uninstall:
+ 	rm -f $(DESTDIR)$(PKG_INSTALLDIR)/xenstat.pc
+ 	rm -f $(DESTDIR)$(libdir)/libxenstat.so
+-	rm -f $(DESTDIR)$(libdir)/libxenstat.so.$(MAJOR)
+-	rm -f $(DESTDIR)$(libdir)/libxenstat.so.$(MAJOR).$(MINOR)
+ 	rm -f $(DESTDIR)$(libdir)/libxenstat.a
+ 	rm -f $(DESTDIR)$(includedir)/xenstat.h
+ 

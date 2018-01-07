@@ -1,4 +1,3 @@
-rerun-autogen.sh-stretch.patch
 version.diff
 config-prefix.diff
 tools-libfsimage-abiname.diff
