@@ -16,14 +16,20 @@ Patch-Name: tools-console-prefix.diff
  
  LDLIBS_xenconsoled += $(UTIL_LIBS)
  LDLIBS_xenconsoled += -lrt
-@@ -44,9 +45,7 @@ $(eval $(genpath-target))
+@@ -45,14 +46,13 @@ $(eval $(genpath-target))
  
  .PHONY: install
  install: $(BIN)
 -	$(INSTALL_DIR) $(DESTDIR)/$(sbindir)
 -	$(INSTALL_PROG) xenconsoled $(DESTDIR)/$(sbindir)
  	$(INSTALL_DIR) $(DESTDIR)$(LIBEXEC_BIN)
--	$(INSTALL_PROG) xenconsole $(DESTDIR)$(LIBEXEC_BIN)
-+	$(INSTALL_PROG) xenconsole xenconsoled $(DESTDIR)$(LIBEXEC_BIN)
+ 	$(INSTALL_PROG) xenconsole $(DESTDIR)$(LIBEXEC_BIN)
++	$(INSTALL_PROG) xenconsoled $(DESTDIR)$(LIBEXEC_BIN)
  
- -include $(DEPS)
+ .PHONY: uninstall
+ uninstall:
+ 	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenconsole
+-	rm -f $(DESTDIR)$(sbindir)/xenconsoled
++	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenconsoled
+ 
+ -include $(DEPS_INCLUDE)

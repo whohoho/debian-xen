@@ -38,7 +38,13 @@ Patch-Name: tools-libfsimage-abiname.diff
  	$(INSTALL_DATA) fsimage.h $(DESTDIR)$(includedir)
  	$(INSTALL_DATA) fsimage_plugin.h $(DESTDIR)$(includedir)
  	$(INSTALL_DATA) fsimage_grub.h $(DESTDIR)$(includedir)
-@@ -34,13 +29,8 @@ install: all
+@@ -37,19 +32,12 @@ uninstall:
+ 	rm -f $(DESTDIR)$(includedir)/fsimage_plugin.h
+ 	rm -f $(DESTDIR)$(includedir)/fsimage.h
+ 	rm -f $(DESTDIR)$(libdir)/libfsimage.so
+-	rm -f $(DESTDIR)$(libdir)/libfsimage.so.$(MAJOR)
+-	rm -f $(DESTDIR)$(libdir)/libfsimage.so.$(MAJOR).$(MINOR)
+ 
  clean distclean::
  	rm -f $(LIB)
  
@@ -52,5 +58,5 @@ Patch-Name: tools-libfsimage-abiname.diff
 +libfsimage.so: $(PIC_OBJS)
 +	$(CC) $(LDFLAGS) -Wl,$(SONAME_LDFLAG),$@ $(SHLIB_LDFLAGS) -o $@ $^ $(PTHREAD_LIBS) $(APPEND_LDFLAGS)
  
- -include $(DEPS)
+ -include $(DEPS_INCLUDE)
  

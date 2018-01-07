@@ -33,7 +33,7 @@ Patch-Name: version.diff
  include/asm-$(TARGET_ARCH)/asm-offsets.h: arch/$(TARGET_ARCH)/asm-offsets.s
 --- a/xen/common/kernel.c
 +++ b/xen/common/kernel.c
-@@ -270,8 +270,8 @@ DO(xen_version)(int cmd, XEN_GUEST_HANDL
+@@ -330,8 +330,8 @@ DO(xen_version)(int cmd, XEN_GUEST_HANDL
  
          memset(&info, 0, sizeof(info));
          safe_strcpy(info.compiler,       deny ? xen_deny() : xen_compiler());
@@ -91,7 +91,7 @@ Patch-Name: version.diff
      return "<denied>";
 --- a/xen/drivers/char/console.c
 +++ b/xen/drivers/char/console.c
-@@ -776,14 +776,11 @@ void __init console_init_preirq(void)
+@@ -783,14 +783,11 @@ void __init console_init_preirq(void)
      serial_set_rx_handler(sercon_handle, serial_rx);
  
      /* HELLO WORLD --- start-of-day banner text. */

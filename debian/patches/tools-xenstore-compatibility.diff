@@ -29,7 +29,7 @@ Patch-Name: tools-xenstore-compatibility.diff
  again:
 --- a/tools/xenstore/xs.c
 +++ b/tools/xenstore/xs.c
-@@ -281,17 +281,19 @@ struct xs_handle *xs_daemon_open_readonl
+@@ -301,17 +301,19 @@ struct xs_handle *xs_daemon_open_readonl
  
  struct xs_handle *xs_domain_open(void)
  {

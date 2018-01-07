@@ -33,7 +33,7 @@ Patch-Name: tools-blktap2-prefix.diff
  
  ifneq ($(CONFIG_LIBXC_MINIOS),y)
  PKG_CONFIG_INST := $(PKG_CONFIG)
-@@ -62,33 +59,26 @@ all: build
+@@ -62,43 +59,34 @@ all: build
  
  build: $(IBIN) $(LIB_STATIC) $(LIB_SHARED) $(PKG_CONFIG_INST) $(PKG_CONFIG_LOCAL)
  
@@ -69,10 +69,22 @@ Patch-Name: tools-blktap2-prefix.diff
  	$(INSTALL_DATA) xenblktapctl.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
  clean:
- 	rm -f $(OBJS) $(PICS) $(DEPS) $(IBIN) $(LIB_STATIC) $(LIB_SHARED)
+ 	rm -f $(OBJS) $(PICS) $(DEPS_RM) $(IBIN) $(LIB_STATIC) $(LIB_SHARED)
 -	rm -f $(LIBNAME).so $(LIBSONAME)
  	rm -f *~
  	rm -f xenblktapctl.pc
+ 
+ uninstall:
+ 	rm -f $(DESTDIR)$(PKG_INSTALLDIR)/xenblktapctl.pc
+-	rm -f $(DESTDIR)$(libdir)/$(LIBSONAME)
+-	rm -f $(DESTDIR)$(libdir)/$(LIBNAME).so
+-	rm -f $(addprefix $(DESTDIR)$(libdir)/, $(LIB_SHARED))
++	rm -f $(addprefix $(DESTDIR)$(LIBEXEC_LIB)/, $(LIB_SHARED))
+ 	rm -f $(addprefix $(DESTDIR)$(libdir)/, $(LIB_STATIC))
+-	rm -f $(addprefix $(DESTDIR)$(sbindir)/, $(IBIN))
++	rm -f $(addprefix $(DESTDIR)$(LIBEXEC_BIN)/, $(IBIN))
+ 
+ distclean: clean
  
 --- a/tools/blktap2/vhd/Makefile
 +++ b/tools/blktap2/vhd/Makefile
@@ -114,7 +126,7 @@ Patch-Name: tools-blktap2-prefix.diff
  
  ifeq ($(CONFIG_LIBICONV),y)
  LIBS            += -liconv
-@@ -50,27 +44,22 @@ LIB-OBJS        += $(LVM-UTIL-OBJ)
+@@ -50,33 +44,26 @@ LIB-OBJS        += $(LVM-UTIL-OBJ)
  
  LIB-PICOBJS      = $(patsubst %.o,%.opic,$(LIB-OBJS))
  
@@ -147,5 +159,13 @@ Patch-Name: tools-blktap2-prefix.diff
 +	$(INSTALL_DATA) libvhd.a $(DESTDIR)$(libdir)
 +	$(INSTALL_PROG) libvhd.so $(DESTDIR)$(libdir)
  
+ uninstall:
+-	rm -f $(DESTDIR)$(INST-DIR)/libvhd.so
+-	rm -f $(DESTDIR)$(INST-DIR)/libvhd.so.$(LIBVHD-MAJOR)
+-	rm -f $(DESTDIR)$(INST-DIR)/libvhd.so.$(LIBVHD-MAJOR).$(LIBVHD-MINOR)
+-	rm -f $(DESTDIR)$(INST-DIR)/libvhd.a
++	rm -f $(DESTDIR)$(libdir)/libvhd.so
++	rm -f $(DESTDIR)$(libdir)/libvhd.a
+ 
  clean:
- 	rm -rf *.a *.so* *.o *.opic *~ $(DEPS) $(LIBVHD)
+ 	rm -rf *.a *.so* *.o *.opic *~ $(DEPS_RM) $(LIBVHD)
