@@ -9,7 +9,7 @@ class VersionXen(Version):
     \d+\.\d+
 )
 (?:
-    \.\d+
+    \.\d+\+xsa245
     (?:
         ~rc\d+
     )?
