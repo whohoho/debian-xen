@@ -207,7 +207,7 @@ install-libxenstore_$(ARCH): $(STAMPS_DIR)/install-utils_$(ARCH)
 	dh_install --sourcedir=$(DIR)
 	dh_strip
 	dh_makeshlibs -V
-	dh_shlibdeps
+	#dh_shlibdeps
 	+$(MAKE_SELF) install-base
 
 install-utils_$(ARCH): SOURCE_DIR = $(BUILD_DIR)/build-utils_$(ARCH)
