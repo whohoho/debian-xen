@@ -20,6 +20,7 @@ directory, somewhere else!):
     -$ git clone https://xenbits.xen.org/git-http/xen.git
 
 After cloning it, do:
+    -$ mkdir -p ../orig/
     -$ debian/bin/genorig.py /path/to/xen/repo
 
 Based on the version number in the newest debian/changelog entry, a release tag
