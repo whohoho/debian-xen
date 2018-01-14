@@ -66,6 +66,19 @@ index c7bfb61eb4..81dbe9f6f3 100644
  
  [Install]
  WantedBy=multi-user.target
+diff --git a/tools/hotplug/Linux/systemd/xen-qemu-dom0-disk-backend.service.in b/tools/hotplug/Linux/systemd/xen-qemu-dom0-disk-backend.service.in
+index f56775bc87..f42c51beaf 100644
+--- a/tools/hotplug/Linux/systemd/xen-qemu-dom0-disk-backend.service.in
++++ b/tools/hotplug/Linux/systemd/xen-qemu-dom0-disk-backend.service.in
+@@ -11,7 +11,7 @@ Type=simple
+ PIDFile=@XEN_RUN_DIR@/qemu-dom0.pid
+ ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
+ ExecStartPre=/bin/mkdir -p @XEN_RUN_DIR@
+-ExecStart=@qemu_xen_systemd@ -xen-domid 0 \
++ExecStart=@with_system_qemu@ -xen-domid 0 \
+        -xen-attach -name dom0 -nographic -M xenpv -daemonize \
+        -monitor /dev/null -serial /dev/null -parallel /dev/null \
+        -nodefaults -no-user-config \
 -- 
 2.11.0
 

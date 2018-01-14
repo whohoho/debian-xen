@@ -241,7 +241,21 @@ install-utils-common: $(STAMPS_DIR)/install-utils-common
 	dh_testroot
 	dh_prep
 	dh_install -X .svn --sourcedir=$(DIR)
-	dh_systemd_enable
+	dh_systemd_enable xenconsoled.service
+	dh_systemd_enable xendomains.service
+	dh_systemd_enable xendriverdomain.service
+	dh_systemd_enable xen-init-dom0.service
+	dh_systemd_enable xen-qemu-dom0-disk-backend.service
+	dh_systemd_enable xenstored.service
+	dh_systemd_enable xen-watchdog.service
+	dh_systemd_enable xen.service
+	dh_systemd_start --restart-after-upgrade xenconsoled.service
+	dh_systemd_start --restart-after-upgrade xendomains.service
+	dh_systemd_start --restart-after-upgrade xendriverdomain.service
+	dh_systemd_start --restart-after-upgrade xen-init-dom0.service
+	dh_systemd_start --restart-after-upgrade xen-qemu-dom0-disk-backend.service
+	dh_systemd_start --restart-after-upgrade xenstored.service
+	dh_systemd_start --restart-after-upgrade xen-watchdog.service
 	dh_installinit --name xen -- defaults 20 21
 	dh_installinit --name xendomains --no-start -- defaults 21 20
 	dh_installman \
