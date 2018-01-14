@@ -78,6 +78,8 @@ class Gencontrol(Base):
     def do_flavour_packages(self, packages, makefile, arch, featureset, flavour, vars, makeflags, extra):
         hypervisor = self.templates["control.hypervisor"]
         system_latest = self.templates["control.system.latest"]
+        driverdomain_latest = self.templates["control.driverdomain.latest"]
+
 
         if not 'desc' in vars:
             vars['desc'] = ''
@@ -85,6 +87,7 @@ class Gencontrol(Base):
         packages_own = []
         packages_own.extend(self.process_packages(hypervisor, vars))
         packages_dummy = self.process_packages(system_latest, vars)
+        packages_dummy = packages_dummy + self.process_packages(driverdomain_latest, vars)
 
         for package in packages_own + packages_dummy:
             name = package['Package']
