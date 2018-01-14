@@ -1,1 +1,4 @@
 usr/bin/xenstore-*
+/usr/lib/systemd/system/proc-xen.mount
+/usr/lib/systemd/system/var-lib-xenstored.mount
+
