@@ -15,7 +15,7 @@ index f42c51beaf..e0fc06257d 100644
  PIDFile=@XEN_RUN_DIR@/qemu-dom0.pid
  ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
  ExecStartPre=/bin/mkdir -p @XEN_RUN_DIR@
--ExecStart=@with_system_qemu@ -xen-domid 0 \
+-ExecStart=@qemu_xen_systemd@ -xen-domid 0 \
 +ExecStart=/usr/bin/qemu-system-i386 -xen-domid 0 \
  	-xen-attach -name dom0 -nographic -M xenpv -daemonize \
  	-monitor /dev/null -serial /dev/null -parallel /dev/null \
