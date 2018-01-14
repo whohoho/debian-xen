@@ -30,3 +30,4 @@ tools-xentoolcore-abiname.patch
 service-files-paths.patch
 service-files-alias.patch
 launch-xenstore-path-fix.patch
+qemu-path.patch
