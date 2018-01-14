@@ -1,0 +1,71 @@
+From 1e414b17fadd76d5fac1cf18c0645c8e5c89045c Mon Sep 17 00:00:00 2001
+From: hark <hark@puscii.nl>
+Date: Sun, 14 Jan 2018 06:51:19 +0000
+Subject: [PATCH 2/2] service file paths
+
+---
+ tools/hotplug/Linux/systemd/xen-init-dom0.service.in | 2 +-
+ tools/hotplug/Linux/systemd/xen-watchdog.service.in  | 2 +-
+ tools/hotplug/Linux/systemd/xenconsoled.service.in   | 2 +-
+ tools/hotplug/Linux/systemd/xendomains.service.in    | 6 +++---
+ 4 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/tools/hotplug/Linux/systemd/xen-init-dom0.service.in b/tools/hotplug/Linux/systemd/xen-init-dom0.service.in
+index 3befadcea3..c190fbcf25 100644
+--- a/tools/hotplug/Linux/systemd/xen-init-dom0.service.in
++++ b/tools/hotplug/Linux/systemd/xen-init-dom0.service.in
+@@ -8,7 +8,7 @@ ConditionPathExists=/proc/xen/capabilities
+ Type=oneshot
+ RemainAfterExit=true
+ ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
+-ExecStart=@LIBEXEC_BIN@/xen-init-dom0
++ExecStart=/usr/lib/xen-4.10/bin/xen-init-dom0
+ 
+ [Install]
+ WantedBy=multi-user.target
+diff --git a/tools/hotplug/Linux/systemd/xen-watchdog.service.in b/tools/hotplug/Linux/systemd/xen-watchdog.service.in
+index 1eecd2a616..e2f66f8068 100644
+--- a/tools/hotplug/Linux/systemd/xen-watchdog.service.in
++++ b/tools/hotplug/Linux/systemd/xen-watchdog.service.in
+@@ -6,7 +6,7 @@ ConditionPathExists=/proc/xen/capabilities
+ 
+ [Service]
+ Type=forking
+-ExecStart=@sbindir@/xenwatchdogd 30 15
++ExecStart=/usr/lib/xen-4.10/bin/xenwatchdogd 30 15
+ KillSignal=USR1
+ 
+ [Install]
+diff --git a/tools/hotplug/Linux/systemd/xenconsoled.service.in b/tools/hotplug/Linux/systemd/xenconsoled.service.in
+index 8e333b114e..207ffb0db8 100644
+--- a/tools/hotplug/Linux/systemd/xenconsoled.service.in
++++ b/tools/hotplug/Linux/systemd/xenconsoled.service.in
+@@ -12,7 +12,7 @@ Environment=XENCONSOLED_LOG_DIR=@XEN_LOG_DIR@/console
+ EnvironmentFile=@CONFIG_DIR@/@CONFIG_LEAF_DIR@/xencommons
+ ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
+ ExecStartPre=/bin/mkdir -p ${XENCONSOLED_LOG_DIR}
+-ExecStart=@sbindir@/xenconsoled -i --log=${XENCONSOLED_TRACE} --log-dir=${XENCONSOLED_LOG_DIR} $XENCONSOLED_ARGS
++ExecStart=/usr/lib/xen-4.10/bin/xenconsoled -i --log=${XENCONSOLED_TRACE} --log-dir=${XENCONSOLED_LOG_DIR} $XENCONSOLED_ARGS
+ 
+ [Install]
+ WantedBy=multi-user.target
+diff --git a/tools/hotplug/Linux/systemd/xendomains.service.in b/tools/hotplug/Linux/systemd/xendomains.service.in
+index c7bfb61eb4..81dbe9f6f3 100644
+--- a/tools/hotplug/Linux/systemd/xendomains.service.in
++++ b/tools/hotplug/Linux/systemd/xendomains.service.in
+@@ -11,9 +11,9 @@ Conflicts=libvirtd.service
+ Type=oneshot
+ RemainAfterExit=true
+ ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
+-ExecStart=-@LIBEXEC_BIN@/xendomains start
+-ExecStop=@LIBEXEC_BIN@/xendomains stop
+-ExecReload=@LIBEXEC_BIN@/xendomains restart
++ExecStart=-/usr/lib/xen-4.10/bin/xendomains start
++ExecStop=/usr/lib/xen-4.10/bin/xendomains stop
++ExecReload=/usr/lib/xen-4.10/bin/xendomains restart
+ 
+ [Install]
+ WantedBy=multi-user.target
+-- 
+2.11.0
+
