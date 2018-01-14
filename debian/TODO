@@ -1,0 +1,13 @@
+
+* watchdogd:
+Jan 14 06:06:20 router systemd[14029]: xen-watchdog.service: Failed at step EXEC spawning /usr/sbin/xenwatchdogd: No such file or directory
+
+* new xenstore
+
+XENSTORED=/usr/sbin/oxenstored
+[ -z "$XENSTORE_DOMAIN_KERNEL" ] && XENSTORE_DOMAIN_KERNEL=/usr/lib/xen/boot/xenstore-stubdom.gz
+
+* fix qemu init script:
+
+  ExecStart=/usr/lib/xen/bin/qemu-system-i386 -xen-domid 0 \
+

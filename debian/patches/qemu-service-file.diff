@@ -1,0 +1,25 @@
+From 7c07cf2adcfebc47905eff24de02d6344a28da34 Mon Sep 17 00:00:00 2001
+From: hark <hark@puscii.nl>
+Date: Sun, 14 Jan 2018 06:27:41 +0000
+Subject: [PATCH] system qemu
+
+---
+ tools/hotplug/Linux/systemd/xen-qemu-dom0-disk-backend.service.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/hotplug/Linux/systemd/xen-qemu-dom0-disk-backend.service.in b/tools/hotplug/Linux/systemd/xen-qemu-dom0-disk-backend.service.in
+index f56775bc87..f42c51beaf 100644
+--- a/tools/hotplug/Linux/systemd/xen-qemu-dom0-disk-backend.service.in
++++ b/tools/hotplug/Linux/systemd/xen-qemu-dom0-disk-backend.service.in
+@@ -11,7 +11,7 @@ Type=simple
+ PIDFile=@XEN_RUN_DIR@/qemu-dom0.pid
+ ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
+ ExecStartPre=/bin/mkdir -p @XEN_RUN_DIR@
+-ExecStart=@qemu_xen_systemd@ -xen-domid 0 \
++ExecStart=@with_system_qemu@ -xen-domid 0 \
+ 	-xen-attach -name dom0 -nographic -M xenpv -daemonize \
+ 	-monitor /dev/null -serial /dev/null -parallel /dev/null \
+ 	-nodefaults -no-user-config \
+-- 
+2.11.0
+

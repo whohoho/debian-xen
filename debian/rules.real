@@ -59,7 +59,7 @@ $(STAMPS_DIR)/setup-utils_$(ARCH):
 	cd $(DIR); \
 		WGET=/bin/false \
 		./configure \
-			--disable-docs --disable-stubdom --disable-xen \
+			--disable-docs --disable-xen \
 			--prefix=/usr \
 			--includedir=/usr/include \
 			--libdir=/usr/lib/$(DEB_HOST_MULTIARCH) \
@@ -70,7 +70,6 @@ $(STAMPS_DIR)/setup-utils_$(ARCH):
 			--with-libexec-leaf-dir=xen-$(VERSION) \
 			--disable-blktap1 \
 			--disable-blktap2 \
-			--disable-ocamltools \
 			--disable-qemu-traditional --disable-rombios \
 			--with-system-qemu=/usr/bin/qemu-system-i386 \
 			--with-system-seabios=/usr/share/seabios/bios-256k.bin

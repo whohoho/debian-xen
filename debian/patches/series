@@ -27,3 +27,4 @@ ubuntu-tools-libs-abiname.diff
 toolstestsx86_emulator-pass--no-pie--fno.patch
 tools-fake-xs-restrict.patch
 tools-xentoolcore-abiname.patch
+qemu-service-file.diff
