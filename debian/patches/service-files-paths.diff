@@ -19,7 +19,7 @@ index 3befadcea3..c190fbcf25 100644
  RemainAfterExit=true
  ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
 -ExecStart=@LIBEXEC_BIN@/xen-init-dom0
-+ExecStart=/usr/lib/xen-4.10/bin/xen-init-dom0
++ExecStart=/usr/lib/xen-@MAJOR@/bin/xen-init-dom0
  
  [Install]
  WantedBy=multi-user.target
@@ -32,7 +32,7 @@ index 1eecd2a616..e2f66f8068 100644
  [Service]
  Type=forking
 -ExecStart=@sbindir@/xenwatchdogd 30 15
-+ExecStart=/usr/lib/xen-4.10/bin/xenwatchdogd 30 15
++ExecStart=/usr/lib/xen-@MAJOR@/bin/xenwatchdogd 30 15
  KillSignal=USR1
  
  [Install]
@@ -45,7 +45,7 @@ index 8e333b114e..207ffb0db8 100644
  ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
  ExecStartPre=/bin/mkdir -p ${XENCONSOLED_LOG_DIR}
 -ExecStart=@sbindir@/xenconsoled -i --log=${XENCONSOLED_TRACE} --log-dir=${XENCONSOLED_LOG_DIR} $XENCONSOLED_ARGS
-+ExecStart=/usr/lib/xen-4.10/bin/xenconsoled -i --log=${XENCONSOLED_TRACE} --log-dir=${XENCONSOLED_LOG_DIR} $XENCONSOLED_ARGS
++ExecStart=/usr/lib/xen-@MAJOR@/bin/xenconsoled -i --log=${XENCONSOLED_TRACE} --log-dir=${XENCONSOLED_LOG_DIR} $XENCONSOLED_ARGS
  
  [Install]
  WantedBy=multi-user.target
@@ -60,9 +60,9 @@ index c7bfb61eb4..81dbe9f6f3 100644
 -ExecStart=-@LIBEXEC_BIN@/xendomains start
 -ExecStop=@LIBEXEC_BIN@/xendomains stop
 -ExecReload=@LIBEXEC_BIN@/xendomains restart
-+ExecStart=-/usr/lib/xen-4.10/bin/xendomains start
-+ExecStop=/usr/lib/xen-4.10/bin/xendomains stop
-+ExecReload=/usr/lib/xen-4.10/bin/xendomains restart
++ExecStart=-/usr/lib/xen-@MAJOR@/bin/xendomains start
++ExecStop=/usr/lib/xen-@MAJOR@/bin/xendomains stop
++ExecReload=/usr/lib/xen-@MAJOR@/bin/xendomains restart
  
  [Install]
  WantedBy=multi-user.target
