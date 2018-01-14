@@ -79,7 +79,7 @@ class Main(object):
             subprocess.call(('make', tar), cwd='../orig/%s/stubdom' % self.orig_dir)
 
         self.log("pack again \n" )
-        subprocess.call(('tar', '-cvf', out, self.orig_dir), cwd='../orig/')
+        subprocess.call(('tar','--xz','-cvf', out, self.orig_dir), cwd='../orig/')
 
         try:
             os.symlink(os.path.join('orig', self.orig_tar), os.path.join('..', self.orig_tar))
