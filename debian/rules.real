@@ -59,7 +59,7 @@ $(STAMPS_DIR)/setup-utils_$(ARCH):
 	cd $(DIR); \
 		WGET=/bin/false \
 		./configure \
-			--disable-docs --disable-xen \
+			--disable-docs --disable-stubdom --disable-xen \
 			--prefix=/usr \
 			--includedir=/usr/include \
 			--libdir=/usr/lib/$(DEB_HOST_MULTIARCH) \
@@ -70,6 +70,7 @@ $(STAMPS_DIR)/setup-utils_$(ARCH):
 			--with-libexec-leaf-dir=xen-$(VERSION) \
 			--disable-blktap1 \
 			--disable-blktap2 \
+			--disable-ocamltools \
 			--disable-qemu-traditional --disable-rombios \
 			--with-system-qemu=/usr/bin/qemu-system-i386 \
 			--with-system-seabios=/usr/share/seabios/bios-256k.bin
@@ -90,7 +91,6 @@ $(STAMPS_DIR)/build-hypervisor_$(ARCH)_$(FLAVOUR): $(STAMPS_DIR)/setup-hyperviso
 		XEN_COMPILE_ARCH=$(XEN_ARCH) \
 		XEN_TARGET_ARCH=$(XEN_ARCH) \
 		LANG=C.UTF-8
-
 	touch $@
 
 $(STAMPS_DIR)/build-utils_$(ARCH) \
@@ -109,11 +109,6 @@ $(STAMPS_DIR)/build-utils_$(ARCH): DIR=$(BUILD_DIR)/build-utils_$(ARCH)
 $(STAMPS_DIR)/build-utils_$(ARCH): $(STAMPS_DIR)/setup-utils_$(ARCH)
 	+$(MAKE_CLEAN) -C $(DIR) $(CONFIG) build-tools-public-headers
 	+$(MAKE_CLEAN) -C $(DIR)/tools $(CONFIG)
-	+$(MAKE_CLEAN) -C $(DIR)/stubdom \
-		XEN_COMPILE_ARCH=$(XEN_ARCH) \
-		XEN_TARGET_ARCH=$(XEN_ARCH) \
-		LANG=C.UTF-8 all
-
 	touch $@
 
 $(STAMPS_DIR)/install-utils_$(ARCH): DIR = $(BUILD_DIR)/build-utils_$(ARCH)
@@ -138,7 +133,6 @@ $(STAMPS_DIR)/install-utils-common: $(STAMPS_DIR)/build-docs
 	+$(MAKE_CLEAN) -C $(SOURCE_DIR)/tools/examples install-configs
 	+$(MAKE_CLEAN) -C $(SOURCE_DIR)/tools/hotplug/common install-scripts
 	+$(MAKE_CLEAN) -C $(SOURCE_DIR)/tools/hotplug/Linux install-scripts
-	+$(MAKE_CLEAN) -C $(SOURCE_DIR)/tools/hotplug/Linux/systemd install
 	+$(MAKE_CLEAN) -C debian/scripts install
 	touch $@
 
@@ -168,6 +162,10 @@ install-hypervisor_$(ARCH)_$(FLAVOUR): $(STAMPS_DIR)/build-hypervisor_$(ARCH)_$(
 	dh_testroot
 	dh_prep
 	dh_installdirs boot
+	# FIXME: Think of better solution (grub used for other arches?)
+	dh_installdirs etc/default/grub.d
+	install -D -m644 debian/xen-hypervisor-$(VERSION).xen.cfg \
+		debian/$(PACKAGE_NAME)/etc/default/grub.d/xen.cfg
 	dh_install debian/templates/xen-hypervisor.bug/* usr/share/bug/$(PACKAGE_NAME)
 	cp $(DIR)/xen/xen$(IMAGE_SUFFIX) debian/$(PACKAGE_NAME)/boot/xen-$(VERSION)-$(FLAVOUR)$(IMAGE_SUFFIX)
 ifeq ($(ARCH),amd64)
@@ -213,7 +211,7 @@ install-libxenstore_$(ARCH): $(STAMPS_DIR)/install-utils_$(ARCH)
 	dh_install --sourcedir=$(DIR)
 	dh_strip
 	dh_makeshlibs -V
-	#dh_shlibdeps
+	dh_shlibdeps
 	+$(MAKE_SELF) install-base
 
 install-utils_$(ARCH): SOURCE_DIR = $(BUILD_DIR)/build-utils_$(ARCH)
@@ -247,23 +245,10 @@ install-utils-common: $(STAMPS_DIR)/install-utils-common
 	dh_testroot
 	dh_prep
 	dh_install -X .svn --sourcedir=$(DIR)
-	dh_systemd_enable xenconsoled.service
-	dh_systemd_enable xendomains.service
-	dh_systemd_enable xendriverdomain.service
-	dh_systemd_enable xen-init-dom0.service
-	dh_systemd_enable xen-qemu-dom0-disk-backend.service
-	dh_systemd_enable xenstored.service
-	dh_systemd_enable xen-watchdog.service
-	dh_systemd_enable --name=xen xen.service
-	dh_systemd_start --restart-after-upgrade xenconsoled.service
-	dh_systemd_start --restart-after-upgrade xendomains.service
-	dh_systemd_start --restart-after-upgrade xendriverdomain.service
-	dh_systemd_start --restart-after-upgrade xen-init-dom0.service
-	dh_systemd_start --restart-after-upgrade xen-qemu-dom0-disk-backend.service
-	dh_systemd_start --restart-after-upgrade xenstored.service
-	dh_systemd_start --restart-after-upgrade xen-watchdog.service
-	dh_installinit --name xen -- defaults 20 21
-	dh_installinit --name xendomains --no-start -- defaults 21 20
+	dh_installinit --name xenstored --no-restart-on-upgrade -- defaults 20 22
+	dh_installinit --name xen -- defaults 21 21
+	dh_installinit --name xend
+	dh_installinit --name xendomains --no-start -- defaults 22 20
 	dh_installman \
 		$(SOURCE_DIR)/docs/man1/* \
 		$(SOURCE_DIR)/docs/man5/* \
@@ -283,7 +268,6 @@ install-xenstore-utils_$(ARCH): $(STAMPS_DIR)/install-utils_$(ARCH) install-libx
 	dh_install --sourcedir=$(DIR)
 	dh_strip
 	dh_shlibdeps
-	dh_systemd_enable
 	+$(MAKE_SELF) install-base
 
 # vim: filetype=make

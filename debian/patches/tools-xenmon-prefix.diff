@@ -1,13 +1,14 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:06 +0200
+X-Dgit-Generated: 4.8.1-1 3c1dc49f92bcdb9e031a419f3c0014b57fcb96a9
 Subject: tools-xenmon-prefix.diff
 
 Patch-Name: tools-xenmon-prefix.diff
 
 ---
 
---- a/tools/xenmon/Makefile
-+++ b/tools/xenmon/Makefile
+--- xen-4.8.0.orig/tools/xenmon/Makefile
++++ xen-4.8.0/tools/xenmon/Makefile
 @@ -18,6 +18,7 @@ CFLAGS  += $(CFLAGS_libxenevtchn)
  CFLAGS  += $(CFLAGS_libxenctrl)
  LDLIBS  += $(LDLIBS_libxenctrl)
@@ -16,7 +17,7 @@ Patch-Name: tools-xenmon-prefix.diff
  
  SCRIPTS = xenmon.py
  
-@@ -29,16 +30,16 @@ build: xentrace_setmask xenbaked
+@@ -29,10 +30,10 @@ build: xentrace_setmask xenbaked
  
  .PHONY: install
  install: build
@@ -28,15 +29,6 @@ Patch-Name: tools-xenmon-prefix.diff
 +	$(INSTALL_PROG) xenbaked $(DESTDIR)$(LIBEXEC_BIN)/xenbaked
 +	$(INSTALL_PROG) xentrace_setmask  $(DESTDIR)$(LIBEXEC_BIN)/xentrace_setmask
 +	$(INSTALL_PROG) xenmon.py  $(DESTDIR)$(LIBEXEC_BIN)/xenmon.py
- 
- .PHONY: uninstall
- uninstall:
--	rm -f $(DESTDIR)$(sbindir)/xenbaked
--	rm -f $(DESTDIR)$(sbindir)/xentrace_setmask
--	rm -f $(DESTDIR)$(sbindir)/xenmon.py
-+	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenbaked
-+	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xentrace_setmask
-+	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenmon.py
  
  .PHONY: clean
  clean:

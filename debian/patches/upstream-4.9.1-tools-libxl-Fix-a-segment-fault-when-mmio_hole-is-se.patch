@@ -1,0 +1,36 @@
+From f4f02f121f271ee0722723e393226687b42e29a1 Mon Sep 17 00:00:00 2001
+From: Xiong Zhang <xiong.y.zhang@intel.com>
+Date: Thu, 13 Jul 2017 10:03:39 +0800
+Subject: [PATCH] tools/libxl: Fix a segment fault when mmio_hole is set in
+ hvm.cfg
+
+When valid mmio_hole is set in hvm.cfg, segment fault happens at accessing
+localents pointer.
+
+Because the size of localents pointer isn't enough to store appended
+mmio_hole_size parameter.
+
+Signed-off-by: Xiong Zhang <xiong.y.zhang@intel.com>
+Acked-by: Wei Liu <wei.liu2@citrix.com>
+(cherry picked from commit 614a14736e33fb84872eb00f08799ebbc73a96c6)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ tools/libxl/libxl_create.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/libxl/libxl_create.c b/tools/libxl/libxl_create.c
+index bffbc45..1158303 100644
+--- a/tools/libxl/libxl_create.c
++++ b/tools/libxl/libxl_create.c
+@@ -451,7 +451,7 @@ int libxl__domain_build(libxl__gc *gc,
+         vments[4] = "start_time";
+         vments[5] = GCSPRINTF("%lu.%02d", start_time.tv_sec,(int)start_time.tv_usec/10000);
+ 
+-        localents = libxl__calloc(gc, 9, sizeof(char *));
++        localents = libxl__calloc(gc, 11, sizeof(char *));
+         i = 0;
+         localents[i++] = "platform/acpi";
+         localents[i++] = libxl__acpi_defbool_val(info) ? "1" : "0";
+-- 
+2.7.4
+

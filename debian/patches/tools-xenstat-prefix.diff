@@ -1,13 +1,16 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:09 +0200
+X-Dgit-Generated: 4.8.1-1 fa062a38ebfa9a8d1e52ee698c72aff4cb39e969
 Subject: tools-xenstat-prefix.diff
 
 Patch-Name: tools-xenstat-prefix.diff
 
 ---
 
---- a/tools/xenstat/libxenstat/Makefile
-+++ b/tools/xenstat/libxenstat/Makefile
+Index: xen-4.9.0/tools/xenstat/libxenstat/Makefile
+===================================================================
+--- xen-4.9.0.orig/tools/xenstat/libxenstat/Makefile
++++ xen-4.9.0/tools/xenstat/libxenstat/Makefile
 @@ -20,7 +20,7 @@ MAKE_LINK=ln -sf
  
  LIB=src/libxenstat.a
@@ -17,7 +20,7 @@ Patch-Name: tools-xenstat-prefix.diff
  OBJECTS-$(CONFIG_Linux) += src/xenstat_linux.o
  OBJECTS-$(CONFIG_SunOS) += src/xenstat_solaris.o
  OBJECTS-$(CONFIG_NetBSD) += src/xenstat_netbsd.o
-@@ -64,17 +64,19 @@ $(SHLIB): $(OBJECTS-y)
+@@ -64,9 +64,11 @@ $(SHLIB): $(OBJECTS-y)
  
  .PHONY: install
  install: all
@@ -29,20 +32,12 @@ Patch-Name: tools-xenstat-prefix.diff
 +	$(INSTALL_PROG) src/libxenstat.so $(DESTDIR)$(LIBEXEC_LIB)
  	$(INSTALL_DATA) xenstat.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
- .PHONY: uninstall
- uninstall:
- 	rm -f $(DESTDIR)$(PKG_INSTALLDIR)/xenstat.pc
--	rm -f $(DESTDIR)$(libdir)/libxenstat.so
-+	rm -f $(DESTDIR)$(LIBEXEC_LIB)/libxenstat.so
- 	rm -f $(DESTDIR)$(libdir)/libxenstat.a
--	rm -f $(DESTDIR)$(includedir)/xenstat.h
-+	rm -f $(DESTDIR)$(LIBEXEC_LIB)/xenstat.h
- 
  PYLIB=bindings/swig/python/_xenstat.so
- PYMOD=bindings/swig/python/xenstat.py
---- a/tools/xenstat/xentop/Makefile
-+++ b/tools/xenstat/xentop/Makefile
-@@ -19,7 +19,9 @@ all install xentop uninstall:
+Index: xen-4.9.0/tools/xenstat/xentop/Makefile
+===================================================================
+--- xen-4.9.0.orig/tools/xenstat/xentop/Makefile
++++ xen-4.9.0/tools/xenstat/xentop/Makefile
+@@ -19,7 +19,9 @@ all install xentop:
  else
  
  CFLAGS += -DGCC_PRINTF -Werror $(CFLAGS_libxenstat)
@@ -52,7 +47,7 @@ Patch-Name: tools-xenstat-prefix.diff
  CFLAGS += -DHOST_$(XEN_OS)
  
  # Include configure output (config.h)
-@@ -31,12 +33,12 @@ all: xentop
+@@ -31,8 +33,8 @@ all: xentop
  
  .PHONY: install
  install: xentop
@@ -60,11 +55,6 @@ Patch-Name: tools-xenstat-prefix.diff
 -	$(INSTALL_PROG) xentop $(DESTDIR)$(sbindir)/xentop
 +	$(INSTALL_DIR) $(DESTDIR)$(LIBEXEC_BIN)
 +	$(INSTALL_PROG) xentop $(DESTDIR)$(LIBEXEC_BIN)/xentop
- 
- .PHONY: uninstall
- uninstall:
--	rm -f $(DESTDIR)$(sbindir)/xentop
-+	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xentop
  
  endif
  

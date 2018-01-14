@@ -1,0 +1,109 @@
+From 6954fcd55d6d0271151d41ae58310a93cbf94744 Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Fri, 14 Jul 2017 12:44:01 +0200
+Subject: [PATCH] x86/vmce: enable injecting LMCE to guest on Intel host
+
+Inject LMCE to guest if the host MCE is LMCE and the affected vcpu is
+known. Otherwise, broadcast MCE to all vcpus on Intel host.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit 6954fcd55d6d0271151d41ae58310a93cbf94744)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/cpu/mcheck/mcaction.c | 23 ++++++++++++++++-------
+ xen/arch/x86/cpu/mcheck/vmce.c     | 11 ++++++++++-
+ xen/arch/x86/cpu/mcheck/vmce.h     |  2 +-
+ 3 files changed, 27 insertions(+), 9 deletions(-)
+
+diff --git a/xen/arch/x86/cpu/mcheck/mcaction.c b/xen/arch/x86/cpu/mcheck/mcaction.c
+index ca17d22..f959bed 100644
+--- a/xen/arch/x86/cpu/mcheck/mcaction.c
++++ b/xen/arch/x86/cpu/mcheck/mcaction.c
+@@ -44,6 +44,7 @@ mc_memerr_dhandler(struct mca_binfo *binfo,
+     unsigned long mfn, gfn;
+     uint32_t status;
+     int vmce_vcpuid;
++    unsigned int mc_vcpuid;
+ 
+     if (!mc_check_addr(bank->mc_status, bank->mc_misc, MC_ADDR_PHYSICAL)) {
+         dprintk(XENLOG_WARNING,
+@@ -88,18 +89,26 @@ mc_memerr_dhandler(struct mca_binfo *binfo,
+                     goto vmce_failed;
+                 }
+ 
+-                if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL ||
+-                    global->mc_vcpuid == XEN_MC_VCPUID_INVALID)
++                mc_vcpuid = global->mc_vcpuid;
++                if (mc_vcpuid == XEN_MC_VCPUID_INVALID ||
++                    /*
++                     * Because MC# may happen asynchronously with the actual
++                     * operation that triggers the error, the domain ID as
++                     * well as the vCPU ID collected in 'global' at MC# are
++                     * not always precise. In that case, fallback to broadcast.
++                     */
++                    global->mc_domid != bank->mc_domid ||
++                    (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL &&
++                     (!(global->mc_gstatus & MCG_STATUS_LMCE) ||
++                      !(d->vcpu[mc_vcpuid]->arch.vmce.mcg_ext_ctl &
++                        MCG_EXT_CTL_LMCE_EN))))
+                     vmce_vcpuid = VMCE_INJECT_BROADCAST;
+                 else
+-                    vmce_vcpuid = global->mc_vcpuid;
++                    vmce_vcpuid = mc_vcpuid;
+ 
+                 bank->mc_addr = gfn << PAGE_SHIFT |
+                   (bank->mc_addr & (PAGE_SIZE -1 ));
+-                /* TODO: support injecting LMCE */
+-                if (fill_vmsr_data(bank, d,
+-                                   global->mc_gstatus & ~MCG_STATUS_LMCE,
+-                                   vmce_vcpuid == VMCE_INJECT_BROADCAST))
++                if (fill_vmsr_data(bank, d, global->mc_gstatus, vmce_vcpuid))
+                 {
+                     mce_printk(MCE_QUIET, "Fill vMCE# data for DOM%d "
+                       "failed\n", bank->mc_domid);
+diff --git a/xen/arch/x86/cpu/mcheck/vmce.c b/xen/arch/x86/cpu/mcheck/vmce.c
+index 060e2d0..e2b3c5b 100644
+--- a/xen/arch/x86/cpu/mcheck/vmce.c
++++ b/xen/arch/x86/cpu/mcheck/vmce.c
+@@ -465,14 +465,23 @@ static int vcpu_fill_mc_msrs(struct vcpu *v, uint64_t mcg_status,
+ }
+ 
+ int fill_vmsr_data(struct mcinfo_bank *mc_bank, struct domain *d,
+-                   uint64_t gstatus, bool broadcast)
++                   uint64_t gstatus, int vmce_vcpuid)
+ {
+     struct vcpu *v = d->vcpu[0];
++    bool broadcast = (vmce_vcpuid == VMCE_INJECT_BROADCAST);
+     int ret, err;
+ 
+     if ( mc_bank->mc_domid == DOMID_INVALID )
+         return -EINVAL;
+ 
++    if ( broadcast )
++        gstatus &= ~MCG_STATUS_LMCE;
++    else if ( gstatus & MCG_STATUS_LMCE )
++    {
++        ASSERT(vmce_vcpuid >= 0 && vmce_vcpuid < d->max_vcpus);
++        v = d->vcpu[vmce_vcpuid];
++    }
++
+     /*
+      * vMCE with the actual error information is injected to vCPU0,
+      * and, if broadcast is required, we choose to inject less severe
+diff --git a/xen/arch/x86/cpu/mcheck/vmce.h b/xen/arch/x86/cpu/mcheck/vmce.h
+index 74f6381..2797e00 100644
+--- a/xen/arch/x86/cpu/mcheck/vmce.h
++++ b/xen/arch/x86/cpu/mcheck/vmce.h
+@@ -17,7 +17,7 @@ int vmce_amd_rdmsr(const struct vcpu *, uint32_t msr, uint64_t *val);
+ int vmce_amd_wrmsr(struct vcpu *, uint32_t msr, uint64_t val);
+ 
+ int fill_vmsr_data(struct mcinfo_bank *mc_bank, struct domain *d,
+-                   uint64_t gstatus, bool broadcast);
++                   uint64_t gstatus, int vmce_vcpuid);
+ 
+ #define VMCE_INJECT_BROADCAST (-1)
+ int inject_vmce(struct domain *d, int vcpu);
+-- 
+2.7.4
+

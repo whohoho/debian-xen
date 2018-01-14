@@ -1,3 +1,4 @@
+rerun-autogen.sh-stretch
 version.diff
 config-prefix.diff
 tools-libfsimage-abiname.diff
@@ -24,10 +25,53 @@ tools-include-install.diff
 tools-xenmon-install.diff
 tools-xenstore-compatibility.diff
 ubuntu-tools-libs-abiname.diff
-toolstestsx86_emulator-pass--no-pie--fno.patch
-tools-fake-xs-restrict.patch
-tools-xentoolcore-abiname.patch
-service-files-paths.patch
-service-files-alias.patch
-launch-xenstore-path-fix.patch
-qemu-path.patch
+toolstestsx86_emulator-pass--no-pie--fno
+
+# Not in Debian (yet)
+ubuntu/tools-xs-test-hardening.patch
+ubuntu/tools-fix-ftbs-arm.patch
+ubuntu/tools-fake-xs-restrict.patch
+
+# Local MCE enablement (Intel Skylake Server CPU feature)
+ubuntu/local-mce/0001-x86-mce-make-mce-barriers-private-to-their-users.patch
+ubuntu/local-mce/0002-x86-mce-make-found_error-and-mce_fatal_cpus-private-.patch
+ubuntu/local-mce/0003-x86-mce-fix-comment-of-struct-mc_telem_cpu_ctl.patch
+ubuntu/local-mce/0004-x86-mce-allow-mce_barrier_-enter-exit-to-return-with.patch
+ubuntu/local-mce/0005-x86-mce-handle-host-LMCE.patch
+ubuntu/local-mce/0006-x86-mce_intel-detect-and-enable-LMCE-on-Intel-host.patch
+ubuntu/local-mce/0007-x86-domctl-generalize-the-restore-of-vMCE-parameters.patch
+ubuntu/local-mce/0008-x86-vmce-emulate-MSR_IA32_MCG_EXT_CTL.patch
+ubuntu/local-mce/0009-x86-vmce-enable-injecting-LMCE-to-guest-on-Intel-hos.patch
+ubuntu/local-mce/0010-x86-vmx-expose-LMCE-feature-via-guest-MSR_IA32_FEATU.patch
+ubuntu/local-mce/0011-x86-vmce-tools-libxl-expose-LMCE-capability-in-guest.patch
+ubuntu/local-mce/0012-x86-mce-add-support-of-vLMCE-injection-to-XEN_MC_inj.patch
+
+# From 4.9.1 stable branch
+upstream-4.9.1-tools-libxl-Fix-a-segment-fault-when-mmio_hole-is-se.patch
+
+# Security updates
+xsa226-4.9-0001.patch
+xsa226-4.9-0002.patch
+xsa-227-4.9.y.patch
+xsa-228-4.9.y.patch
+xsa-230-4.9.y.patch
+xsa231-4.9.patch
+xsa232.patch
+xsa233.patch
+xsa234-4.9.patch
+xsa235-4.9.patch
+xsa237-4.9-0001-x86-dont-allow-MSI-pIRQ-mapping-on-unowned-device.patch
+xsa237-4.9-0002-x86-enforce-proper-privilege-when-mapping-pIRQ-s.patch
+xsa237-4.9-0003-x86-MSI-disallow-redundant-enabling.patch
+xsa237-4.9-0004-x86-IRQ-conditionally-preserve-irq-pirq-mapping-on-error.patch
+xsa237-4.9-0005-x86-FLASK-fix-unmap-domain-IRQ-XSM-hook.patch
+xsa238.patch
+xsa239.patch
+xsa240-4.9-0001-x86-limit-linear-page-table-use-to-a-single-level.patch
+xsa240-4.9-0002-x86-mm-Disable-PV-linear-pagetables-by-default.patch
+xsa241-4.9.patch
+xsa242-4.9.patch
+xsa243.patch
+xsa244.patch
+xsa245-0001-xen-page_alloc-Cover-memory-unreserved-after-boot-in.patch
+xsa245-0002-xen-arm-Correctly-report-the-memory-region-in-the-du.patch

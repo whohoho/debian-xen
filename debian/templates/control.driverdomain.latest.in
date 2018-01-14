@@ -1,8 +1,0 @@
-Package: xen-driverdomain@localversion@
-Depends: xen-utils-@version@, ${misc:Depends}
-Provides: xen-driverdomain
-Description: Xen driverdomain on @class@ (meta-package)
- This package depends on the latest Xen utils.
- .
- @desc@
-

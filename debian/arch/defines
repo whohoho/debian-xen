@@ -6,5 +6,3 @@ arches:
  arm64
  armhf
  i386
-featuresets:
- none

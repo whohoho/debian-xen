@@ -1,13 +1,14 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:46:47 +0200
+X-Dgit-Generated: 4.8.1-1 2a020aa59aec69c1d00f3fb8c86b188873e802ea
 Subject: tools-libfsimage-abiname.diff
 
 Patch-Name: tools-libfsimage-abiname.diff
 
 ---
 
---- a/tools/libfsimage/common/Makefile
-+++ b/tools/libfsimage/common/Makefile
+--- xen-4.8.0.orig/tools/libfsimage/common/Makefile
++++ xen-4.8.0/tools/libfsimage/common/Makefile
 @@ -1,9 +1,6 @@
  XEN_ROOT = $(CURDIR)/../../..
  include $(XEN_ROOT)/tools/libfsimage/Rules.mk
@@ -38,13 +39,7 @@ Patch-Name: tools-libfsimage-abiname.diff
  	$(INSTALL_DATA) fsimage.h $(DESTDIR)$(includedir)
  	$(INSTALL_DATA) fsimage_plugin.h $(DESTDIR)$(includedir)
  	$(INSTALL_DATA) fsimage_grub.h $(DESTDIR)$(includedir)
-@@ -37,19 +32,12 @@ uninstall:
- 	rm -f $(DESTDIR)$(includedir)/fsimage_plugin.h
- 	rm -f $(DESTDIR)$(includedir)/fsimage.h
- 	rm -f $(DESTDIR)$(libdir)/libfsimage.so
--	rm -f $(DESTDIR)$(libdir)/libfsimage.so.$(MAJOR)
--	rm -f $(DESTDIR)$(libdir)/libfsimage.so.$(MAJOR).$(MINOR)
- 
+@@ -34,13 +29,8 @@ install: all
  clean distclean::
  	rm -f $(LIB)
  
@@ -58,5 +53,5 @@ Patch-Name: tools-libfsimage-abiname.diff
 +libfsimage.so: $(PIC_OBJS)
 +	$(CC) $(LDFLAGS) -Wl,$(SONAME_LDFLAG),$@ $(SHLIB_LDFLAGS) -o $@ $^ $(PTHREAD_LIBS) $(APPEND_LDFLAGS)
  
- -include $(DEPS_INCLUDE)
+ -include $(DEPS)
  

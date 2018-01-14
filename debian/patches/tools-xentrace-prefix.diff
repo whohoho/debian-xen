@@ -1,13 +1,14 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:14 +0200
+X-Dgit-Generated: debian/patches/tools-xentrace-prefix.diff
 Subject: tools-xentrace-prefix.diff
 
 Patch-Name: tools-xentrace-prefix.diff
 
 ---
 
---- a/tools/xentrace/Makefile
-+++ b/tools/xentrace/Makefile
+--- xen-4.8.0.orig/tools/xentrace/Makefile
++++ xen-4.8.0/tools/xentrace/Makefile
 @@ -8,6 +8,7 @@ CFLAGS += $(CFLAGS_libxenctrl)
  LDLIBS += $(LDLIBS_libxenevtchn)
  LDLIBS += $(LDLIBS_libxenctrl)
@@ -16,31 +17,22 @@ Patch-Name: tools-xentrace-prefix.diff
  
  BIN-$(CONFIG_X86) = xenalyze
  BIN      = $(BIN-y)
-@@ -23,21 +24,19 @@ build: $(BIN) $(SBIN) $(LIBBIN)
+@@ -23,15 +24,9 @@ build: $(BIN) $(SBIN) $(LIBBIN)
  
  .PHONY: install
  install: build
 -	$(INSTALL_DIR) $(DESTDIR)$(bindir)
 -	$(INSTALL_DIR) $(DESTDIR)$(sbindir)
 -	[ -z "$(LIBBIN)" ] || $(INSTALL_DIR) $(DESTDIR)$(LIBEXEC_BIN)
-+	$(INSTALL_DIR) $(DESTDIR)$(LIBEXEC_BIN)
- ifneq ($(BIN),)
+-ifneq ($(BIN),)
 -	$(INSTALL_PROG) $(BIN) $(DESTDIR)$(bindir)
-+	$(INSTALL_PROG) $(BIN) $(DESTDIR)$(LIBEXEC_BIN)
- endif
+-endif
 -	$(INSTALL_PROG) $(SBIN) $(DESTDIR)$(sbindir)
 -	$(INSTALL_PYTHON_PROG) $(SCRIPTS) $(DESTDIR)$(bindir)
-+	$(INSTALL_PROG) $(SBIN) $(DESTDIR)$(LIBEXEC_BIN)
+-	[ -z "$(LIBBIN)" ] || $(INSTALL_PROG) $(LIBBIN) $(DESTDIR)$(LIBEXEC_BIN)
++	$(INSTALL_DIR) $(DESTDIR)$(LIBEXEC_BIN)
++	$(INSTALL_PROG) $(BIN) $(SBIN) $(LIBBIN) $(DESTDIR)$(LIBEXEC_BIN)
 +	$(INSTALL_PYTHON_PROG) $(SCRIPTS) $(DESTDIR)$(LIBEXEC_BIN)
- 	[ -z "$(LIBBIN)" ] || $(INSTALL_PROG) $(LIBBIN) $(DESTDIR)$(LIBEXEC_BIN)
  
- .PHONY: uninstall
- uninstall:
- 	rm -f $(addprefix $(DESTDIR)$(LIBEXEC_BIN)/, $(LIBBIN))
--	rm -f $(addprefix $(DESTDIR)$(bindir)/, $(SCRIPTS))
--	rm -f $(addprefix $(DESTDIR)$(sbindir)/, $(SBIN))
-+	rm -f $(addprefix $(DESTDIR)$(LIBEXEC_BIN)/, $(SCRIPTS))
-+	rm -f $(addprefix $(DESTDIR)$(LIBEXEC_BIN)/, $(SBIN))
- ifneq ($(BIN),)
- 	rm -f $(addprefix $(DESTDIR)$(bindir)/, $(BIN))
- endif
+ .PHONY: clean
+ clean:

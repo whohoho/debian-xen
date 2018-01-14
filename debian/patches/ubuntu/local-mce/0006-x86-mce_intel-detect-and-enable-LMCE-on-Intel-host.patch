@@ -1,0 +1,160 @@
+From 76e7b4648769cc7a76a63e117336e736bf98b32d Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Tue, 4 Jul 2017 10:43:32 +0200
+Subject: [PATCH] x86/mce_intel: detect and enable LMCE on Intel host
+
+Enable LMCE if it's supported by the host CPU. If Xen boot parameter
+"mce_fb = 1" is present, LMCE will be disabled forcibly.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit 76e7b4648769cc7a76a63e117336e736bf98b32d)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/cpu/mcheck/mce_intel.c | 46 ++++++++++++++++++++++++++++++++-----
+ xen/arch/x86/cpu/mcheck/x86_mca.h   |  5 ++++
+ xen/include/asm-x86/msr-index.h     |  2 ++
+ 3 files changed, 47 insertions(+), 6 deletions(-)
+
+diff --git a/xen/arch/x86/cpu/mcheck/mce_intel.c b/xen/arch/x86/cpu/mcheck/mce_intel.c
+index 4e976c4..020b02d 100644
+--- a/xen/arch/x86/cpu/mcheck/mce_intel.c
++++ b/xen/arch/x86/cpu/mcheck/mce_intel.c
+@@ -29,6 +29,9 @@ boolean_param("mce_fb", mce_force_broadcast);
+ 
+ static int __read_mostly nr_intel_ext_msrs;
+ 
++/* If mce_force_broadcast == 1, lmce_support will be disabled forcibly. */
++static bool __read_mostly lmce_support;
++
+ /* Intel SDM define bit15~bit0 of IA32_MCi_STATUS as the MC error code */
+ #define INTEL_MCCOD_MASK 0xFFFF
+ 
+@@ -698,10 +701,34 @@ static bool mce_is_broadcast(struct cpuinfo_x86 *c)
+     return false;
+ }
+ 
++static bool intel_enable_lmce(void)
++{
++    uint64_t msr_content;
++
++    /*
++     * Section "Enabling Local Machine Check" in Intel SDM Vol 3
++     * requires software must ensure the LOCK bit and LMCE_ON bit
++     * of MSR_IA32_FEATURE_CONTROL are set before setting
++     * MSR_IA32_MCG_EXT_CTL.LMCE_EN.
++     */
++
++    if ( rdmsr_safe(MSR_IA32_FEATURE_CONTROL, msr_content) )
++        return false;
++
++    if ( (msr_content & IA32_FEATURE_CONTROL_LOCK) &&
++         (msr_content & IA32_FEATURE_CONTROL_LMCE_ON) )
++    {
++        wrmsrl(MSR_IA32_MCG_EXT_CTL, MCG_EXT_CTL_LMCE_EN);
++        return true;
++    }
++
++    return false;
++}
++
+ /* Check and init MCA */
+ static void intel_init_mca(struct cpuinfo_x86 *c)
+ {
+-    bool broadcast, cmci = false, ser = false;
++    bool broadcast, cmci = false, ser = false, lmce = false;
+     int ext_num = 0, first;
+     uint64_t msr_content;
+ 
+@@ -721,33 +748,40 @@ static void intel_init_mca(struct cpuinfo_x86 *c)
+ 
+     first = mce_firstbank(c);
+ 
++    if (!mce_force_broadcast && (msr_content & MCG_LMCE_P))
++        lmce = intel_enable_lmce();
++
+ #define CAP(enabled, name) ((enabled) ? ", " name : "")
+     if (smp_processor_id() == 0)
+     {
+         dprintk(XENLOG_INFO,
+-                "MCA capability: firstbank %d, %d ext MSRs%s%s%s\n",
++                "MCA Capability: firstbank %d, extended MCE MSR %d%s%s%s%s\n",
+                 first, ext_num,
+                 CAP(broadcast, "BCAST"),
+                 CAP(ser, "SER"),
+-                CAP(cmci, "CMCI"));
++                CAP(cmci, "CMCI"),
++                CAP(lmce, "LMCE"));
+ 
+         mce_broadcast = broadcast;
+         cmci_support = cmci;
+         ser_support = ser;
++        lmce_support = lmce;
+         nr_intel_ext_msrs = ext_num;
+         firstbank = first;
+     }
+     else if (cmci != cmci_support || ser != ser_support ||
+              broadcast != mce_broadcast ||
+-             first != firstbank || ext_num != nr_intel_ext_msrs)
++             first != firstbank || ext_num != nr_intel_ext_msrs ||
++             lmce != lmce_support)
+         dprintk(XENLOG_WARNING,
+                 "CPU%u has different MCA capability "
+-                "(firstbank %d, %d ext MSRs%s%s%s)"
++                "(firstbank %d, extended MCE MSR %d%s%s%s%s)"
+                 " than BSP, may cause undetermined result!!!\n",
+                 smp_processor_id(), first, ext_num,
+                 CAP(broadcast, "BCAST"),
+                 CAP(ser, "SER"),
+-                CAP(cmci, "CMCI"));
++                CAP(cmci, "CMCI"),
++                CAP(lmce, "LMCE"));
+ #undef CAP
+ }
+ 
+diff --git a/xen/arch/x86/cpu/mcheck/x86_mca.h b/xen/arch/x86/cpu/mcheck/x86_mca.h
+index de03f82..0f87bcf 100644
+--- a/xen/arch/x86/cpu/mcheck/x86_mca.h
++++ b/xen/arch/x86/cpu/mcheck/x86_mca.h
+@@ -36,6 +36,7 @@
+ #define MCG_TES_P               (1ULL<<11) /* Intel specific */
+ #define MCG_EXT_CNT             16         /* Intel specific */
+ #define MCG_SER_P               (1ULL<<24) /* Intel specific */
++#define MCG_LMCE_P              (1ULL<<27) /* Intel specific */
+ /* Other bits are reserved */
+ 
+ /* Bitfield of the MSR_IA32_MCG_STATUS register */
+@@ -46,6 +47,10 @@
+ /* Bits 3-63 are reserved on CPU not supporting LMCE */
+ /* Bits 4-63 are reserved on CPU supporting LMCE */
+ 
++/* Bitfield of MSR_IA32_MCG_EXT_CTL register (Intel Specific) */
++#define MCG_EXT_CTL_LMCE_EN     (1ULL<<0)
++/* Other bits are reserved */
++
+ /* Bitfield of MSR_K8_MCi_STATUS registers */
+ /* MCA error code */
+ #define MCi_STATUS_MCA          0x000000000000ffffULL
+diff --git a/xen/include/asm-x86/msr-index.h b/xen/include/asm-x86/msr-index.h
+index 771e750..756b23d 100644
+--- a/xen/include/asm-x86/msr-index.h
++++ b/xen/include/asm-x86/msr-index.h
+@@ -51,6 +51,7 @@
+ #define MSR_IA32_MCG_CAP		0x00000179
+ #define MSR_IA32_MCG_STATUS		0x0000017a
+ #define MSR_IA32_MCG_CTL		0x0000017b
++#define MSR_IA32_MCG_EXT_CTL	0x000004d0
+ 
+ #define MSR_IA32_PEBS_ENABLE		0x000003f1
+ #define MSR_IA32_DS_AREA		0x00000600
+@@ -296,6 +297,7 @@
+ #define IA32_FEATURE_CONTROL_SENTER_PARAM_CTL         0x7f00
+ #define IA32_FEATURE_CONTROL_ENABLE_SENTER            0x8000
+ #define IA32_FEATURE_CONTROL_SGX_ENABLE               0x40000
++#define IA32_FEATURE_CONTROL_LMCE_ON                  0x100000
+ 
+ #define MSR_IA32_TSC_ADJUST		0x0000003b
+ 
+-- 
+2.7.4
+

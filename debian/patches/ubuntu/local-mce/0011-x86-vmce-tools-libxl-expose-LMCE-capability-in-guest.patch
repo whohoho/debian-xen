@@ -1,0 +1,311 @@
+From 4e731e97072ad9629441c98097f0c6e633b9387a Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Fri, 14 Jul 2017 12:44:23 +0200
+Subject: [PATCH] x86/vmce, tools/libxl: expose LMCE capability in guest
+ MSR_IA32_MCG_CAP
+
+If LMCE is supported by host and ' mca_caps = [ "lmce" ] ' is present
+in xl config, the LMCE capability will be exposed in guest MSR_IA32_MCG_CAP.
+By default, LMCE is not exposed to guest so as to keep the backwards migration
+compatibility.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com> for hypervisor side
+Acked-by: Wei Liu <wei.liu2@citrix.com>
+(cherry-picked from commit 4e731e97072ad9629441c98097f0c6e633b9387a)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ docs/man/xl.cfg.pod.5.in            | 24 ++++++++++++++++++++++++
+ tools/libxc/xc_sr_save_x86_hvm.c    |  1 +
+ tools/libxl/libxl.h                 |  7 +++++++
+ tools/libxl/libxl_dom.c             | 15 +++++++++++++++
+ tools/libxl/libxl_types.idl         |  1 +
+ tools/xl/xl_parse.c                 | 31 +++++++++++++++++++++++++++++--
+ xen/arch/x86/cpu/mcheck/mce.h       |  1 +
+ xen/arch/x86/cpu/mcheck/mce_intel.c |  2 +-
+ xen/arch/x86/cpu/mcheck/vmce.c      | 19 ++++++++++++++++++-
+ xen/arch/x86/hvm/hvm.c              |  5 +++++
+ xen/include/asm-x86/mce.h           |  1 +
+ xen/include/public/hvm/params.h     |  7 ++++++-
+ 12 files changed, 109 insertions(+), 5 deletions(-)
+
+diff --git a/docs/man/xl.cfg.pod.5.in b/docs/man/xl.cfg.pod.5.in
+index ff32035..79cb2ea 100644
+--- a/docs/man/xl.cfg.pod.5.in
++++ b/docs/man/xl.cfg.pod.5.in
+@@ -2173,6 +2173,30 @@ natively or via hardware backwards compatibility support.
+ 
+ =back
+ 
++=head3 x86
++
++=over 4
++
++=item B<mca_caps=[ "CAP", "CAP", ... ]>
++
++(HVM only) Enable MCA capabilities besides default ones enabled
++by Xen hypervisor for the HVM domain. "CAP" can be one in the
++following list:
++
++=over 4
++
++=item B<"lmce">
++
++Intel local MCE
++
++=item B<default>
++
++No MCA capabilities in above list are enabled.
++
++=back
++
++=back
++
+ =head1 SEE ALSO
+ 
+ =over 4
+diff --git a/tools/libxc/xc_sr_save_x86_hvm.c b/tools/libxc/xc_sr_save_x86_hvm.c
+index fc5c6ea..e17bb59 100644
+--- a/tools/libxc/xc_sr_save_x86_hvm.c
++++ b/tools/libxc/xc_sr_save_x86_hvm.c
+@@ -77,6 +77,7 @@ static int write_hvm_params(struct xc_sr_context *ctx)
+         HVM_PARAM_IOREQ_SERVER_PFN,
+         HVM_PARAM_NR_IOREQ_SERVER_PAGES,
+         HVM_PARAM_X87_FIP_WIDTH,
++        HVM_PARAM_MCA_CAP,
+     };
+ 
+     xc_interface *xch = ctx->xch;
+diff --git a/tools/libxl/libxl.h b/tools/libxl/libxl.h
+index cf8687a..7cf0f31 100644
+--- a/tools/libxl/libxl.h
++++ b/tools/libxl/libxl.h
+@@ -922,6 +922,13 @@ void libxl_mac_copy(libxl_ctx *ctx, libxl_mac *dst, const libxl_mac *src);
+  * If this is defined, the Code and Data Prioritization feature is supported.
+  */
+ #define LIBXL_HAVE_PSR_CDP 1
++
++/*
++ * LIBXL_HAVE_MCA_CAPS
++ *
++ * If this is defined, setting MCA capabilities for HVM domain is supported.
++ */
++#define LIBXL_HAVE_MCA_CAPS 1
+ #endif
+ 
+ /*
+diff --git a/tools/libxl/libxl_dom.c b/tools/libxl/libxl_dom.c
+index 5d914a5..f54fd49 100644
+--- a/tools/libxl/libxl_dom.c
++++ b/tools/libxl/libxl_dom.c
+@@ -279,6 +279,17 @@ err:
+     libxl_bitmap_dispose(&enlightenments);
+     return ERROR_FAIL;
+ }
++
++static int hvm_set_mca_capabilities(libxl__gc *gc, uint32_t domid,
++                                    libxl_domain_build_info *const info)
++{
++    unsigned long caps = info->u.hvm.mca_caps;
++
++    if (!caps)
++        return 0;
++
++    return xc_hvm_param_set(CTX->xch, domid, HVM_PARAM_MCA_CAP, caps);
++}
+ #endif
+ 
+ static void hvm_set_conf_params(xc_interface *handle, uint32_t domid,
+@@ -440,6 +451,10 @@ int libxl__build_pre(libxl__gc *gc, uint32_t domid,
+         rc = hvm_set_viridian_features(gc, domid, info);
+         if (rc)
+             return rc;
++
++        rc = hvm_set_mca_capabilities(gc, domid, info);
++        if (rc)
++            return rc;
+ #endif
+     }
+ 
+diff --git a/tools/libxl/libxl_types.idl b/tools/libxl/libxl_types.idl
+index 2204425..8a9849c 100644
+--- a/tools/libxl/libxl_types.idl
++++ b/tools/libxl/libxl_types.idl
+@@ -564,6 +564,7 @@ libxl_domain_build_info = Struct("domain_build_info",[
+                                        ("serial_list",      libxl_string_list),
+                                        ("rdm", libxl_rdm_reserve),
+                                        ("rdm_mem_boundary_memkb", MemKB),
++                                       ("mca_caps",         uint64),
+                                        ])),
+                  ("pv", Struct(None, [("kernel", string),
+                                       ("slack_memkb", MemKB),
+diff --git a/tools/xl/xl_parse.c b/tools/xl/xl_parse.c
+index 856a304..5c2bf17 100644
+--- a/tools/xl/xl_parse.c
++++ b/tools/xl/xl_parse.c
+@@ -18,6 +18,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <xen/hvm/e820.h>
++#include <xen/hvm/params.h>
+ 
+ #include <libxl.h>
+ #include <libxl_utils.h>
+@@ -813,8 +814,9 @@ void parse_config_data(const char *config_source,
+     XLU_Config *config;
+     XLU_ConfigList *cpus, *vbds, *nics, *pcis, *cvfbs, *cpuids, *vtpms,
+                    *usbctrls, *usbdevs, *p9devs;
+-    XLU_ConfigList *channels, *ioports, *irqs, *iomem, *viridian, *dtdevs;
+-    int num_ioports, num_irqs, num_iomem, num_cpus, num_viridian;
++    XLU_ConfigList *channels, *ioports, *irqs, *iomem, *viridian, *dtdevs,
++                   *mca_caps;
++    int num_ioports, num_irqs, num_iomem, num_cpus, num_viridian, num_mca_caps;
+     int pci_power_mgmt = 0;
+     int pci_msitranslate = 0;
+     int pci_permissive = 0;
+@@ -1182,6 +1184,31 @@ void parse_config_data(const char *config_source,
+ 
+         if (!xlu_cfg_get_long (config, "rdm_mem_boundary", &l, 0))
+             b_info->u.hvm.rdm_mem_boundary_memkb = l * 1024;
++
++        switch (xlu_cfg_get_list(config, "mca_caps",
++                                 &mca_caps, &num_mca_caps, 1))
++        {
++        case 0: /* Success */
++            for (i = 0; i < num_mca_caps; i++) {
++                buf = xlu_cfg_get_listitem(mca_caps, i);
++                if (!strcmp(buf, "lmce"))
++                    b_info->u.hvm.mca_caps |= XEN_HVM_MCA_CAP_LMCE;
++                else {
++                    fprintf(stderr, "ERROR: unrecognized MCA capability '%s'.\n",
++                            buf);
++                    exit(-ERROR_FAIL);
++                }
++            }
++            break;
++
++        case ESRCH: /* Option not present */
++            break;
++
++        default:
++            fprintf(stderr, "ERROR: unable to parse mca_caps.\n");
++            exit(-ERROR_FAIL);
++        }
++
+         break;
+     case LIBXL_DOMAIN_TYPE_PV:
+     {
+diff --git a/xen/arch/x86/cpu/mcheck/mce.h b/xen/arch/x86/cpu/mcheck/mce.h
+index 4f13791..664161a 100644
+--- a/xen/arch/x86/cpu/mcheck/mce.h
++++ b/xen/arch/x86/cpu/mcheck/mce.h
+@@ -38,6 +38,7 @@ enum mcheck_type {
+ };
+ 
+ extern uint8_t cmci_apic_vector;
++extern bool lmce_support;
+ 
+ /* Init functions */
+ enum mcheck_type amd_mcheck_init(struct cpuinfo_x86 *c);
+diff --git a/xen/arch/x86/cpu/mcheck/mce_intel.c b/xen/arch/x86/cpu/mcheck/mce_intel.c
+index 5cb49ca..4c001b4 100644
+--- a/xen/arch/x86/cpu/mcheck/mce_intel.c
++++ b/xen/arch/x86/cpu/mcheck/mce_intel.c
+@@ -30,7 +30,7 @@ boolean_param("mce_fb", mce_force_broadcast);
+ static int __read_mostly nr_intel_ext_msrs;
+ 
+ /* If mce_force_broadcast == 1, lmce_support will be disabled forcibly. */
+-static bool __read_mostly lmce_support;
++bool __read_mostly lmce_support;
+ 
+ /* Intel SDM define bit15~bit0 of IA32_MCi_STATUS as the MC error code */
+ #define INTEL_MCCOD_MASK 0xFFFF
+diff --git a/xen/arch/x86/cpu/mcheck/vmce.c b/xen/arch/x86/cpu/mcheck/vmce.c
+index e2b3c5b..62faae4 100644
+--- a/xen/arch/x86/cpu/mcheck/vmce.c
++++ b/xen/arch/x86/cpu/mcheck/vmce.c
+@@ -75,7 +75,7 @@ int vmce_restore_vcpu(struct vcpu *v, const struct hvm_vmce_vcpu *ctxt)
+     unsigned long guest_mcg_cap;
+ 
+     if ( boot_cpu_data.x86_vendor == X86_VENDOR_INTEL )
+-        guest_mcg_cap = INTEL_GUEST_MCG_CAP;
++        guest_mcg_cap = INTEL_GUEST_MCG_CAP | MCG_LMCE_P;
+     else
+         guest_mcg_cap = AMD_GUEST_MCG_CAP;
+ 
+@@ -547,3 +547,20 @@ int unmmap_broken_page(struct domain *d, mfn_t mfn, unsigned long gfn)
+     return rc;
+ }
+ 
++int vmce_enable_mca_cap(struct domain *d, uint64_t cap)
++{
++    struct vcpu *v;
++
++    if ( cap & ~XEN_HVM_MCA_CAP_MASK )
++        return -EINVAL;
++
++    if ( cap & XEN_HVM_MCA_CAP_LMCE )
++    {
++        if ( !lmce_support )
++            return -EINVAL;
++        for_each_vcpu(d, v)
++            v->arch.vmce.mcg_cap |= MCG_LMCE_P;
++    }
++
++    return 0;
++}
+diff --git a/xen/arch/x86/hvm/hvm.c b/xen/arch/x86/hvm/hvm.c
+index 3ed6ec4..8145385 100644
+--- a/xen/arch/x86/hvm/hvm.c
++++ b/xen/arch/x86/hvm/hvm.c
+@@ -4035,6 +4035,7 @@ static int hvm_allow_set_param(struct domain *d,
+     case HVM_PARAM_IOREQ_SERVER_PFN:
+     case HVM_PARAM_NR_IOREQ_SERVER_PAGES:
+     case HVM_PARAM_ALTP2M:
++    case HVM_PARAM_MCA_CAP:
+         if ( value != 0 && a->value != value )
+             rc = -EEXIST;
+         break;
+@@ -4246,6 +4247,10 @@ static int hvmop_set_param(
+                                                (0x10000 / 8) + 1) << 32);
+         a.value |= VM86_TSS_UPDATED;
+         break;
++
++    case HVM_PARAM_MCA_CAP:
++        rc = vmce_enable_mca_cap(d, a.value);
++        break;
+     }
+ 
+     if ( rc != 0 )
+diff --git a/xen/include/asm-x86/mce.h b/xen/include/asm-x86/mce.h
+index 35f9962..d2933c9 100644
+--- a/xen/include/asm-x86/mce.h
++++ b/xen/include/asm-x86/mce.h
+@@ -38,6 +38,7 @@ extern int vmce_restore_vcpu(struct vcpu *, const struct hvm_vmce_vcpu *);
+ extern int vmce_wrmsr(uint32_t msr, uint64_t val);
+ extern int vmce_rdmsr(uint32_t msr, uint64_t *val);
+ extern bool vmce_has_lmce(const struct vcpu *v);
++extern int vmce_enable_mca_cap(struct domain *d, uint64_t cap);
+ 
+ extern unsigned int nr_mce_banks;
+ 
+diff --git a/xen/include/public/hvm/params.h b/xen/include/public/hvm/params.h
+index 1f3ed09..2ec2e7c 100644
+--- a/xen/include/public/hvm/params.h
++++ b/xen/include/public/hvm/params.h
+@@ -274,6 +274,11 @@
+  */
+ #define HVM_PARAM_VM86_TSS_SIZED 37
+ 
+-#define HVM_NR_PARAMS 38
++/* Enable MCA capabilities. */
++#define HVM_PARAM_MCA_CAP 38
++#define XEN_HVM_MCA_CAP_LMCE   (xen_mk_ullong(1) << 0)
++#define XEN_HVM_MCA_CAP_MASK   XEN_HVM_MCA_CAP_LMCE
++
++#define HVM_NR_PARAMS 39
+ 
+ #endif /* __XEN_PUBLIC_HVM_PARAMS_H__ */
+-- 
+2.7.4
+

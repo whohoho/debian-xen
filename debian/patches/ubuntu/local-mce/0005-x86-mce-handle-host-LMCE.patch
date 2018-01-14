@@ -1,0 +1,420 @@
+From 23dc72804bb39a74374557168de8f6dd9f0f6fdc Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Tue, 4 Jul 2017 10:42:45 +0200
+Subject: [PATCH] x86/mce: handle host LMCE
+
+A round of mce_softirq() may handle multiple deferred MCE's.
+ 1/ If all of them are LMCE's, then mce_softirq() is called on one CPU
+    and should not wait for others.
+ 2/ If at least one of them is non-local MCE, then mce_softirq()
+    should sync with other CPUs. mce_softirq() should check those two
+    cases and handle them accordingly.
+
+Because mce_softirq() can be interrupted by MC# again, we should also
+ensure the deferred MCE handling in mce_softirq() is immutable to the
+change of the checking result.
+
+A per-cpu list 'lmce_pending' is introduced to 'struct mc_telem_cpu_ctl'
+along with the existing per-cpu list 'pending' for LMCE handling.
+
+MC# handler mcheck_cmn_handler() ensures that
+ 1/ if all deferred MCE's on a CPU are LMCE's, then all of their
+    telemetries will be only in 'lmce_pending' on that CPU;
+ 2/ if at least one of deferred MCE on a CPU is not LMCE, then all
+    telemetries of deferred MCE's on that CPU will be only in
+    'pending' on that CPU.
+
+Therefore, the non-empty of 'lmce_pending' can be used to determine
+whether it's the former of the beginning two cases in MCE softirq
+handler mce_softirq().
+
+mce_softirq() atomically moves deferred MCE's from either list
+'lmce_pending' on the current CPU or lists 'pending' on the current or
+other CPUs to list 'processing' in the current CPU, and then handles
+deferred MCE's in list 'processing'.  New coming MC# before and after
+the atomic move, which change the result of the check, do not change
+whether MCE's in 'processing' are LMCE or not, so mce_softirq() can
+still handle 'processing' according to the result of previous check.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit 23dc72804bb39a74374557168de8f6dd9f0f6fdc)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/cpu/mcheck/mcaction.c |   4 +-
+ xen/arch/x86/cpu/mcheck/mce.c      |  69 +++++++++++++-----------
+ xen/arch/x86/cpu/mcheck/mce.h      |   1 +
+ xen/arch/x86/cpu/mcheck/mctelem.c  | 104 ++++++++++++++++++++++++++++++++++---
+ xen/arch/x86/cpu/mcheck/mctelem.h  |   5 +-
+ xen/arch/x86/cpu/mcheck/x86_mca.h  |   4 +-
+ 6 files changed, 147 insertions(+), 40 deletions(-)
+
+diff --git a/xen/arch/x86/cpu/mcheck/mcaction.c b/xen/arch/x86/cpu/mcheck/mcaction.c
+index dab9eac..ca17d22 100644
+--- a/xen/arch/x86/cpu/mcheck/mcaction.c
++++ b/xen/arch/x86/cpu/mcheck/mcaction.c
+@@ -96,7 +96,9 @@ mc_memerr_dhandler(struct mca_binfo *binfo,
+ 
+                 bank->mc_addr = gfn << PAGE_SHIFT |
+                   (bank->mc_addr & (PAGE_SIZE -1 ));
+-                if (fill_vmsr_data(bank, d, global->mc_gstatus,
++                /* TODO: support injecting LMCE */
++                if (fill_vmsr_data(bank, d,
++                                   global->mc_gstatus & ~MCG_STATUS_LMCE,
+                                    vmce_vcpuid == VMCE_INJECT_BROADCAST))
+                 {
+                     mce_printk(MCE_QUIET, "Fill vMCE# data for DOM%d "
+diff --git a/xen/arch/x86/cpu/mcheck/mce.c b/xen/arch/x86/cpu/mcheck/mce.c
+index d247d6e..ee04fb5 100644
+--- a/xen/arch/x86/cpu/mcheck/mce.c
++++ b/xen/arch/x86/cpu/mcheck/mce.c
+@@ -387,6 +387,7 @@ mcheck_mca_logout(enum mca_source who, struct mca_banks *bankmask,
+         sp->errcnt = errcnt;
+         sp->ripv = (gstatus & MCG_STATUS_RIPV) != 0;
+         sp->eipv = (gstatus & MCG_STATUS_EIPV) != 0;
++        sp->lmce = (gstatus & MCG_STATUS_LMCE) != 0;
+         sp->uc = uc;
+         sp->pcc = pcc;
+         sp->recoverable = recover;
+@@ -454,6 +455,7 @@ void mcheck_cmn_handler(const struct cpu_user_regs *regs)
+     uint64_t gstatus;
+     mctelem_cookie_t mctc = NULL;
+     struct mca_summary bs;
++    bool bcast, lmce;
+ 
+     mce_spin_lock(&mce_logout_lock);
+ 
+@@ -462,6 +464,8 @@ void mcheck_cmn_handler(const struct cpu_user_regs *regs)
+             sizeof(long) * BITS_TO_LONGS(clear_bank->num));
+     }
+     mctc = mcheck_mca_logout(MCA_MCE_SCAN, bankmask, &bs, clear_bank);
++    lmce = bs.lmce;
++    bcast = mce_broadcast && !lmce;
+ 
+     if (bs.errcnt) {
+         /*
+@@ -470,7 +474,7 @@ void mcheck_cmn_handler(const struct cpu_user_regs *regs)
+         if (bs.uc || bs.pcc) {
+             add_taint(TAINT_MACHINE_CHECK);
+             if (mctc != NULL)
+-                mctelem_defer(mctc);
++                mctelem_defer(mctc, lmce);
+             /*
+              * For PCC=1 and can't be recovered, context is lost, so
+              * reboot now without clearing the banks, and deal with
+@@ -497,17 +501,16 @@ void mcheck_cmn_handler(const struct cpu_user_regs *regs)
+     }
+     mce_spin_unlock(&mce_logout_lock);
+ 
+-    mce_barrier_enter(&mce_trap_bar, mce_broadcast);
++    mce_barrier_enter(&mce_trap_bar, bcast);
+     if ( mctc != NULL && mce_urgent_action(regs, mctc))
+         cpumask_set_cpu(smp_processor_id(), &mce_fatal_cpus);
+-    mce_barrier_exit(&mce_trap_bar, mce_broadcast);
++    mce_barrier_exit(&mce_trap_bar, bcast);
+ 
+     /*
+      * Wait until everybody has processed the trap.
+      */
+-    mce_barrier_enter(&mce_trap_bar, mce_broadcast);
+-    if (atomic_read(&severity_cpu) == smp_processor_id())
+-    {
++    mce_barrier_enter(&mce_trap_bar, bcast);
++    if (lmce || atomic_read(&severity_cpu) == smp_processor_id()) {
+         /* According to SDM, if no error bank found on any cpus,
+          * something unexpected happening, we can't do any
+          * recovery job but to reset the system.
+@@ -524,16 +527,16 @@ void mcheck_cmn_handler(const struct cpu_user_regs *regs)
+         atomic_set(&found_error, 0);
+         atomic_set(&severity_cpu, -1);
+     }
+-    mce_barrier_exit(&mce_trap_bar, mce_broadcast);
++    mce_barrier_exit(&mce_trap_bar, bcast);
+ 
+     /* Clear flags after above fatal check */
+-    mce_barrier_enter(&mce_trap_bar, mce_broadcast);
++    mce_barrier_enter(&mce_trap_bar, bcast);
+     gstatus = mca_rdmsr(MSR_IA32_MCG_STATUS);
+     if ((gstatus & MCG_STATUS_MCIP) != 0) {
+         mce_printk(MCE_CRITICAL, "MCE: Clear MCIP@ last step");
+         mca_wrmsr(MSR_IA32_MCG_STATUS, 0);
+     }
+-    mce_barrier_exit(&mce_trap_bar, mce_broadcast);
++    mce_barrier_exit(&mce_trap_bar, bcast);
+ 
+     raise_softirq(MACHINE_CHECK_SOFTIRQ);
+ }
+@@ -1562,7 +1565,8 @@ static void mc_panic_dump(void)
+ 
+     dprintk(XENLOG_ERR, "Begin dump mc_info\n");
+     for_each_online_cpu(cpu)
+-        mctelem_process_deferred(cpu, x86_mcinfo_dump_panic);
++        mctelem_process_deferred(cpu, x86_mcinfo_dump_panic,
++                                 mctelem_has_deferred_lmce(cpu));
+     dprintk(XENLOG_ERR, "End dump mc_info, %x mcinfo dumped\n", mcinfo_dumpped);
+ }
+ 
+@@ -1700,38 +1704,45 @@ static void mce_softirq(void)
+     static atomic_t severity_cpu;
+     int cpu = smp_processor_id();
+     unsigned int workcpu;
++    bool lmce = mctelem_has_deferred_lmce(cpu);
++    bool bcast = mce_broadcast && !lmce;
+ 
+     mce_printk(MCE_VERBOSE, "CPU%d enter softirq\n", cpu);
+ 
+-    mce_barrier_enter(&mce_inside_bar, mce_broadcast);
+-
+-    /*
+-     * Everybody is here. Now let's see who gets to do the
+-     * recovery work. Right now we just see if there's a CPU
+-     * that did not have any problems, and pick that one.
+-     *
+-     * First, just set a default value: the last CPU who reaches this
+-     * will overwrite the value and become the default.
+-     */
++    mce_barrier_enter(&mce_inside_bar, bcast);
+ 
+-    atomic_set(&severity_cpu, cpu);
++    if (!lmce) {
++        /*
++         * Everybody is here. Now let's see who gets to do the
++         * recovery work. Right now we just see if there's a CPU
++         * that did not have any problems, and pick that one.
++         *
++         * First, just set a default value: the last CPU who reaches this
++         * will overwrite the value and become the default.
++         */
+ 
+-    mce_barrier_enter(&mce_severity_bar, mce_broadcast);
+-    if (!mctelem_has_deferred(cpu))
+         atomic_set(&severity_cpu, cpu);
+-    mce_barrier_exit(&mce_severity_bar, mce_broadcast);
++
++        mce_barrier_enter(&mce_severity_bar, bcast);
++        if (!mctelem_has_deferred(cpu))
++            atomic_set(&severity_cpu, cpu);
++        mce_barrier_exit(&mce_severity_bar, bcast);
++    }
+ 
+     /* We choose severity_cpu for further processing */
+-    if (atomic_read(&severity_cpu) == cpu) {
++    if (lmce || atomic_read(&severity_cpu) == cpu) {
+ 
+         mce_printk(MCE_VERBOSE, "CPU%d handling errors\n", cpu);
+ 
+         /* Step1: Fill DOM0 LOG buffer, vMCE injection buffer and
+          * vMCE MSRs virtualization buffer
+          */
+-        for_each_online_cpu(workcpu) {
+-            mctelem_process_deferred(workcpu, mce_delayed_action);
+-        }
++
++        if (lmce)
++            mctelem_process_deferred(cpu, mce_delayed_action, true);
++        else
++            for_each_online_cpu(workcpu)
++                mctelem_process_deferred(workcpu, mce_delayed_action, false);
+ 
+         /* Step2: Send Log to DOM0 through vIRQ */
+         if (dom0_vmce_enabled()) {
+@@ -1740,7 +1751,7 @@ static void mce_softirq(void)
+         }
+     }
+ 
+-    mce_barrier_exit(&mce_inside_bar, mce_broadcast);
++    mce_barrier_exit(&mce_inside_bar, bcast);
+ }
+ 
+ /* Machine Check owner judge algorithm:
+diff --git a/xen/arch/x86/cpu/mcheck/mce.h b/xen/arch/x86/cpu/mcheck/mce.h
+index 10e5ceb..4f13791 100644
+--- a/xen/arch/x86/cpu/mcheck/mce.h
++++ b/xen/arch/x86/cpu/mcheck/mce.h
+@@ -109,6 +109,7 @@ struct mca_summary {
+     int         eipv;   /* meaningful on #MC */
+     bool        uc;     /* UC flag */
+     bool        pcc;    /* PCC flag */
++    bool        lmce;   /* LMCE flag (Intel only) */
+     bool        recoverable; /* software error recoverable flag */
+ };
+ 
+diff --git a/xen/arch/x86/cpu/mcheck/mctelem.c b/xen/arch/x86/cpu/mcheck/mctelem.c
+index 57abeab..b144a66 100644
+--- a/xen/arch/x86/cpu/mcheck/mctelem.c
++++ b/xen/arch/x86/cpu/mcheck/mctelem.c
+@@ -109,8 +109,22 @@ struct mc_telem_cpu_ctl {
+ 	/*
+ 	 * Per-CPU processing lists, used for deferred (softirq)
+ 	 * processing of telemetry.
++	 *
++	 * The two pending lists @lmce_pending and @pending grow at
++	 * the head in the reverse chronological order.
++	 *
++	 * @pending and @lmce_pending on the same CPU are mutually
++	 * exclusive, i.e. deferred MCE on a CPU are either all in
++	 * @lmce_pending or all in @pending. In the former case, all
++	 * deferred MCE are LMCE. In the latter case, both LMCE and
++	 * non-local MCE can be in @pending, and @pending contains at
++	 * least one non-local MCE if it's not empty.
++	 *
++	 * Changes to @pending and @lmce_pending should be performed
++	 * via mctelem_process_deferred() and mctelem_defer(), in order
++	 * to guarantee the above mutual exclusivity.
+ 	 */
+-	struct mctelem_ent *pending;
++	struct mctelem_ent *pending, *lmce_pending;
+ 	struct mctelem_ent *processing;
+ };
+ static DEFINE_PER_CPU(struct mc_telem_cpu_ctl, mctctl);
+@@ -131,26 +145,97 @@ static void mctelem_xchg_head(struct mctelem_ent **headp,
+ 	}
+ }
+ 
+-
+-void mctelem_defer(mctelem_cookie_t cookie)
++/**
++ * Append a telemetry of deferred MCE to a per-cpu pending list,
++ * either @pending or @lmce_pending, according to rules below:
++ *  - if @pending is not empty, then the new telemetry will be
++ *    appended to @pending;
++ *  - if @pending is empty and the new telemetry is for a deferred
++ *    LMCE, then the new telemetry will be appended to @lmce_pending;
++ *  - if @pending is empty and the new telemetry is for a deferred
++ *    non-local MCE, all existing telemetries in @lmce_pending will be
++ *    moved to @pending and then the new telemetry will be appended to
++ *    @pending.
++ *
++ * This function must be called with MCIP bit set, so that it does not
++ * need to worry about MC# re-occurring in this function.
++ *
++ * As a result, this function can preserve the mutual exclusivity
++ * between @pending and @lmce_pending (see their comments in struct
++ * mc_telem_cpu_ctl).
++ *
++ * Parameters:
++ *  @cookie: telemetry of the deferred MCE
++ *  @lmce:   indicate whether the telemetry is for LMCE
++ */
++void mctelem_defer(mctelem_cookie_t cookie, bool lmce)
+ {
+ 	struct mctelem_ent *tep = COOKIE2MCTE(cookie);
+-
+-	mctelem_xchg_head(&this_cpu(mctctl.pending), &tep->mcte_next, tep);
++	struct mc_telem_cpu_ctl *mctctl = &this_cpu(mctctl);
++
++	ASSERT(mctctl->pending == NULL || mctctl->lmce_pending == NULL);
++
++	if (mctctl->pending)
++		mctelem_xchg_head(&mctctl->pending, &tep->mcte_next, tep);
++	else if (lmce)
++		mctelem_xchg_head(&mctctl->lmce_pending, &tep->mcte_next, tep);
++	else {
++		/*
++		 * LMCE is supported on Skylake-server and later CPUs, on
++		 * which mce_broadcast is always true. Therefore, non-empty
++		 * mctctl->lmce_pending in this branch implies a broadcasting
++		 * MC# is being handled, every CPU is in the exception
++		 * context, and no one is consuming mctctl->pending at this
++		 * moment. As a result, the following two exchanges together
++		 * can be treated as atomic.
++		 */
++		if (mctctl->lmce_pending)
++			mctelem_xchg_head(&mctctl->lmce_pending,
++					  &mctctl->pending, NULL);
++		mctelem_xchg_head(&mctctl->pending, &tep->mcte_next, tep);
++	}
+ }
+ 
++/**
++ * Move telemetries of deferred MCE from the per-cpu pending list on
++ * this or another CPU to the per-cpu processing list on this CPU, and
++ * then process all deferred MCE on the processing list.
++ *
++ * This function can be called with MCIP bit set (e.g. from MC#
++ * handler) or cleared (from MCE softirq handler). In the latter case,
++ * MC# may re-occur in this function.
++ *
++ * Parameters:
++ *  @cpu:  indicate the CPU where the pending list is
++ *  @fn:   the function to handle the deferred MCE
++ *  @lmce: indicate which pending list on @cpu is handled
++ */
+ void mctelem_process_deferred(unsigned int cpu,
+-			      int (*fn)(mctelem_cookie_t))
++			      int (*fn)(mctelem_cookie_t),
++			      bool lmce)
+ {
+ 	struct mctelem_ent *tep;
+ 	struct mctelem_ent *head, *prev;
++	struct mc_telem_cpu_ctl *mctctl = &per_cpu(mctctl, cpu);
+ 	int ret;
+ 
+ 	/*
+ 	 * First, unhook the list of telemetry structures, and	
+ 	 * hook it up to the processing list head for this CPU.
++	 *
++	 * If @lmce is true and a non-local MC# occurs before the
++	 * following atomic exchange, @lmce will not hold after
++	 * resumption, because all telemetries in @lmce_pending on
++	 * @cpu are moved to @pending on @cpu in mcheck_cmn_handler().
++	 * In such a case, no telemetries will be handled in this
++	 * function after resumption. Another round of MCE softirq,
++	 * which was raised by above mcheck_cmn_handler(), will handle
++	 * those moved telemetries in @pending on @cpu.
++	 *
++	 * Any MC# occurring after the following atomic exchange will be
++	 * handled by another round of MCE softirq.
+ 	 */
+-	mctelem_xchg_head(&per_cpu(mctctl.pending, cpu),
++	mctelem_xchg_head(lmce ? &mctctl->lmce_pending : &mctctl->pending,
+ 			  &this_cpu(mctctl.processing), NULL);
+ 
+ 	head = this_cpu(mctctl.processing);
+@@ -194,6 +279,11 @@ bool mctelem_has_deferred(unsigned int cpu)
+ 	return false;
+ }
+ 
++bool mctelem_has_deferred_lmce(unsigned int cpu)
++{
++	return per_cpu(mctctl.lmce_pending, cpu) != NULL;
++}
++
+ /* Free an entry to its native free list; the entry must not be linked on
+  * any list.
+  */
+diff --git a/xen/arch/x86/cpu/mcheck/mctelem.h b/xen/arch/x86/cpu/mcheck/mctelem.h
+index 9fcde4f..d4eba53 100644
+--- a/xen/arch/x86/cpu/mcheck/mctelem.h
++++ b/xen/arch/x86/cpu/mcheck/mctelem.h
+@@ -67,9 +67,10 @@ extern void mctelem_dismiss(mctelem_cookie_t);
+ extern mctelem_cookie_t mctelem_consume_oldest_begin(mctelem_class_t);
+ extern void mctelem_consume_oldest_end(mctelem_cookie_t);
+ extern void mctelem_ack(mctelem_class_t, mctelem_cookie_t);
+-extern void mctelem_defer(mctelem_cookie_t);
++extern void mctelem_defer(mctelem_cookie_t, bool lmce);
+ extern void mctelem_process_deferred(unsigned int,
+-    int (*)(mctelem_cookie_t));
++                                     int (*)(mctelem_cookie_t), bool lmce);
+ bool mctelem_has_deferred(unsigned int);
++bool mctelem_has_deferred_lmce(unsigned int cpu);
+ 
+ #endif
+diff --git a/xen/arch/x86/cpu/mcheck/x86_mca.h b/xen/arch/x86/cpu/mcheck/x86_mca.h
+index 34d1921..de03f82 100644
+--- a/xen/arch/x86/cpu/mcheck/x86_mca.h
++++ b/xen/arch/x86/cpu/mcheck/x86_mca.h
+@@ -42,7 +42,9 @@
+ #define MCG_STATUS_RIPV         0x0000000000000001ULL
+ #define MCG_STATUS_EIPV         0x0000000000000002ULL
+ #define MCG_STATUS_MCIP         0x0000000000000004ULL
+-/* Bits 3-63 are reserved */
++#define MCG_STATUS_LMCE         0x0000000000000008ULL  /* Intel specific */
++/* Bits 3-63 are reserved on CPU not supporting LMCE */
++/* Bits 4-63 are reserved on CPU supporting LMCE */
+ 
+ /* Bitfield of MSR_K8_MCi_STATUS registers */
+ /* MCA error code */
+-- 
+2.7.4
+

@@ -1,14 +1,15 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:46:59 +0200
+X-Dgit-Generated: 4.8.1-1 92bd9e6a61c01d45b42463d3097f87935167e731
 Subject: tools-misc-prefix.diff
 
 Patch-Name: tools-misc-prefix.diff
 
 ---
 
---- a/tools/misc/Makefile
-+++ b/tools/misc/Makefile
-@@ -55,18 +55,16 @@ all build: $(TARGETS_BUILD)
+--- xen-4.8.0.orig/tools/misc/Makefile
++++ xen-4.8.0/tools/misc/Makefile
+@@ -54,12 +54,8 @@ all build: $(TARGETS_BUILD)
  
  .PHONY: install
  install: build
@@ -17,17 +18,8 @@ Patch-Name: tools-misc-prefix.diff
  	$(INSTALL_DIR) $(DESTDIR)$(LIBEXEC_BIN)
 -	$(INSTALL_PYTHON_PROG) $(INSTALL_BIN) $(DESTDIR)$(bindir)
 -	$(INSTALL_PYTHON_PROG) $(INSTALL_SBIN) $(DESTDIR)$(sbindir)
-+	$(INSTALL_PYTHON_PROG) $(INSTALL_BIN) $(DESTDIR)$(LIBEXEC_BIN)
-+	$(INSTALL_PYTHON_PROG) $(INSTALL_SBIN) $(DESTDIR)$(LIBEXEC_BIN)
- 	$(INSTALL_PYTHON_PROG) $(INSTALL_PRIVBIN) $(DESTDIR)$(LIBEXEC_BIN)
- 
- .PHONY: uninstall
- uninstall:
- 	rm -f $(addprefix $(DESTDIR)$(LIBEXEC_BIN)/, $(INSTALL_PRIVBIN))
--	rm -f $(addprefix $(DESTDIR)$(sbindir)/, $(INSTALL_SBIN))
--	rm -f $(addprefix $(DESTDIR)$(bindir)/, $(INSTALL_BIN))
-+	rm -f $(addprefix $(DESTDIR)$(LIBEXEC_BIN)/, $(INSTALL_SBIN))
-+	rm -f $(addprefix $(DESTDIR)$(LIBEXEC_BIN)/, $(INSTALL_BIN))
+-	$(INSTALL_PYTHON_PROG) $(INSTALL_PRIVBIN) $(DESTDIR)$(LIBEXEC_BIN)
++	$(INSTALL_PYTHON_PROG) $(INSTALL_BIN) $(INSTALL_SBIN) $(INSTALL_PRIVBIN) $(DESTDIR)$(LIBEXEC_BIN)
  
  .PHONY: clean
  clean:

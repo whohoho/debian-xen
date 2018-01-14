@@ -1,5 +1,6 @@
 From: Ian Jackson <ian.jackson@citrix.com>
 Date: Tue, 1 Nov 2016 16:20:27 +0000
+X-Dgit-Generated: 4.8.1-1 0b669a48e4ac450fded811b1ea297d644044d179
 Subject: tools/tests/x86_emulator: Pass -no-pie -fno-pic to gcc on x86_32
 
 The current build fails with GCC6 on Debian sid i386 (unstable):
@@ -32,16 +33,18 @@ Signed-off-by: Ian Jackson <ian.jackson@citrix.com>
 
 ---
 
---- a/tools/tests/x86_emulator/Makefile
-+++ b/tools/tests/x86_emulator/Makefile
-@@ -104,6 +104,10 @@ HOSTCFLAGS-x86_64 := -fno-PIE
- $(call cc-option-add,HOSTCFLAGS-x86_64,HOSTCC,-no-pie)
- HOSTCFLAGS += $(CFLAGS_xeninclude) -I. $(HOSTCFLAGS-$(XEN_COMPILE_ARCH))
+Index: xen-4.9.0/tools/tests/x86_emulator/Makefile
+===================================================================
+--- xen-4.9.0.orig/tools/tests/x86_emulator/Makefile
++++ xen-4.9.0/tools/tests/x86_emulator/Makefile
+@@ -100,6 +100,10 @@ asm/%: asm ;
+ 
+ HOSTCFLAGS += $(CFLAGS_xeninclude) -I.
  
 +ifeq ($(XEN_TARGET_ARCH),x86_32)
 +HOSTCFLAGS += -no-pie -fno-pic
 +endif
 +
  x86.h := asm/x86-vendors.h asm/x86-defns.h asm/msr-index.h
- x86_emulate.h := x86-emulate.h x86_emulate/x86_emulate.h $(x86.h)
+ x86_emulate.h := x86_emulate.h x86_emulate/x86_emulate.h $(x86.h)
  

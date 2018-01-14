@@ -1,0 +1,171 @@
+From a7d802bca13489d303749177127089af48844f29 Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Mon, 3 Jul 2017 17:43:45 +0200
+Subject: [PATCH] x86/mce: allow mce_barrier_{enter,exit} to return without
+ waiting
+
+Add a 'wait' argument to mce_barrier_{enter,exit}() to specify whether
+the barrier functions should return immediately without waiting
+mce_barrier_{enter,exit}() on other CPUs. This is useful when handling
+LMCE, where mce_barrier_{enter,exit} are called only on one CPU.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit a7d802bca13489d303749177127089af48844f29)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/cpu/mcheck/barrier.c | 12 ++++++------
+ xen/arch/x86/cpu/mcheck/barrier.h | 14 ++++++++++++--
+ xen/arch/x86/cpu/mcheck/mce.c     | 20 ++++++++++----------
+ 3 files changed, 28 insertions(+), 18 deletions(-)
+
+diff --git a/xen/arch/x86/cpu/mcheck/barrier.c b/xen/arch/x86/cpu/mcheck/barrier.c
+index 5dce1fb..7de8e45 100644
+--- a/xen/arch/x86/cpu/mcheck/barrier.c
++++ b/xen/arch/x86/cpu/mcheck/barrier.c
+@@ -16,11 +16,11 @@ void mce_barrier_dec(struct mce_softirq_barrier *bar)
+     atomic_dec(&bar->val);
+ }
+ 
+-void mce_barrier_enter(struct mce_softirq_barrier *bar)
++void mce_barrier_enter(struct mce_softirq_barrier *bar, bool wait)
+ {
+     int gen;
+ 
+-    if (!mce_broadcast)
++    if ( !wait )
+         return;
+     atomic_inc(&bar->ingen);
+     gen = atomic_read(&bar->outgen);
+@@ -34,11 +34,11 @@ void mce_barrier_enter(struct mce_softirq_barrier *bar)
+     }
+ }
+ 
+-void mce_barrier_exit(struct mce_softirq_barrier *bar)
++void mce_barrier_exit(struct mce_softirq_barrier *bar, bool wait)
+ {
+     int gen;
+ 
+-    if ( !mce_broadcast )
++    if ( !wait )
+         return;
+     atomic_inc(&bar->outgen);
+     gen = atomic_read(&bar->ingen);
+@@ -54,6 +54,6 @@ void mce_barrier_exit(struct mce_softirq_barrier *bar)
+ 
+ void mce_barrier(struct mce_softirq_barrier *bar)
+ {
+-    mce_barrier_enter(bar);
+-    mce_barrier_exit(bar);
++    mce_barrier_enter(bar, mce_broadcast);
++    mce_barrier_exit(bar, mce_broadcast);
+ }
+diff --git a/xen/arch/x86/cpu/mcheck/barrier.h b/xen/arch/x86/cpu/mcheck/barrier.h
+index d3ccf8b..c4d52b6 100644
+--- a/xen/arch/x86/cpu/mcheck/barrier.h
++++ b/xen/arch/x86/cpu/mcheck/barrier.h
+@@ -32,6 +32,16 @@ void mce_barrier_init(struct mce_softirq_barrier *);
+ void mce_barrier_dec(struct mce_softirq_barrier *);
+ 
+ /*
++ * If @wait is false, mce_barrier_enter/exit() will return immediately
++ * without touching the barrier. It's used when handling a
++ * non-broadcasting MCE (e.g. MCE on some old Intel CPU, MCE on AMD
++ * CPU and LMCE on Intel Skylake-server CPU) which is received on only
++ * one CPU and thus does not invoke mce_barrier_enter/exit() calls on
++ * all CPUs.
++ *
++ * If @wait is true, mce_barrier_enter/exit() will handle the given
++ * barrier as below.
++ *
+  * Increment the generation number and the value. The generation number
+  * is incremented when entering a barrier. This way, it can be checked
+  * on exit if a CPU is trying to re-enter the barrier. This can happen
+@@ -43,8 +53,8 @@ void mce_barrier_dec(struct mce_softirq_barrier *);
+  * These barrier functions should always be paired, so that the
+  * counter value will reach 0 again after all CPUs have exited.
+  */
+-void mce_barrier_enter(struct mce_softirq_barrier *);
+-void mce_barrier_exit(struct mce_softirq_barrier *);
++void mce_barrier_enter(struct mce_softirq_barrier *, bool wait);
++void mce_barrier_exit(struct mce_softirq_barrier *, bool wait);
+ 
+ void mce_barrier(struct mce_softirq_barrier *);
+ 
+diff --git a/xen/arch/x86/cpu/mcheck/mce.c b/xen/arch/x86/cpu/mcheck/mce.c
+index 54fd000..d247d6e 100644
+--- a/xen/arch/x86/cpu/mcheck/mce.c
++++ b/xen/arch/x86/cpu/mcheck/mce.c
+@@ -497,15 +497,15 @@ void mcheck_cmn_handler(const struct cpu_user_regs *regs)
+     }
+     mce_spin_unlock(&mce_logout_lock);
+ 
+-    mce_barrier_enter(&mce_trap_bar);
++    mce_barrier_enter(&mce_trap_bar, mce_broadcast);
+     if ( mctc != NULL && mce_urgent_action(regs, mctc))
+         cpumask_set_cpu(smp_processor_id(), &mce_fatal_cpus);
+-    mce_barrier_exit(&mce_trap_bar);
++    mce_barrier_exit(&mce_trap_bar, mce_broadcast);
+ 
+     /*
+      * Wait until everybody has processed the trap.
+      */
+-    mce_barrier_enter(&mce_trap_bar);
++    mce_barrier_enter(&mce_trap_bar, mce_broadcast);
+     if (atomic_read(&severity_cpu) == smp_processor_id())
+     {
+         /* According to SDM, if no error bank found on any cpus,
+@@ -524,16 +524,16 @@ void mcheck_cmn_handler(const struct cpu_user_regs *regs)
+         atomic_set(&found_error, 0);
+         atomic_set(&severity_cpu, -1);
+     }
+-    mce_barrier_exit(&mce_trap_bar);
++    mce_barrier_exit(&mce_trap_bar, mce_broadcast);
+ 
+     /* Clear flags after above fatal check */
+-    mce_barrier_enter(&mce_trap_bar);
++    mce_barrier_enter(&mce_trap_bar, mce_broadcast);
+     gstatus = mca_rdmsr(MSR_IA32_MCG_STATUS);
+     if ((gstatus & MCG_STATUS_MCIP) != 0) {
+         mce_printk(MCE_CRITICAL, "MCE: Clear MCIP@ last step");
+         mca_wrmsr(MSR_IA32_MCG_STATUS, 0);
+     }
+-    mce_barrier_exit(&mce_trap_bar);
++    mce_barrier_exit(&mce_trap_bar, mce_broadcast);
+ 
+     raise_softirq(MACHINE_CHECK_SOFTIRQ);
+ }
+@@ -1703,7 +1703,7 @@ static void mce_softirq(void)
+ 
+     mce_printk(MCE_VERBOSE, "CPU%d enter softirq\n", cpu);
+ 
+-    mce_barrier_enter(&mce_inside_bar);
++    mce_barrier_enter(&mce_inside_bar, mce_broadcast);
+ 
+     /*
+      * Everybody is here. Now let's see who gets to do the
+@@ -1716,10 +1716,10 @@ static void mce_softirq(void)
+ 
+     atomic_set(&severity_cpu, cpu);
+ 
+-    mce_barrier_enter(&mce_severity_bar);
++    mce_barrier_enter(&mce_severity_bar, mce_broadcast);
+     if (!mctelem_has_deferred(cpu))
+         atomic_set(&severity_cpu, cpu);
+-    mce_barrier_exit(&mce_severity_bar);
++    mce_barrier_exit(&mce_severity_bar, mce_broadcast);
+ 
+     /* We choose severity_cpu for further processing */
+     if (atomic_read(&severity_cpu) == cpu) {
+@@ -1740,7 +1740,7 @@ static void mce_softirq(void)
+         }
+     }
+ 
+-    mce_barrier_exit(&mce_inside_bar);
++    mce_barrier_exit(&mce_inside_bar, mce_broadcast);
+ }
+ 
+ /* Machine Check owner judge algorithm:
+-- 
+2.7.4
+

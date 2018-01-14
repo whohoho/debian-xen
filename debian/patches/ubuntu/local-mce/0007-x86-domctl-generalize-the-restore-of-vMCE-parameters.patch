@@ -1,0 +1,101 @@
+From 862c83e90e80c1da126990a9e749338f1ee56bca Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Fri, 14 Jul 2017 12:42:35 +0200
+Subject: [PATCH] x86/domctl: generalize the restore of vMCE parameters
+
+vMCE parameters in struct xen_domctl_ext_vcpucontext were extended in
+the past, and is likely to be extended in the future. When migrating a
+PV domain from old Xen, XEN_DOMCTL_set_ext_vcpucontext should handle
+the differences.
+
+Instead of adding ad-hoc handling code at each extension, we introduce
+an array to record sizes of the current and all past versions of vMCE
+parameters, and search for the largest one that does not expire the
+size of passed-in parameters to determine vMCE parameters that will be
+restored. If vMCE parameters are extended in the future, we only need
+to adapt the array to reflect the extension.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit 862c83e90e80c1da126990a9e749338f1ee56bca)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/domctl.c | 55 +++++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 38 insertions(+), 17 deletions(-)
+
+diff --git a/xen/arch/x86/domctl.c b/xen/arch/x86/domctl.c
+index 7fa58b4..60d95fe 100644
+--- a/xen/arch/x86/domctl.c
++++ b/xen/arch/x86/domctl.c
+@@ -302,6 +302,43 @@ static int update_domain_cpuid_info(struct domain *d,
+     return 0;
+ }
+ 
++static int vcpu_set_vmce(struct vcpu *v,
++                         const struct xen_domctl_ext_vcpucontext *evc)
++{
++    /*
++     * Sizes of vMCE parameters used by the current and past versions
++     * of Xen in descending order. If vMCE parameters are extended,
++     * remember to add the old size to this array by VMCE_SIZE().
++     */
++#define VMCE_SIZE(field) \
++    (offsetof(typeof(evc->vmce), field) + sizeof(evc->vmce.field))
++
++    static const unsigned int valid_sizes[] = {
++        sizeof(evc->vmce),
++        VMCE_SIZE(caps),
++    };
++#undef VMCE_SIZE
++
++    struct hvm_vmce_vcpu vmce = { };
++    unsigned int evc_vmce_size =
++        min(evc->size - offsetof(typeof(*evc), vmce), sizeof(evc->vmce));
++    unsigned int i = 0;
++
++    BUILD_BUG_ON(offsetof(typeof(*evc), mcg_cap) !=
++                 offsetof(typeof(*evc), vmce.caps));
++    BUILD_BUG_ON(sizeof(evc->mcg_cap) != sizeof(evc->vmce.caps));
++
++    while ( i < ARRAY_SIZE(valid_sizes) && evc_vmce_size < valid_sizes[i] )
++        ++i;
++
++    if ( i == ARRAY_SIZE(valid_sizes) )
++        return 0;
++
++    memcpy(&vmce, &evc->vmce, valid_sizes[i]);
++
++    return vmce_restore_vcpu(v, &vmce);
++}
++
+ void arch_get_domain_info(const struct domain *d,
+                           struct xen_domctl_getdomaininfo *info)
+ {
+@@ -912,23 +949,7 @@ long arch_do_domctl(
+             else
+                 domain_pause(d);
+ 
+-            BUILD_BUG_ON(offsetof(struct xen_domctl_ext_vcpucontext,
+-                                  mcg_cap) !=
+-                         offsetof(struct xen_domctl_ext_vcpucontext,
+-                                  vmce.caps));
+-            BUILD_BUG_ON(sizeof(evc->mcg_cap) != sizeof(evc->vmce.caps));
+-            if ( evc->size >= offsetof(typeof(*evc), vmce) +
+-                              sizeof(evc->vmce) )
+-                ret = vmce_restore_vcpu(v, &evc->vmce);
+-            else if ( evc->size >= offsetof(typeof(*evc), mcg_cap) +
+-                                   sizeof(evc->mcg_cap) )
+-            {
+-                struct hvm_vmce_vcpu vmce = { .caps = evc->mcg_cap };
+-
+-                ret = vmce_restore_vcpu(v, &vmce);
+-            }
+-            else
+-                ret = 0;
++            ret = vcpu_set_vmce(v, evc);
+ 
+             domain_unpause(d);
+         }
+-- 
+2.7.4
+

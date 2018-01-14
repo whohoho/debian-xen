@@ -1,13 +1,16 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:46:43 +0200
+X-Dgit-Generated: 4.8.1-1 adc50830f6c334569f54255310fc489d139d542f
 Subject: version
 
 Patch-Name: version.diff
 
 ---
 
---- a/xen/Makefile
-+++ b/xen/Makefile
+Index: xen-4.9.0/xen/Makefile
+===================================================================
+--- xen-4.9.0.orig/xen/Makefile
++++ xen-4.9.0/xen/Makefile
 @@ -161,7 +161,7 @@ delete-unfresh-files:
  	@mv -f $@.tmp $@
  
@@ -31,9 +34,11 @@ Patch-Name: version.diff
  	@mv -f $@.new $@
  
  include/asm-$(TARGET_ARCH)/asm-offsets.h: arch/$(TARGET_ARCH)/asm-offsets.s
---- a/xen/common/kernel.c
-+++ b/xen/common/kernel.c
-@@ -330,8 +330,8 @@ DO(xen_version)(int cmd, XEN_GUEST_HANDL
+Index: xen-4.9.0/xen/common/kernel.c
+===================================================================
+--- xen-4.9.0.orig/xen/common/kernel.c
++++ xen-4.9.0/xen/common/kernel.c
+@@ -270,8 +270,8 @@ DO(xen_version)(int cmd, XEN_GUEST_HANDL
  
          memset(&info, 0, sizeof(info));
          safe_strcpy(info.compiler,       deny ? xen_deny() : xen_compiler());
@@ -44,8 +49,10 @@ Patch-Name: version.diff
          safe_strcpy(info.compile_date,   deny ? xen_deny() : xen_compile_date());
          if ( copy_to_guest(arg, &info, 1) )
              return -EFAULT;
---- a/xen/common/version.c
-+++ b/xen/common/version.c
+Index: xen-4.9.0/xen/common/version.c
+===================================================================
+--- xen-4.9.0.orig/xen/common/version.c
++++ xen-4.9.0/xen/common/version.c
 @@ -20,19 +20,24 @@ const char *xen_compile_time(void)
      return XEN_COMPILE_TIME;
  }
@@ -89,9 +96,11 @@ Patch-Name: version.diff
  const char *xen_deny(void)
  {
      return "<denied>";
---- a/xen/drivers/char/console.c
-+++ b/xen/drivers/char/console.c
-@@ -783,14 +783,11 @@ void __init console_init_preirq(void)
+Index: xen-4.9.0/xen/drivers/char/console.c
+===================================================================
+--- xen-4.9.0.orig/xen/drivers/char/console.c
++++ xen-4.9.0/xen/drivers/char/console.c
+@@ -776,14 +776,11 @@ void __init console_init_preirq(void)
      serial_set_rx_handler(sercon_handle, serial_rx);
  
      /* HELLO WORLD --- start-of-day banner text. */
@@ -109,8 +118,10 @@ Patch-Name: version.diff
  
      if ( opt_sync_console )
      {
---- a/xen/include/xen/compile.h.in
-+++ b/xen/include/xen/compile.h.in
+Index: xen-4.9.0/xen/include/xen/compile.h.in
+===================================================================
+--- xen-4.9.0.orig/xen/include/xen/compile.h.in
++++ xen-4.9.0/xen/include/xen/compile.h.in
 @@ -1,8 +1,9 @@
  #define XEN_COMPILE_DATE	"@@date@@"
  #define XEN_COMPILE_TIME	"@@time@@"
@@ -129,8 +140,10 @@ Patch-Name: version.diff
  
  #define XEN_CHANGESET		"@@changeset@@"
 -#define XEN_BANNER		\
---- a/xen/include/xen/version.h
-+++ b/xen/include/xen/version.h
+Index: xen-4.9.0/xen/include/xen/version.h
+===================================================================
+--- xen-4.9.0.orig/xen/include/xen/version.h
++++ xen-4.9.0/xen/include/xen/version.h
 @@ -6,9 +6,10 @@
  
  const char *xen_compile_date(void);

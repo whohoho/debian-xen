@@ -1,0 +1,168 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          xenstored
+# Required-Start:    $syslog $remote_fs
+# Required-Stop:     $syslog $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Xenstore daemon
+# Description:       Xenstore daemon
+### END INIT INFO
+
+. /lib/init/vars.sh
+. /lib/lsb/init-functions
+
+# Default variables
+XENSTORED_DIR="/var/run/xenstored"
+
+[ -r /etc/default/xen ] && . /etc/default/xen
+[ -r /etc/default/xend ] && . /etc/default/xend
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DESC="Xenstore daemon"
+
+ROOT=$(/usr/lib/xen-common/bin/xen-dir 2>/dev/null)
+if [ $? -ne 0 ]; then
+	log_warning_msg "Not running within Xen or no compatible utils"
+	exit 0
+fi
+TOOLSTACK=$(/usr/lib/xen-common/bin/xen-toolstack 2>/dev/null)
+if [ $? -ne 0 ]; then
+	log_warning_msg "No usable Xen toolstack selected"
+	exit 0
+fi
+
+XENSTORED="$ROOT"/bin/xenstored
+XENSTORED_PIDFILE="/var/run/xenstore.pid"
+
+modules_setup()
+{
+	modprobe xenfs 2>/dev/null
+	modprobe xen-evtchn 2>/dev/null
+	modprobe xen-gntdev 2>/dev/null
+	modprobe xen-acpi-processor 2>/dev/null
+}
+
+xenfs_setup()
+{
+	[ -e "/proc/xen/capabilities" ] && return 0
+	log_progress_msg "xenfs"
+	[ -d "/proc/xen" ] || return 1
+	mount -t xenfs xenfs /proc/xen || return 1
+	return 0
+}
+
+capability_check()
+{
+	[ -e "/proc/xen/capabilities" ] || return 1
+	grep -q "control_d" /proc/xen/capabilities || return 1
+	return 0
+}
+
+env_setup()
+{
+	[ -d /run/xen ] && return 0
+
+	mkdir -m 700 /run/xen
+	[ -x /sbin/restorecon ] && /sbin/restorecon /run/xen
+}
+
+xenstored_start()
+{
+	log_progress_msg "xenstored"
+	#
+	# Work-around kernel regression where short name links of
+	# /proc/$$/exe get replaced on rename unconditionally. This
+	# should be fixed in the kernel but hitting a bad kernel is
+	# fatal with starting qemu in dom0 (dpkg/qemu hangs).
+	#
+	if [ -f $XENSTORED_PIDFILE ]; then
+		XSPID="$(cat $XENSTORED_PIDFILE)"
+		XSBIN="$(ls -la /proc/$XSPID/exe 2>/dev/null)"
+		XSBIN="${XSBIN#*-> }"
+		XSBIN="${XSBIN% (deleted)}"
+		if [ "$XSBIN" != "" ]; then
+			if [ "$(basename $XSBIN)" = "xenstored.dpkg-new" ]; then
+				return 1
+			fi
+		fi
+	fi
+	start-stop-daemon --start --quiet --pidfile "$XENSTORED_PIDFILE" --exec "$XENSTORED" --test > /dev/null \
+		|| return 1
+	[ -d "$XENSTORED_DIR" ] || mkdir -p "$XENSTORED_DIR"
+	export XENSTORED_ROOTDIR="$XENSTORED_DIR"
+	start-stop-daemon --start --quiet --pidfile "$XENSTORED_PIDFILE" --exec "$XENSTORED" -- \
+		$XENSTORED_ARGS --pid-file="$XENSTORED_PIDFILE" \
+		|| return 2
+
+	# Wait for xenstored to actually come up, timing out after 30 seconds
+	local time=0
+	local timeout=30
+	while [ $time -lt $timeout ] && ! `xenstore-read -s / >/dev/null 2>&1` ; do
+	    time=$(( $time+1 ))
+	    sleep 1
+	done
+
+	# Exit if we timed out
+	if ! [ $time -lt $timeout ] ; then
+	    return 2
+	fi
+}
+
+xenstored_stop()
+{
+	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile "$XENSTORED_PIDFILE" --exec "$XENSTORED"
+	RETVAL="$?"
+	[ "$RETVAL" = 2 ] && return 2
+	start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec "$XENSTORED"
+	[ "$?" = 2 ] && return 2
+	rm -f $XENSTORED_PIDFILE
+	return "$RETVAL"
+}
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting $DESC"
+	modules_setup
+	xenfs_setup
+	case "$?" in
+		0) ;;
+		*) log_end_msg 1; exit ;;
+	esac
+	capability_check
+	case "$?" in
+		0) ;;
+		*) log_end_msg 255; exit ;;
+	esac
+	env_setup
+	xenstored_start
+	case "$?" in
+		0|1) ;;
+		*) log_end_msg 1; exit ;;
+	esac
+	log_end_msg 0
+	;;
+  stop)
+	capability_check
+	case "$?" in
+		0) ;;
+		*) exit ;;
+	esac
+	log_daemon_msg "Stopping $DESC"
+	ret=0
+	xenstored_stop
+	case "$?" in
+		0|1) ;;
+		*) ret=1 ;;
+	esac
+	log_end_msg $ret
+	;;
+  restart|force-reload)
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart|force-reload}" >&2
+	exit 3
+	;;
+esac
+
+exit 0

@@ -1,0 +1,82 @@
+From 1403d5d9a6ca3560aa38308c437d254b0c9bc3af Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Wed, 31 May 2017 08:38:21 +0200
+Subject: [PATCH] x86/mce: make mce barriers private to their users
+
+Each of current mce barriers is actually used by only one function, so
+move their definitions into their users. A static mce barrier initializer
+is introduced so we can move the initialization of above mce barriers
+to their definitions.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit 1403d5d9a6ca3560aa38308c437d254b0c9bc3af)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/cpu/mcheck/barrier.h |  7 +++++++
+ xen/arch/x86/cpu/mcheck/mce.c     | 10 +++-------
+ 2 files changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/xen/arch/x86/cpu/mcheck/barrier.h b/xen/arch/x86/cpu/mcheck/barrier.h
+index 87f7550..d3ccf8b 100644
+--- a/xen/arch/x86/cpu/mcheck/barrier.h
++++ b/xen/arch/x86/cpu/mcheck/barrier.h
+@@ -10,6 +10,13 @@ struct mce_softirq_barrier {
+     atomic_t outgen;
+ };
+ 
++#define DEFINE_MCE_BARRIER(name)        \
++    struct mce_softirq_barrier name = { \
++        .val    = ATOMIC_INIT(0),       \
++        .ingen  = ATOMIC_INIT(0),       \
++        .outgen = ATOMIC_INIT(0),       \
++    }
++
+ /*
+  * Initialize a barrier. Just set it to 0.
+  */
+diff --git a/xen/arch/x86/cpu/mcheck/mce.c b/xen/arch/x86/cpu/mcheck/mce.c
+index 51a10ed..0d9d5b0 100644
+--- a/xen/arch/x86/cpu/mcheck/mce.c
++++ b/xen/arch/x86/cpu/mcheck/mce.c
+@@ -174,10 +174,6 @@ void mce_need_clearbank_register(mce_need_clearbank_t cbfunc)
+     mc_need_clearbank_scan = cbfunc;
+ }
+ 
+-
+-static struct mce_softirq_barrier mce_inside_bar, mce_severity_bar;
+-static struct mce_softirq_barrier mce_trap_bar;
+-
+ /*
+  * mce_logout_lock should only be used in the trap handler,
+  * while MCIP has not been cleared yet in the global status
+@@ -452,6 +448,7 @@ static int mce_urgent_action(const struct cpu_user_regs *regs,
+ /* Shared #MC handler. */
+ void mcheck_cmn_handler(const struct cpu_user_regs *regs)
+ {
++    static DEFINE_MCE_BARRIER(mce_trap_bar);
+     static atomic_t severity_cpu = ATOMIC_INIT(-1);
+     struct mca_banks *bankmask = mca_allbanks;
+     struct mca_banks *clear_bank = __get_cpu_var(mce_clear_banks);
+@@ -1699,6 +1696,8 @@ static int mce_delayed_action(mctelem_cookie_t mctc)
+ /* Softirq Handler for this MCE# processing */
+ static void mce_softirq(void)
+ {
++    static DEFINE_MCE_BARRIER(mce_inside_bar);
++    static DEFINE_MCE_BARRIER(mce_severity_bar);
+     static atomic_t severity_cpu;
+     int cpu = smp_processor_id();
+     unsigned int workcpu;
+@@ -1766,9 +1765,6 @@ void mce_handler_init(void)
+ 
+     /* callback register, do we really need so many callback? */
+     /* mce handler data initialization */
+-    mce_barrier_init(&mce_inside_bar);
+-    mce_barrier_init(&mce_severity_bar);
+-    mce_barrier_init(&mce_trap_bar);
+     spin_lock_init(&mce_logout_lock);
+     open_softirq(MACHINE_CHECK_SOFTIRQ, mce_softirq);
+ }
+-- 
+2.7.4
+

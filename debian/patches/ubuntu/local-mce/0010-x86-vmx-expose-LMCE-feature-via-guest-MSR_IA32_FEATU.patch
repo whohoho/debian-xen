@@ -1,0 +1,98 @@
+From 6a0b420a7a086af21dbcf15172f24ad1af12a1f2 Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Tue, 4 Jul 2017 10:44:03 +0200
+Subject: [PATCH] x86/vmx: expose LMCE feature via guest
+ MSR_IA32_FEATURE_CONTROL
+
+If MCG_LMCE_P is present in guest MSR_IA32_MCG_CAP, then set LMCE and
+LOCK bits in guest MSR_IA32_FEATURE_CONTROL. Intel SDM requires those
+bits are set before SW can enable LMCE.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit 6a0b420a7a086af21dbcf15172f24ad1af12a1f2)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/cpu/mcheck/mce_intel.c | 4 ++++
+ xen/arch/x86/hvm/vmx/vmx.c          | 9 +++++++++
+ xen/arch/x86/hvm/vmx/vvmx.c         | 4 ----
+ xen/include/asm-x86/mce.h           | 1 +
+ 4 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/xen/arch/x86/cpu/mcheck/mce_intel.c b/xen/arch/x86/cpu/mcheck/mce_intel.c
+index 020b02d..5cb49ca 100644
+--- a/xen/arch/x86/cpu/mcheck/mce_intel.c
++++ b/xen/arch/x86/cpu/mcheck/mce_intel.c
+@@ -946,3 +946,7 @@ int vmce_intel_rdmsr(const struct vcpu *v, uint32_t msr, uint64_t *val)
+     return 1;
+ }
+ 
++bool vmce_has_lmce(const struct vcpu *v)
++{
++    return v->arch.vmce.mcg_cap & MCG_LMCE_P;
++}
+diff --git a/xen/arch/x86/hvm/vmx/vmx.c b/xen/arch/x86/hvm/vmx/vmx.c
+index 00a521d..69ce3aa 100644
+--- a/xen/arch/x86/hvm/vmx/vmx.c
++++ b/xen/arch/x86/hvm/vmx/vmx.c
+@@ -55,6 +55,7 @@
+ #include <asm/hvm/nestedhvm.h>
+ #include <asm/altp2m.h>
+ #include <asm/event.h>
++#include <asm/mce.h>
+ #include <asm/monitor.h>
+ #include <public/arch-x86/cpuid.h>
+ 
+@@ -2856,6 +2857,8 @@ static int is_last_branch_msr(u32 ecx)
+ 
+ static int vmx_msr_read_intercept(unsigned int msr, uint64_t *msr_content)
+ {
++    const struct vcpu *curr = current;
++
+     HVM_DBG_LOG(DBG_LEVEL_MSR, "ecx=%#x", msr);
+ 
+     switch ( msr )
+@@ -2873,6 +2876,12 @@ static int vmx_msr_read_intercept(unsigned int msr, uint64_t *msr_content)
+         __vmread(GUEST_IA32_DEBUGCTL, msr_content);
+         break;
+     case MSR_IA32_FEATURE_CONTROL:
++        *msr_content = IA32_FEATURE_CONTROL_LOCK;
++        if ( vmce_has_lmce(curr) )
++            *msr_content |= IA32_FEATURE_CONTROL_LMCE_ON;
++        if ( nestedhvm_enabled(curr->domain) )
++            *msr_content |= IA32_FEATURE_CONTROL_ENABLE_VMXON_OUTSIDE_SMX;
++        break;
+     case MSR_IA32_VMX_BASIC...MSR_IA32_VMX_VMFUNC:
+         if ( !nvmx_msr_read_intercept(msr, msr_content) )
+             goto gp_fault;
+diff --git a/xen/arch/x86/hvm/vmx/vvmx.c b/xen/arch/x86/hvm/vmx/vvmx.c
+index 2a47d20..2c8cf63 100644
+--- a/xen/arch/x86/hvm/vmx/vvmx.c
++++ b/xen/arch/x86/hvm/vmx/vvmx.c
+@@ -2084,10 +2084,6 @@ int nvmx_msr_read_intercept(unsigned int msr, u64 *msr_content)
+         data = gen_vmx_msr(data, VMX_ENTRY_CTLS_DEFAULT1, host_data);
+         break;
+ 
+-    case MSR_IA32_FEATURE_CONTROL:
+-        data = IA32_FEATURE_CONTROL_LOCK |
+-               IA32_FEATURE_CONTROL_ENABLE_VMXON_OUTSIDE_SMX;
+-        break;
+     case MSR_IA32_VMX_VMCS_ENUM:
+         /* The max index of VVMCS encoding is 0x1f. */
+         data = 0x1f << 1;
+diff --git a/xen/include/asm-x86/mce.h b/xen/include/asm-x86/mce.h
+index 549bef3..56ad1f9 100644
+--- a/xen/include/asm-x86/mce.h
++++ b/xen/include/asm-x86/mce.h
+@@ -36,6 +36,7 @@ extern void vmce_init_vcpu(struct vcpu *);
+ extern int vmce_restore_vcpu(struct vcpu *, const struct hvm_vmce_vcpu *);
+ extern int vmce_wrmsr(uint32_t msr, uint64_t val);
+ extern int vmce_rdmsr(uint32_t msr, uint64_t *val);
++extern bool vmce_has_lmce(const struct vcpu *v);
+ 
+ extern unsigned int nr_mce_banks;
+ 
+-- 
+2.7.4
+

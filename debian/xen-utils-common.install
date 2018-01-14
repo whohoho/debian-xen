@@ -3,12 +3,3 @@ etc/xen/xl*
 usr/lib/xen-common
 usr/sbin
 ../../tree/xen-utils-common/* /
-/usr/lib/systemd/system/xendriverdomain.service
-/usr/lib/systemd/system/xenstored.service
-/usr/lib/systemd/system/xen-init-dom0.service
-/usr/lib/systemd/system/xen-qemu-dom0-disk-backend.service
-/usr/lib/systemd/system/xen-watchdog.service
-/usr/lib/systemd/system/xenconsoled.service
-/usr/lib/systemd/system/xendomains.service
-
-

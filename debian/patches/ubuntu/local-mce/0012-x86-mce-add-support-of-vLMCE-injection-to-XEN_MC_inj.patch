@@ -1,0 +1,75 @@
+From 2b8a8a03f56e21381c7dd560b081002d357639e2 Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Fri, 14 Jul 2017 12:44:58 +0200
+Subject: [PATCH] x86/mce: add support of vLMCE injection to XEN_MC_inject_v2
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit 2b8a8a03f56e21381c7dd560b081002d357639e2)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/cpu/mcheck/mce.c         | 24 +++++++++++++++++++++++-
+ xen/include/public/arch-x86/xen-mca.h |  1 +
+ 2 files changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/xen/arch/x86/cpu/mcheck/mce.c b/xen/arch/x86/cpu/mcheck/mce.c
+index ee04fb5..30525dd 100644
+--- a/xen/arch/x86/cpu/mcheck/mce.c
++++ b/xen/arch/x86/cpu/mcheck/mce.c
+@@ -1485,11 +1485,12 @@ long do_mca(XEN_GUEST_HANDLE_PARAM(xen_mc_t) u_xen_mc)
+     {
+         const cpumask_t *cpumap;
+         cpumask_var_t cmv;
++        bool broadcast = op->u.mc_inject_v2.flags & XEN_MC_INJECT_CPU_BROADCAST;
+ 
+         if (nr_mce_banks == 0)
+             return x86_mcerr("do_mca #MC", -ENODEV);
+ 
+-        if ( op->u.mc_inject_v2.flags & XEN_MC_INJECT_CPU_BROADCAST )
++        if ( broadcast )
+             cpumap = &cpu_online_map;
+         else
+         {
+@@ -1529,6 +1530,27 @@ long do_mca(XEN_GUEST_HANDLE_PARAM(xen_mc_t) u_xen_mc)
+             }
+             break;
+ 
++        case XEN_MC_INJECT_TYPE_LMCE:
++            if ( !lmce_support )
++            {
++                ret = x86_mcerr("No LMCE support", -EINVAL);
++                break;
++            }
++            if ( broadcast )
++            {
++                ret = x86_mcerr("Broadcast cannot be used with LMCE", -EINVAL);
++                break;
++            }
++            /* Ensure at most one CPU is specified. */
++            if ( nr_cpu_ids > cpumask_next(cpumask_first(cpumap), cpumap) )
++            {
++                ret = x86_mcerr("More than one CPU specified for LMCE",
++                                -EINVAL);
++                break;
++            }
++            on_selected_cpus(cpumap, x86_mc_mceinject, NULL, 1);
++            break;
++
+         default:
+             ret = x86_mcerr("Wrong mca type\n", -EINVAL);
+             break;
+diff --git a/xen/include/public/arch-x86/xen-mca.h b/xen/include/public/arch-x86/xen-mca.h
+index 7db9907..dc35267 100644
+--- a/xen/include/public/arch-x86/xen-mca.h
++++ b/xen/include/public/arch-x86/xen-mca.h
+@@ -414,6 +414,7 @@ struct xen_mc_mceinject {
+ #define XEN_MC_INJECT_TYPE_MASK     0x7
+ #define XEN_MC_INJECT_TYPE_MCE      0x0
+ #define XEN_MC_INJECT_TYPE_CMCI     0x1
++#define XEN_MC_INJECT_TYPE_LMCE     0x2
+ 
+ #define XEN_MC_INJECT_CPU_BROADCAST 0x8
+ 
+-- 
+2.7.4
+

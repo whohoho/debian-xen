@@ -1,0 +1,30 @@
+Description: Fix build of xs-test
+ Test uses asprintf without checking return value which is treated as
+ build failure with hardening flags turned on.
+Author: Stefan Bader <stefan.bader@canonical.com>
+Forwarded: No
+
+Index: xen-4.9.0/tools/tests/xenstore/xs-test.c
+===================================================================
+--- xen-4.9.0.orig/tools/tests/xenstore/xs-test.c
++++ xen-4.9.0/tools/tests/xenstore/xs-test.c
+@@ -482,11 +482,17 @@ int main(int argc, char *argv[])
+         return 0;
+     }
+ 
+-    asprintf(&path, "%s/%u", TEST_PATH, getpid());
++    if ( asprintf(&path, "%s/%u", TEST_PATH, getpid()) < 0 ) {
++        fprintf(stderr, "memory allocation failure\n");
++        exit(2);
++    }
+     for ( t = 0; t < WRITE_BUFFERS_N; t++ )
+     {
+         memset(write_buffers[t], 'a' + t, WRITE_BUFFERS_SIZE);
+-        asprintf(&paths[t], "%s/%c", path, 'a' + t);
++        if ( asprintf(&paths[t], "%s/%c", path, 'a' + t) < 0) {
++            fprintf(stderr, "memory allocation failure\n");
++            exit(2);
++        }
+     }
+ 
+     xsh = xs_open(0);

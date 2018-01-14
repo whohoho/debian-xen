@@ -1,13 +1,16 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:47:12 +0200
+X-Dgit-Generated: 4.8.1-1 dda6e65fe8f36391534f781ebdf0bc9f9e58192a
 Subject: tools-xenstore-prefix.diff
 
 Patch-Name: tools-xenstore-prefix.diff
 
 ---
 
---- a/tools/helpers/Makefile
-+++ b/tools/helpers/Makefile
+Index: xen-4.9.0/tools/helpers/Makefile
+===================================================================
+--- xen-4.9.0.orig/tools/helpers/Makefile
++++ xen-4.9.0/tools/helpers/Makefile
 @@ -31,7 +31,7 @@ xen-init-dom0: $(XEN_INIT_DOM0_OBJS)
  $(INIT_XENSTORE_DOMAIN_OBJS): _paths.h
  
@@ -17,9 +20,11 @@ Patch-Name: tools-xenstore-prefix.diff
  
  .PHONY: install
  install: all
---- a/tools/xenstore/Makefile
-+++ b/tools/xenstore/Makefile
-@@ -21,6 +21,8 @@ LDFLAGS-$(CONFIG_SYSTEMD) += $(SYSTEMD_L
+Index: xen-4.9.0/tools/xenstore/Makefile
+===================================================================
+--- xen-4.9.0.orig/tools/xenstore/Makefile
++++ xen-4.9.0/tools/xenstore/Makefile
+@@ -20,6 +20,8 @@ LDFLAGS-$(CONFIG_SYSTEMD) += $(SYSTEMD_L
  CFLAGS  += $(CFLAGS-y)
  LDFLAGS += $(LDFLAGS-y)
  
@@ -28,7 +33,7 @@ Patch-Name: tools-xenstore-prefix.diff
  CLIENTS := xenstore-exists xenstore-list xenstore-read xenstore-rm xenstore-chmod
  CLIENTS += xenstore-write xenstore-ls xenstore-watch
  
-@@ -77,7 +79,7 @@ endif
+@@ -76,7 +78,7 @@ endif
  $(XENSTORED_OBJS): CFLAGS += $(CFLAGS_libxengnttab)
  
  xenstored: $(XENSTORED_OBJS)
@@ -37,7 +42,7 @@ Patch-Name: tools-xenstore-prefix.diff
  
  xenstored.a: $(XENSTORED_OBJS)
  	$(AR) cr $@ $^
-@@ -150,13 +152,13 @@ tarball: clean
+@@ -149,13 +151,13 @@ tarball: clean
  install: all
  	$(INSTALL_DIR) $(DESTDIR)$(bindir)
  	$(INSTALL_DIR) $(DESTDIR)$(includedir)
@@ -54,15 +59,3 @@ Patch-Name: tools-xenstore-prefix.diff
  	$(INSTALL_PROG) xenstore $(DESTDIR)$(bindir)
  	set -e ; for c in $(CLIENTS) ; do \
  		ln -f $(DESTDIR)$(bindir)/xenstore $(DESTDIR)$(bindir)/$${c} ; \
-@@ -189,9 +191,9 @@ uninstall:
- 	rm -f $(DESTDIR)$(libdir)/libxenstore.so.$(MAJOR).$(MINOR)
- 	rm -f $(addprefix $(DESTDIR)$(bindir)/, $(CLIENTS))
- 	rm -f $(DESTDIR)$(bindir)/xenstore
--	rm -f $(DESTDIR)$(bindir)/xenstore-control
-+	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenstore-control
- ifeq ($(XENSTORE_XENSTORED),y)
--	rm -f $(DESTDIR)$(sbindir)/xenstored
-+	rm -f $(DESTDIR)$(LIBEXEC_BIN)/xenstored
- 	if [ -d $(DESTDIR)$(XEN_LIB_STORED) ]; then \
- 		rmdir --ignore-fail-on-non-empty $(DESTDIR)$(XEN_LIB_STORED); \
- 	fi

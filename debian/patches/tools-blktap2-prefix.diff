@@ -1,13 +1,16 @@
 From: Bastian Blank <waldi@debian.org>
 Date: Sat, 5 Jul 2014 11:46:53 +0200
+X-Dgit-Generated: 4.8.1-1 ad82a5763c9d4ebeb72fa838c4abc77b72596370
 Subject: tools-blktap2-prefix.diff
 
 Patch-Name: tools-blktap2-prefix.diff
 
 ---
 
---- a/tools/blktap2/control/Makefile
-+++ b/tools/blktap2/control/Makefile
+Index: xen-4.9.0/tools/blktap2/control/Makefile
+===================================================================
+--- xen-4.9.0.orig/tools/blktap2/control/Makefile
++++ xen-4.9.0/tools/blktap2/control/Makefile
 @@ -1,10 +1,7 @@
  XEN_ROOT := $(CURDIR)/../../../
  include $(XEN_ROOT)/tools/Rules.mk
@@ -33,7 +36,7 @@ Patch-Name: tools-blktap2-prefix.diff
  
  ifneq ($(CONFIG_LIBXC_MINIOS),y)
  PKG_CONFIG_INST := $(PKG_CONFIG)
-@@ -62,43 +59,34 @@ all: build
+@@ -62,33 +59,26 @@ all: build
  
  build: $(IBIN) $(LIB_STATIC) $(LIB_SHARED) $(PKG_CONFIG_INST) $(PKG_CONFIG_LOCAL)
  
@@ -69,25 +72,15 @@ Patch-Name: tools-blktap2-prefix.diff
  	$(INSTALL_DATA) xenblktapctl.pc $(DESTDIR)$(PKG_INSTALLDIR)
  
  clean:
- 	rm -f $(OBJS) $(PICS) $(DEPS_RM) $(IBIN) $(LIB_STATIC) $(LIB_SHARED)
+ 	rm -f $(OBJS) $(PICS) $(DEPS) $(IBIN) $(LIB_STATIC) $(LIB_SHARED)
 -	rm -f $(LIBNAME).so $(LIBSONAME)
  	rm -f *~
  	rm -f xenblktapctl.pc
  
- uninstall:
- 	rm -f $(DESTDIR)$(PKG_INSTALLDIR)/xenblktapctl.pc
--	rm -f $(DESTDIR)$(libdir)/$(LIBSONAME)
--	rm -f $(DESTDIR)$(libdir)/$(LIBNAME).so
--	rm -f $(addprefix $(DESTDIR)$(libdir)/, $(LIB_SHARED))
-+	rm -f $(addprefix $(DESTDIR)$(LIBEXEC_LIB)/, $(LIB_SHARED))
- 	rm -f $(addprefix $(DESTDIR)$(libdir)/, $(LIB_STATIC))
--	rm -f $(addprefix $(DESTDIR)$(sbindir)/, $(IBIN))
-+	rm -f $(addprefix $(DESTDIR)$(LIBEXEC_BIN)/, $(IBIN))
- 
- distclean: clean
- 
---- a/tools/blktap2/vhd/Makefile
-+++ b/tools/blktap2/vhd/Makefile
+Index: xen-4.9.0/tools/blktap2/vhd/Makefile
+===================================================================
+--- xen-4.9.0.orig/tools/blktap2/vhd/Makefile
++++ xen-4.9.0/tools/blktap2/vhd/Makefile
 @@ -12,6 +12,7 @@ CFLAGS            += -Werror
  CFLAGS            += -Wno-unused
  CFLAGS            += -I../include
@@ -96,8 +89,10 @@ Patch-Name: tools-blktap2-prefix.diff
  
  ifeq ($(CONFIG_X86_64),y)
  CFLAGS            += -fPIC
---- a/tools/blktap2/vhd/lib/Makefile
-+++ b/tools/blktap2/vhd/lib/Makefile
+Index: xen-4.9.0/tools/blktap2/vhd/lib/Makefile
+===================================================================
+--- xen-4.9.0.orig/tools/blktap2/vhd/lib/Makefile
++++ xen-4.9.0/tools/blktap2/vhd/lib/Makefile
 @@ -2,25 +2,19 @@ XEN_ROOT=$(CURDIR)/../../../..
  BLKTAP_ROOT := ../..
  include $(XEN_ROOT)/tools/Rules.mk
@@ -126,7 +121,7 @@ Patch-Name: tools-blktap2-prefix.diff
  
  ifeq ($(CONFIG_LIBICONV),y)
  LIBS            += -liconv
-@@ -50,33 +44,26 @@ LIB-OBJS        += $(LVM-UTIL-OBJ)
+@@ -50,27 +44,22 @@ LIB-OBJS        += $(LVM-UTIL-OBJ)
  
  LIB-PICOBJS      = $(patsubst %.o,%.opic,$(LIB-OBJS))
  
@@ -159,13 +154,5 @@ Patch-Name: tools-blktap2-prefix.diff
 +	$(INSTALL_DATA) libvhd.a $(DESTDIR)$(libdir)
 +	$(INSTALL_PROG) libvhd.so $(DESTDIR)$(libdir)
  
- uninstall:
--	rm -f $(DESTDIR)$(INST-DIR)/libvhd.so
--	rm -f $(DESTDIR)$(INST-DIR)/libvhd.so.$(LIBVHD-MAJOR)
--	rm -f $(DESTDIR)$(INST-DIR)/libvhd.so.$(LIBVHD-MAJOR).$(LIBVHD-MINOR)
--	rm -f $(DESTDIR)$(INST-DIR)/libvhd.a
-+	rm -f $(DESTDIR)$(libdir)/libvhd.so
-+	rm -f $(DESTDIR)$(libdir)/libvhd.a
- 
  clean:
- 	rm -rf *.a *.so* *.o *.opic *~ $(DEPS_RM) $(LIBVHD)
+ 	rm -rf *.a *.so* *.o *.opic *~ $(DEPS) $(LIBVHD)

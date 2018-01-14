@@ -1,0 +1,43 @@
+From d781dbcb80e598d38d8df532fe987e770ed76d62 Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Wed, 31 May 2017 08:39:22 +0200
+Subject: [PATCH] x86/mce: make 'found_error' and 'mce_fatal_cpus' private to
+ mcheck_cmn_handler()
+
+mcheck_cmn_handler() is the only user of 'found_error' and
+'mce_fatal_cpus'.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit d781dbcb80e598d38d8df532fe987e770ed76d62)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/cpu/mcheck/mce.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/xen/arch/x86/cpu/mcheck/mce.c b/xen/arch/x86/cpu/mcheck/mce.c
+index 0d9d5b0..54fd000 100644
+--- a/xen/arch/x86/cpu/mcheck/mce.c
++++ b/xen/arch/x86/cpu/mcheck/mce.c
+@@ -182,9 +182,6 @@ void mce_need_clearbank_register(mce_need_clearbank_t cbfunc)
+  */
+ static DEFINE_SPINLOCK(mce_logout_lock);
+ 
+-static atomic_t found_error = ATOMIC_INIT(0);
+-static cpumask_t mce_fatal_cpus;
+-
+ const struct mca_error_handler *__read_mostly mce_dhandlers;
+ const struct mca_error_handler *__read_mostly mce_uhandlers;
+ unsigned int __read_mostly mce_dhandler_num;
+@@ -450,6 +447,8 @@ void mcheck_cmn_handler(const struct cpu_user_regs *regs)
+ {
+     static DEFINE_MCE_BARRIER(mce_trap_bar);
+     static atomic_t severity_cpu = ATOMIC_INIT(-1);
++    static atomic_t found_error = ATOMIC_INIT(0);
++    static cpumask_t mce_fatal_cpus;
+     struct mca_banks *bankmask = mca_allbanks;
+     struct mca_banks *clear_bank = __get_cpu_var(mce_clear_banks);
+     uint64_t gstatus;
+-- 
+2.7.4
+

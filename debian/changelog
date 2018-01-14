@@ -1,77 +1,108 @@
-xen (4.10.0-1~yolo5) UNRELEASED; urgency=medium
+xen (4.9.0-0ubuntu3) artful; urgency=medium
 
-  * Update to 4.10
+  * Applying Xen Security Advisories:
+    - CVE-2017-12135 / XSA-226
+      - Revert: grant_table: Default to v1, and disallow transitive grants
+      - gnttab: don't use possibly unbounded tail calls
+      - gnttab: fix transitive grant handling
+    - CVE-2017-14316 / XSA-231
+      - xen/mm: make sure node is less than MAX_NUMNODES
+    - CVE-2017-14318 / XSA-232
+      - grant_table: fix GNTTABOP_cache_flush handling
+    - CVE-2017-14317 / XSA-233
+      - tools/xenstore: dont unlink connection object twice
+    - CVE-2017-14319 / XSA-234
+      - gnttab: also validate PTE permissions upon destroy/replace
+    - XSA-235
+      - arm/mm: release grant lock on xenmem_add_to_physmap_one() error paths
+    - XSA-237
+      - x86: don't allow MSI pIRQ mapping on unowned device
+      - x86: enforce proper privilege when (un)mapping pIRQ-s
+      - x86/MSI: disallow redundant enabling
+      - x86/IRQ: conditionally preserve irq <-> pirq mapping on map error paths
+      - x86/FLASK: fix unmap-domain-IRQ XSM hook
+    - XSA-238
+      - x86/ioreq server: correctly handle bogus
+        XEN_DMOP_{,un}map_io_range_to_ioreq_server arguments
+    - XSA-239
+      - x86/HVM: prefill partially used variable on emulation paths
+    - XSA-240
+      - x86: limit linear page table use to a single level
+      - x86/mm: Disable PV linear pagetables by default
+    - XSA-241
+      - x86: don't store possibly stale TLB flush time stamp
+    - XSA-242
+      - x86: don't allow page_unlock() to drop the last type reference
+    - XSA-243
+      - x86/shadow: Don't create self-linear shadow mappings for 4-level
+        translated guests
+    - XSA-244
+      - x86/cpu: Fix IST handling during PCPU bringup
+    - XSA-245
+      - xen/page_alloc: Cover memory unreserved after boot in first_valid_mfn
+      - xen/arm: Correctly report the memory region in the dummy NUMA helpers
 
- -- Hans van Kranenburg <hans@knorrie.org>  Fri, 05 Jan 2018 21:14:38 +0100
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 10 Oct 2017 11:24:52 +0200
 
-xen (4.9.2~pre+1.32e364c4e7-1) UNRELEASED; urgency=medium
+xen (4.9.0-0ubuntu2) artful; urgency=medium
 
-  * Update to upstream release 4.9.1 plus latest security patches. This is
-    upstream commit 32e364c4e72157f144574796ac9ea021e3417d47
-  * Merge changes for 4.9 from the ubuntu packaging:
-    - Rebase patches against upstream source (line numbers etc).
+  * Add libxendevicemodel references to d/libxen-dev.install
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 18 Aug 2017 17:22:20 +0200
+
+xen (4.9.0-0ubuntu1) artful; urgency=medium
+
+  * Update to upstream 4.9.0 release.
+    Changes include numerous bugfixes, including security fixes for:
+    XSA-213 / CVE-2017-8903
+    XSA-214 / CVE-2017-8904
+    XSA-217 / CVE-2017-10912
+    XSA-218 / CVE-2017-10913, CVE-2017-10914
+    XSA-219 / CVE-2017-10915
+    XSA-220 / CVE-2017-10916
+    XSA-221 / CVE-2017-10917
+    XSA-222 / CVE-2017-10918
+    XSA-223 / CVE-2017-10919
+    XSA-224 / CVE-2017-10920, CVE-2017-10921, CVE-2017-10922
+    XSA-225 / CVE-2017-10923
+  * Additional CVE's:
+    - XSA-226 / CVE-2017-12135
+    - XSA-227 / CVE-2017-12137
+    - XSA-228 / CVE-2017-12136
+    - XSA-230 / CVE-2017-12855
+  * Additional fixes:
     - debian/rules.real:
-      - Add a call to build common tool headers.
-      - Add a call to install common tool headers.
-    - debian/libxen-dev.install, d/p/ubuntu-tools-libs-abiname.diff:
-      - Add additional modifications for new libxendevicemodel.
-    - debian/patches/tools-fake-xs-restrict.patch:
-      - Re-introduce (fake) xs_restrict call to keep libxenstore version at
-        3.0 for now.
-    - debian/libxenstore3.0.symbols: add xs_control_command
+      - Add a call to build common tool headers
+      - Add a call to install common tool headers
+    - Add checking of return values of asprintf calls.
+      - d/p/ubuntu/tools-xs-test-hardening.patch
+    - Add additional modifications for new libxendevicemodel
+      - d/p/ubuntu/tools-libs-abiname.diff
+    - Fix a segmentation fault when mmio_hole is set in hvm.cfg (from 4.9.y)
+      - d/p/upstream-4.9.1-tools-libxl-Fix-a-segment-fault-when-mmio_hole...
+    - Enable Local MCE feature
+      - d/p/.../0001-x86-mce-make-mce-barriers-private-to-their-users.patch
+      - d/p/.../0002-x86-mce-make-found_error-and-mce_fatal_cpus-private-.patch
+      - d/p/.../0003-x86-mce-fix-comment-of-struct-mc_telem_cpu_ctl.patch
+      - d/p/.../0004-x86-mce-allow-mce_barrier_-enter-exit-to-return-with.patch
+      - d/p/.../0005-x86-mce-handle-host-LMCE.patch
+      - d/p/.../0006-x86-mce_intel-detect-and-enable-LMCE-on-Intel-host.patch
+      - d/p/.../0007-x86-domctl-generalize-the-restore-of-vMCE-parameters.patch
+      - d/p/.../0008-x86-vmce-emulate-MSR_IA32_MCG_EXT_CTL.patch
+      - d/p/.../0009-x86-vmce-enable-injecting-LMCE-to-guest-on-Intel-hos.patch
+      - d/p/.../0010-x86-vmx-expose-LMCE-feature-via-guest-MSR_IA32_FEATU.patch
+      - d/p/.../0011-x86-vmce-tools-libxl-expose-LMCE-capability-in-guest.patch
+      - d/p/.../0012-x86-mce-add-support-of-vLMCE-injection-to-XEN_MC_inj.patch
+    - Re-introduce (fake) xs_restrict call to keep libxenstore version at
+      3.0 for now.
+      - d/p/ubuntu/tools-fake-xs-restrict.patch
+    - debian/libxenstore3.0.symbols:
+      - Added xs_control_command
+    - xen-4.9.0/debian/xen-hypervisor-4.9.xen.cfg:
+      - Modified GRUB_DEFAULT setting to be dynamic (like update-grub does)
+        which should handle non English environments (LP: #1321144)
 
- -- Hans van Kranenburg <hans@knorrie.org>  Tue, 19 Dec 2017 18:44:47 +0100
-
-xen (4.8.2+xsa245-0+deb9u1) stretch-security; urgency=high
-
-  * Update to upstream stable 4.8 branch, which is currently at Xen 4.8.2
-    plus a number of bugfixes and security fixes.
-    Result is that we now include security fixes for:
-       XSA-231 CVE-2017-14316
-       XSA-232 CVE-2017-14318
-       XSA-233 CVE-2017-14317
-       XSA-234 CVE-2017-14319
-       (235 already included in 4.8.1-1+deb9u3)
-       XSA-236 CVE-2017-15597
-       XSA-237 CVE-2017-15590
-       XSA-238 (no CVE yet)
-       XSA-239 CVE-2017-15589
-       XSA-240 CVE-2017-15595
-       XSA-241 CVE-2017-15588
-       XSA-242 CVE-2017-15593
-       XSA-243 CVE-2017-15592
-       XSA-244 CVE-2017-15594
-       XSA-245 (no CVE yet)
-    and a number of upstream functionality fixes, which are not easily
-    disentangled from the security fixes.
-  * Apply two more security fixes:
-       XSA-246 (no CVE yet)
-       XSA-247 (no CVE yet)
-
- -- Ian Jackson <ijackson@chiark.greenend.org.uk>  Sat, 25 Nov 2017 11:26:37 +0000
-
-xen (4.8.1-1+deb9u3) stretch-security; urgency=high
-
-  * Security fixes for
-      XSA-226 CVE-2017-12135
-      XSA-227 CVE-2017-12137
-      XSA-228 CVE-2017-12136
-      XSA-230 CVE-2017-12855
-      XSA-235 (no CVE yet)
-  * Adjust changelog entry for 4.8.1-1+deb9u2 to record
-    that XSA-225 fix was indeed included.
-  * Security fix for XSA-229 not included as that bug is in Linux, not Xen.
-  * Security fixes for XSA-231..234 inc. not inclued as still embargoed.
-
- -- Ian Jackson <ian.jackson@eu.citrix.com>  Thu, 07 Sep 2017 19:17:58 +0100
-
-xen (4.8.1-1+deb9u2) stretch-security; urgency=high
-
-  * Security fixes for
-      XSA-216 XSA-217 XSA-218 XSA-219 XSA-220
-      XSA-221 XSA-222 XSA-223 XSA-224 XSA-225
-
- -- Ian Jackson <ian.jackson@eu.citrix.com>  Tue, 20 Jun 2017 14:06:34 +0100
+ -- Stefan Bader <stefan.bader@canonical.com>  Thu, 17 Aug 2017 11:37:11 +0200
 
 xen (4.8.1-1+deb9u1) unstable; urgency=medium
 
@@ -97,6 +128,28 @@ xen (4.8.1~pre.2017.01.23-1) unstable; urgency=medium
   * debian/control-real etc.: debian.py: Allow version numbers like this.
 
  -- Ian Jackson <ian.jackson@eu.citrix.com>  Mon, 23 Jan 2017 16:03:31 +0000
+
+xen (4.8.0-1ubuntu2) zesty; urgency=medium
+
+  * Cherry-pick upstream change to fix TSC_ADJUST MSR handling in HVM
+    guests running on Intel based hosts (LP: #1671760)
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 14 Mar 2017 09:27:04 +0100
+
+xen (4.8.0-1ubuntu1) zesty; urgency=medium
+
+  * Merge from Debian unstable. Remaining changes:
+    - Add transitional package definitions to debian/control and
+      debian/rules.gen (force hypervisor upgrade).
+    - Split xen.init into xenstored.init and xen.init
+      * xen.init depends in xenstored.init and optionally schedules itself
+        before libvirtd.
+      * xenstored.init additionally modprobes xen-acpi-processor
+    - Remove update-alternatives call from xen utils (postinst/prerm) scripts.
+    - Copy contents of debian/build/install-utils_$(ARCH)/usr/sbin into
+      debian/build/install-utils_$ARCH/usr/lib/xen-$(VERSION) (LP: #1396670).
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Thu, 26 Jan 2017 12:40:13 +0100
 
 xen (4.8.0-1) unstable; urgency=high
 
@@ -191,6 +244,56 @@ xen (4.8.0~rc3-0exp1) experimental; urgency=high
 
  -- Ian Jackson <ijackson@chiark.greenend.org.uk>  Mon, 24 Oct 2016 17:31:27 +0100
 
+xen (4.7.0-0ubuntu2) yakkety; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2016-6258 / XSA-182
+      * x86/pv: Remove unsafe bits from the mod_l?_entry() fastpath
+    - CVE-2016-6259 / XSA-183
+      * x86/entry: Avoid SMAP violation in compat_create_bounce_frame()
+    - CVE-2016-7092 / XSA-185
+      * x86/32on64: don't allow recursive page tables from L3
+    - CVE-2016-7093 / XSA-186
+      * x86/emulate: Correct boundary interactions of emulated instructions
+      * hvm/fep: Allow testing of instructions crossing the -1 -> 0 virtual
+        boundary
+    - CVE-2016-7094 / XSA-187
+      * x86/shadow: Avoid overflowing sh_ctxt->seg_reg[]
+      * x86/segment: Bounds check accesses to emulation ctxt->seg_reg[]
+    - CVE-2016-7777 / XSA-190
+      * x86emul: honor guest CR0.TS and CR0.EM
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Thu, 06 Oct 2016 15:24:46 +0200
+
+xen (4.7.0-0ubuntu1) yakkety; urgency=low
+
+  * Rebasing to upstream Xen release 4.7 (LP: #1621618)
+    - Renamed all *-4.6* files into *-4.7*. Also moved references within
+      various files from 4.6 to 4.7.
+    - Follow previous abiname patches to create individual run-time libs
+      for the versioned libxen package for libxencall, libxenevtchn,
+      libxenforeignmemory, libxengnttab, and libxentoollog.
+    - Modified debian/libxen-dev.install to pick up the additional headers
+      and drop one which is no longer present. And also add the new libs.
+    - Refreshed Debian patchesS
+    - Dropped transitional packages <4.6, added a set for 4.6.
+    - Dropped tools-allow-configure-time-choice-of-libexec-subdire.patch
+      (upstream)
+    - Dropped ubuntu-config-prefix-fix.patch (unnecessary)
+    - Dropped all security patches since those were all included in
+      the new upstream release.
+    - Added fix for FTBS on Arm due to unused static variables and
+      hardening flags turned on.
+    - Switched dependencies of sysvinit scripts from libvirt-bin to
+      libvirtd.
+    - Added modprobe for xen-acpi-processor (no auto-load alias) to
+      xenstrore init script. Otherwise there is no frequency scaling
+      if the driver is compiled as a module.
+    - Added proposed upstream fix for regression to save PV guests
+      with more than 1G of memory.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 31 Aug 2016 16:12:26 +0200
+
 xen (4.6.0-1+nmu2) unstable; urgency=medium
 
   * Ensure debian/control.md5sum is correctly updated. Fixes FTBFS of
@@ -209,6 +312,143 @@ xen (4.6.0-1+nmu1) unstable; urgency=medium
 
  -- Ian Campbell <ijc@debian.org>  Tue, 19 Jan 2016 14:43:54 +0000
 
+xen (4.6.0-1ubuntu5) yakkety; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2016-3158, CVE-2016-3159 / XSA-172
+      * x86: fix information leak on AMD CPUs
+    - CVE-2016-3960 / XSA-173
+      * x86: limit GFNs to 32 bits for shadowed superpages.
+    - CVE-2016-4962 / XSA-175
+      * libxl: Record backend/frontend paths in /libxl/$DOMID
+      * libxl: Provide libxl__backendpath_parse_domid
+      * libxl: Do not trust frontend in libxl__devices_destroy
+      * libxl: Do not trust frontend in libxl__device_nextid
+      * libxl: Do not trust frontend for disk eject event
+      * libxl: Do not trust frontend for disk in getinfo
+      * libxl: Do not trust frontend for vtpm list
+      * libxl: Do not trust frontend for vtpm in getinfo
+      * libxl: Do not trust frontend for nic in libxl_devid_to_device_nic
+      * libxl: Do not trust frontend for nic in getinfo
+      * libxl: Do not trust frontend for channel in list
+      * libxl: Do not trust frontend for channel in getinfo
+      * libxl: Cleanup: Have libxl__alloc_vdev use /libxl
+      * libxl: Document ~/serial/ correctly
+    - CVE-2016-4480 / XSA-176
+      * x86/mm: fully honor PS bits in guest page table walks
+    - CVE-2016-4963 / XSA-178
+      * libxl: Make copy of every xs backend in /libxl in _generic_add
+      * libxl: Do not trust backend in libxl__device_exists
+      * libxl: Do not trust backend for vtpm in getinfo (except uuid)
+      * libxl: Do not trust backend for vtpm in getinfo (uuid)
+      * libxl: cdrom eject and insert: write to /libxl
+      * libxl: Do not trust backend for disk eject vdev
+      * libxl: Do not trust backend for disk; fix driver domain disks list
+      * libxl: Do not trust backend for disk in getinfo
+      * libxl: Do not trust backend for cdrom insert
+      * libxl: Do not trust backend for channel in getinfo
+      * libxl: Rename libxl__device_{nic,channel}_from_xs_be to _from_xenstore
+      * libxl: Rename READ_BACKEND to READ_LIBXLDEV
+      * libxl: Have READ_LIBXLDEV use libxl_path rather than be_path
+      * libxl: Do not trust backend in nic getinfo
+      * libxl: Do not trust backend for nic in devid_to_device
+      * libxl: Do not trust backend for nic in list
+      * libxl: Do not trust backend in channel list
+      * libxl: Cleanup: use libxl__backendpath_parse_domid in
+               libxl__device_disk_from_xs_be
+      * libxl: Fix NULL pointer due to XSA-178 fix wrong XS nodename
+    - CVE-2016-5242 / XSA-181
+      * xen/arm: Don't free p2m->first_level in p2m_teardown() before
+                 it has been allocated
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 07 Jun 2016 16:30:19 +0200
+
+xen (4.6.0-1ubuntu4) xenial; urgency=low
+
+  * d/rules.real: Set LANG=C.UTF-8 for the builds to avoid a grep bug.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 19 Feb 2016 12:08:31 +0100
+
+xen (4.6.0-1ubuntu3) xenial; urgency=low
+
+  * Fix unmount error message on shutdown and init script ordering issues:
+    - d/xen-utils-common.xenstored.init: Introduce new init script which only
+      starts xenstored (but also shuts it down on stop). Prevent this one to
+      be run on upgrade.
+    - d/xen-utils-common.xen.init:
+      * Add X-Start-Before/X-Stop-After dependencies on libvirt-bin
+      * Remove xenstored related code
+  * d/scripts/xen-init-list: Revert back to unmodified version from Debian.
+    With the ordering fixed, libvirt guests should be handled by its own
+    script before xendomains is run.
+  * d/control, d/libxen-dev.install and d/rules.real:
+    Add xenlight.pc and xlutil.pc to be packaged as part of libxen-dev in
+    multi-arch suitable location. Also declare libxen-dev as multi-arch
+    same.
+  * Additional Security Patches:
+    - CVE-2016-2270 / XSA-154
+      * x86: enforce consistent cachability of MMIO mappings
+    - CVE-2016-1570 / XSA-167
+      * x86/mm: PV superpage handling lacks sanity checks
+    - CVE-2016-1571 / XSA-168
+      * x86/VMX: prevent INVVPID failure due to non-canonical guest address
+    - CVE-2015-8615 / XSA-169
+      * x86: make debug output consistent in hvm_set_callback_via
+    - CVE-2016-2271 / XSA-170
+      * x86/VMX: sanitize rIP before re-entering guest
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Thu, 18 Feb 2016 18:20:38 +0100
+
+xen (4.6.0-1ubuntu2) xenial; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2015-8550 / XSA-155
+      * xen: Add RING_COPY_REQUEST()
+      * blktap2: Use RING_COPY_REQUEST
+      * libvchan: Read prod/cons only once.
+    - CVE-2015-8338 / XSA-158
+      * memory: split and tighten maximum order permitted in memops
+    - CVE-2015-8339, CVE-2015-8340 / XSA-159
+      * memory: fix XENMEM_exchange error handling
+    - CVE-2015-8341 / XSA-160
+      * libxl: Fix bootloader-related virtual memory leak on pv
+        build failure
+    - CVE-2015-8555 / XSA-165
+      * x86: don't leak ST(n)/XMMn values to domains first using them
+    - CVE-2015-???? / XSA-166
+      * x86/HVM: avoid reading ioreq state more than once
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 16 Dec 2015 12:06:10 +0100
+
+xen (4.6.0-1ubuntu1) xenial; urgency=low
+
+  * Merge of Xen-4.6 from Debian. Remaining changes:
+    - debian/control, debian/rules.gen:
+      Generate transitional xen-hypervisor packages.
+    - debian/rules.real:
+      Install the grub.d config file.
+    - debian/scripts/xen-init-list:
+      Ignore libxl guests not created by the xl toolstack (e.g. libvirt).
+    - debian/tree/xen-utils-common/usr/share/xen-utils-common/default.xen:
+      Minor readability improvements (maybe get rid of those)
+    - debian/xen-hypervisor-4.6.xen.cfg:
+      Additional config file to simplify grub configuration.
+    - debian/xen-utils-4.6.postinst, debian/xen-utils-4.6.prerm:
+      Remove update-alternatives call.
+    - debian/xen-utils-common.xen.init:
+      Fix consoled_stop_real and additional code to start and attach a
+      qemu instance to dom0 (needed for pygrub booting QCOW2 PVM guests).
+      Note: Also contains a work-around for a kernel bug which should be
+      dropped in the next release.
+    - debian/patches/ubuntu-config-prefix-fix.patch:
+      Modifies configure and tools/configure to use the correct (versioned)
+      libexec path.
+    - Additional security fixes:
+      * XSA-156 / CVE-2015-5307
+        x86/HVM: always intercept #AC and #DB
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 02 Dec 2015 18:57:48 +0100
+
 xen (4.6.0-1) unstable; urgency=medium
 
   * New upstream release.
@@ -223,6 +463,54 @@ xen (4.6.0-1) unstable; urgency=medium
 
  -- Bastian Blank <waldi@debian.org>  Sun, 01 Nov 2015 21:49:07 +0100
 
+xen (4.5.1-0ubuntu2) xenial; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2015-7311 / XSA-142
+      * libxl: handle read-only drives with qemu-xen
+    - CVE-2015-7812 / XSA-145
+      * xen/arm: Support hypercall_create_continuation for multicall
+    - CVE-2015-7813 / XSA-146
+      * xen: arm: rate-limit logging from unimplemented PHYSDEVOP and HVMOP.
+    - CVE-2015-7814 / XSA-147
+      * xen: arm: handle races between relinquish_memory and
+        free_domheap_pages
+    - CVE-2015-7835 / XSA-148
+      * x86: guard against undue super page PTE creation
+    - CVE-2015-7969 / XSA-149
+      * xen: free domain's vcpu array
+    - CVE-2015-7970 / XSA-150
+      * x86/PoD: Eager sweep for zeroed pages
+    - CVE-2015-7969 / XSA-151
+      * xenoprof: free domain's vcpu array
+    - CVE-2015-7971 / XSA-152
+      * x86: rate-limit logging in do_xen{oprof,pmu}_op()
+    - CVE-2015-7972 / XSA-153
+      * libxl: adjust PoD target by memory fudge, too
+    - CVE-2015-5307 / XSA-156
+      * x86/HVM: always intercept #AC and #DB
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 03 Nov 2015 08:39:07 -0600
+
+xen (4.5.1-0ubuntu1) wily; urgency=low
+
+  * New upstream stable release (4.5.1)
+    - Replacing the following security changes by upstream versions:
+      * CVE-2014-3969 / XSA-98 (update),
+        CVE-2015-0268 / XSA-117, CVE-2015-1563 / XSA-118,
+        CVE-2015-2152 / XSA-119, CVE-2015-2044 / XSA-121,
+        CVE-2015-2045 / XSA-122, CVE-2015-2151 / XSA-123,
+        CVE-2015-2752 / XSA-125, CVE-2015-2751 / XSA-127
+    - Included security changes which where not yet applied:
+      * CVE-2015-4163 / XSA-134, CVE-2015-4164 / XSA-136
+  * Applying additional Xen Security Advisories:
+    - CVE-2015-3259 / XSA-137
+      * xl: Sane handling of extra config file arguments
+    - CVE-2015-6654 / XSA-141
+      * xen/arm: mm: Do not dump the p2m when mapping a foreign gfn
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 02 Sep 2015 16:37:39 +0200
+
 xen (4.5.1~rc1-1) experimental; urgency=medium
 
   [ Ian Campbell ]
@@ -233,6 +521,75 @@ xen (4.5.1~rc1-1) experimental; urgency=medium
   * New upstream release candidate.
 
  -- Bastian Blank <waldi@debian.org>  Sun, 31 May 2015 21:59:56 +0200
+
+xen (4.5.0-1ubuntu4) vivid; urgency=low
+
+  * Applying Xen Security Advisories:
+    * CVE-2014-3969 / XSA-98 (update)
+      - xen: arm: correct arm64 version of gva_to_ma_par
+    * CVE-2015-2752 / XSA-125
+      - Limit XEN_DOMCTL_memory_mapping hypercall to only process up
+        to 64 GFNs (or less)
+    * CVE-2015-2751 / XSA-127
+      - domctl: don't allow a toolstack domain to call domain_pause() on
+        itself
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 08 Apr 2015 10:10:27 +0200
+
+xen (4.5.0-1ubuntu3) vivid; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2015-0268 / XSA-117
+      * xen/arm: vgic-v2: Don't crash the hypervisor if the SGI
+        target mode is invalid
+    - CVE-2015-1563 / XSA-118
+      * xen/arm: vgic: message in the emulation code should be
+        rate-limited
+    - CVE-2015-2152 / XSA-119
+      * tools: libxl: Explicitly disable graphics backends on qemu
+        cmdline
+    - CVE-2015-2044 / XSA-121
+      * x86/HVM: return all ones on wrong-sized reads of system device I/O
+        ports
+    - CVE-2015-2045 / XSA-122
+      * pre-fill structures for certain HYPERVISOR_xen_version sub-ops
+    - CVE-2015-2151 / XSA-123
+      * x86emul: fully ignore segment override for register-only operations
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 04 Mar 2015 12:34:49 +0100
+
+xen (4.5.0-1ubuntu2) vivid; urgency=low
+
+  * Really add a transitional package for xen-hypervisor-4.4-amd64 for
+    i386.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 27 Feb 2015 15:47:49 +0100
+
+xen (4.5.0-1ubuntu1) vivid; urgency=low
+
+  * Merge lastest upstream release from Debian experimental. Remaining
+    changes:
+    - d/rules.real:
+      * Remove reference to OCAMLDESTDIR [minor cleanup]
+      * Install xen.cfg into /etc/default/grub.d
+      * Declare transitional packages for hypervisor.
+    - d/rules.gen:
+      * Add rules for transitional hypervisor packages.
+    - d/scripts/xen-init-list:
+      * Ignore domains not managed by xl (also works around a bug in
+        xl list -l).
+    - d/tree/xen-utils-common/usr/share/xen-utils-common/default.xen:
+      * Add a little more explanation to a config file.
+    - d/xen-hypervisor-4.5.xen.cfg
+    - d/xen-utils-4.5.postinst and d/xen-utils-4.5.prerm:
+      * Remove call to update-alternatives since we did not have those
+        created in any release in the upgrade-path.
+    - d/xen-utils-common.xen.init (picked from Debian packaging xen.git):
+      * Fix removal of xenconsoled pid file.
+      * Add code to start a qemu process for dom0.
+      * Replace xenstore-writes by xen-init-dom0 call.
+ 
+ -- Stefan Bader <stefan.bader@canonical.com>  Thu, 22 Jan 2015 11:35:47 +0100
 
 xen (4.5.0-1) experimental; urgency=medium
 
@@ -286,6 +643,46 @@ xen (4.4.1-4) unstable; urgency=medium
   * xen-utils recommends grub-xen-host package (Closes: #770460)
 
  -- Bastian Blank <waldi@debian.org>  Thu, 27 Nov 2014 20:17:36 +0100
+
+xen (4.4.1-3ubuntu2) vivid; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2014-8594 / XSA-109
+      * x86: don't allow page table updates on non-PV page tables in
+        do_mmu_update()
+    - CVE-2014-8595 / XSA-110
+      * x86emul: enforce privilege level restrictions when loading CS
+    - CVE-2014-8866 / XSA-111
+      * x86: limit checks in hypercall_xlat_continuation() to actual arguments
+    - CVE-2014-8867 / XSA-112
+      * x86/HVM: confine internally handled MMIO to solitary regions
+    - CVE-2014-9030 / XSA-113
+      * x86/mm: fix a reference counting error in MMU_MACHPHYS_UPDATE
+  * Pulling in Debian change to start qemu in dom0 (LP: #1396068)
+  * Picking up Debian change to recommend grub-xen-host from xen-utils.
+  * Picking up Debian change to really include xen-init-name.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 19 Nov 2014 13:47:12 +0100
+
+xen (4.4.1-3ubuntu1) vivid; urgency=low
+
+  * Merge from Debian unstable. Remaining changes:
+    - d/p/series: Completely non-build-affecting additional comments. Just
+      helpful hints for maintenance.
+    - d/rules.real:
+      * Use a separate grub config file in /etc/default/grub.d which auto-
+        matically sets the default boot to Xen.
+      * Remove OCAMLDESTDIR since all the xend/xm support is gone now.
+    - d/scripts/xen-init-list: Avoid calling "xen list -l" without arguments
+      as that breaks if there are guests started by libvirt are running.
+    - d/xen-utils-4.4.postinst and d/xen-utils-4.4.prerm: Remove call to
+      update-alternatives as this has not been used for several releases
+      now.
+    - d/tree/xen-utils-common/usr/share/xen-utils-common/default.xen:
+      Be a bit more verbose in the comments of the file and also point
+      out that xm is gone now.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 28 Oct 2014 17:32:56 +0100
 
 xen (4.4.1-3) unstable; urgency=medium
 
@@ -400,6 +797,151 @@ xen (4.4.0-1) unstable; urgency=medium
 
  -- Bastian Blank <waldi@debian.org>  Sat, 09 Aug 2014 13:09:00 +0200
 
+xen (4.4.0-0ubuntu9) utopic; urgency=low
+
+  * debian/scripts/xen-init-list: Modify code to only list domains started
+    by the xl command (when using libxl). Also working around a bug in the
+    "list -l" command of the xl toolstack which causes it to fail if there
+    are domains running which are not created by xl (like via libvirt)
+    (LP: #1377960).
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 07 Oct 2014 11:05:44 +0200
+
+xen (4.4.0-0ubuntu8) utopic; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2014-5147 / XSA-102
+      * xen: arm: handle AArch32 userspace when dumping 64-bit guest state.
+      * xen: arm: Correctly handle exception injection from userspace on
+        64-bit.
+      * xen: arm: Handle traps from 32-bit userspace on 64-bit kernel as undef
+    - CVE-2014-5148 / XSA-103
+      * xen: arm: Correctly handle do_sysreg exception injection from 64-bit
+        userspace
+    - CVE-2014-7154 / XSA-104
+      * x86/shadow: fix race condition sampling the dirty vram state
+    - CVE-2014-7155 / XSA-105
+      * x86/emulate: check cpl for all privileged instructions
+    - CVE-2014-7156 / XSA-106
+      * x86emul: only emulate software interrupt injection for real mode
+    - CVE-2014-6268 / XSA-107
+      * evtchn: check control block exists when using FIFO-based events
+    - CVE-2014-7188 / XSA-108
+      * x86/HVM: properly bound x2APIC MSR range
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 26 Sep 2014 09:55:15 +0200
+
+xen (4.4.0-0ubuntu7) utopic; urgency=low
+
+  * d/xen-utils-<version>.postinst: Remove xend config conversion script.
+  * d/p/ubuntu-use-seabios-256.patch: Pick the 256K seabios image for
+    hvmloader because the 128K default image dropped Xen support.
+    (LP: #1370123)
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 16 Sep 2014 17:35:24 +0200
+
+xen (4.4.0-0ubuntu6) utopic; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2014-2599 / XSA-89
+      * x86: enforce preemption in HVM_set_mem_access / p2m_set_mem_access()
+    - CVE-2014-3125 / XSA-91
+      * xen/arm: Correctly save/restore CNTKCTL_EL1
+    - CVE-2014-3124 / XSA-92
+      * x86/HVM: restrict HVMOP_set_mem_type
+    - CVE-2014-2915 / XSA-93
+      * xen/arm: Inject an undefined instruction when the coproc/sysreg
+                 is not handled
+      * xen/arm: Don't let the guest access the coprocessors registers
+      * xen/arm: Upgrade DCISW into DCCISW
+      * xen/arm: Trap cache and TCM lockdown registers
+      * xen/arm: Don't expose implementation defined registers (Cp15 c15)
+                 to the guest
+      * xen/arm: Don't let guess access to Debug and Performance Monitor
+                 registers
+    - CVE-2014-2986 / XSA-94
+      * xen/arm: vgic: Check rank in GICD_ICFGR* emulation before locking
+    - CVE-2014-3714, CVE-2014-3715,  CVE-2014-3716, CVE-2014-3717 / XSA-95
+      * tools: arm: remove code to check for a DTB appended to the kernel
+    - CVE-2014-3967,CVE-2014-3968 / XSA-96
+      * x86/HVM: eliminate vulnerabilities from hvm_inject_msi()
+    - CVE-2014-3969 / XSA-98
+      * xen: arm: check permissions when copying to/from guest virtual
+                  addresses
+      * xen: arm: ensure we hold a reference to guest pages while we copy
+                  to/from them
+    - CVE-2014-4021 / XSA-100
+      * AMD IOMMU: don't free page table prematurely
+      * page-alloc: scrub pages used by hypervisor upon freeing
+    - CVE-2014-4022 / XSA-101
+      * xen: arm: initialise the grant_table_gpfn array on allocation
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Mon, 23 Jun 2014 15:40:16 +0200
+
+xen (4.4.0-0ubuntu5) trusty; urgency=low
+
+  * Minimal changes to make arm64 build. It produces packages, whatever
+    can be done with those is somebody elses problem.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 11 Apr 2014 15:12:47 +0200
+
+xen (4.4.0-0ubuntu4) trusty; urgency=low
+
+  * Fix up some more stale 4.3 references in xen-utils-4.4 debian
+    packaging files.
+  * Remove update-alternatives for postinst and prerm of xen-utils-<version>
+    as there is no xen-default anymore.
+  * debian/rules.real:
+    Add etc/default/grub.d and install xen.cfg into it. This adds a
+    place to set Xen grub arguments and makes booting into Xen the
+    default (with a warning message on running update-grub).
+  * debian/rules.real, debian/xen-utils-$(VERSION).postinst, xen-sxp2xm, 
+    and xen-migrate-xend-managed-domains:
+    Add migration scripts to the xen-utils-$(VERSION) package
+    (LP: #1303886).
+  * Add transitional packages for migrating xen-hypervisor-4.1-(i386|amd64)
+    and xen-hypervisor-4.3-amd64 to add the xen-system-amd64 meta-package
+    which is the preferred/recommeded way of installing Xen now.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 26 Mar 2014 19:25:53 +0100
+
+xen (4.4.0-0ubuntu3) trusty; urgency=low
+
+  * Fixing up changelog history and preparing for FFE (LP: #1290743).
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Thu, 20 Mar 2014 12:53:21 +0100
+
+xen (4.4.0-0ubuntu2) trusty; urgency=low
+
+  * debian/patches/tools-ocaml-disable-test.patch: This disables the ocaml
+    test build for now until linking issues are resolved.
+  * debian/xen-utils-common.xen.init: Write domid for dom0 into xenstore
+    (now required).
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 11 Mar 2014 14:26:58 +0100
+
+xen (4.4.0-0ubuntu1) trusty; urgency=low
+
+  * New upstream release (Xen.4.4)
+  * Refreshed patches:
+    - debian/patches/tools-libxc-abiname.diff
+    - debian/patches/tools-libxl-abiname.diff
+    - debian/patches/tools-libxl-prefix.diff
+  * debian/rules.real: Force xend to be built.
+  * debian/rules.real: For utils_<arch> installation move binaries from
+    usr/sbin/ to usr/lib/xen-<version>/bin. Several that used to go into
+    the private bin directory moved to the public sbin directory.
+    Not ideal but quicker to do without side-effects.
+  * debian/rules.real: Hypervisor has no .gz type on armhf.
+  * debian/control, debian/rules.gen: Manually update version from 4.3 to 4.4.
+  * debian/control: Add build dependency for libfdt-dev on armhf.
+  * debian/control: Only depend on qemu-system-x86 for i386 and amd64 builds.
+  * debian/*: Also rename several versioned packaging files.
+  * debian/tree/xen-utils-common/usr/share/xen-utils-common/default.xen:
+    Add comment about toolstack names and make xl the default.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 11 Mar 2014 09:54:35 +0100
+
 xen (4.3.0-3) unstable; urgency=low
 
   * Revive hypervisor on i386.
@@ -411,6 +953,121 @@ xen (4.3.0-2) unstable; urgency=low
   * Force proper install order. (closes: #721999)
 
  -- Bastian Blank <waldi@debian.org>  Sat, 05 Oct 2013 15:03:36 +0000
+
+xen (4.3.0-1ubuntu5) trusty; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2014-1642 / XSA-83
+      * x86/irq: avoid use-after-free on error path in pirq_guest_bind()
+    - CVE-2014-1891 / XSA-84
+      * flask: fix reading strings from guest memory
+    - CVE-2014-1895 / XSA-85
+      * xsm/flask: correct off-by-one in flask_security_avc_cachestats
+        cpu id check
+    - CVE-2014-1896 / XSA-86
+      * libvchan: Fix handling of invalid ring buffer indices
+    - CVE-2014-1666 / XSA-87
+      * x86: PHYSDEVOP_{prepare,release}_msix are privileged
+    - CVE-2014-1950 / XSA-88
+      * libxc: Fix out-of-memory error handling in xc_cpupool_getinfo()
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Mon, 17 Feb 2014 13:54:15 +0100
+
+xen (4.3.0-1ubuntu4) trusty; urgency=medium
+
+  * Rebuild for ocaml-4.01.
+
+ -- Matthias Klose <doko@ubuntu.com>  Mon, 23 Dec 2013 16:18:35 +0000
+
+xen (4.3.0-1ubuntu3) trusty; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2013-4553 / XSA-74
+      * Lock order reversal between page_alloc_lock and mm_rwlock
+    - CVE-2013-4551 / XSA-75
+      * Host crash due to guest VMX instruction execution
+    - CVE-2013-4554 / XSA-76
+      * Hypercalls exposed to privilege rings 1 and 2 of HVM guests
+    - CVE-????-???? / XSA-77
+      * Disaggregated domain management security status
+    - CVE-2013-6375 / XSA-78
+      * Insufficient TLB flushing in VT-d (iommu) code
+    - CVE-2013-6400 / XSA-80
+      * IOMMU TLB flushing may be inadvertently suppressed
+    - CVE-2013-6885 / XSA-82
+      * Guest triggerable AMD CPU erratum may cause host hang
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 06 Dec 2013 17:51:24 +0100
+
+xen (4.3.0-1ubuntu2) trusty; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2013-1442 / XSA-62
+      * Information leak on AVX and/or LWP capable CPUs
+    - CVE-2013-4355 / XSA-63
+      * Information leaks through I/O instruction emulation
+    - CVE-2013-4356 / XSA-64
+      * Memory accessible by 64-bit PV guests under live migration
+    - CVE-2013-4361 / XSA-66
+      Information leak through fbld instruction emulation
+    - CVE-2013-4368 / XSA-67
+      * Information leak through outs instruction emulation
+    - CVE-2013-4369 / XSA-68
+      * possible null dereference when parsing vif ratelimiting info
+    - CVE-2013-4370 / XSA-69
+      * misplaced free in ocaml xc_vcpu_getaffinity stub
+    - CVE-2013-4371 / XSA-70
+      * use-after-free in libxl_list_cpupool under memory pressure
+    - CVE-2013-4416 / XSA-72
+      * ocaml xenstored mishandles oversized message replies
+    - CVE-2013-4494 / XSA-73
+      * Lock order reversal between page allocation and grant table locks
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 05 Nov 2013 16:16:05 +0100
+
+xen (4.3.0-1ubuntu1) saucy; urgency=low
+
+  * Merge from Debian unstable. Remaining changes:
+    - Add armhf to packages (except ocaml related) and create hypervisor
+      and system-meta package. Modify build environment to produce Arm
+      packages.
+      * debian/control
+      * debian/rules.gen
+      * debian/rules.real
+      * debian/patches/ubuntu-tools-armhf-without-ocaml.patch
+        Ocaml source fail to build on Arm.
+    - Re-introduce xen-hypervisor-amd64 for i386 builds. Otherwise i386
+      would be rendered uninstallable.
+      * debian/arch/i386/defines
+      * debian/control
+    - Keep qemu-dm for now (upstream qemu would not support
+      migration, yet). Forward-port some patches from the old Debian
+      package which still included qemu-dm:
+      * debian/patches/qemu-prefix.diff
+        Modify LDFLAGS to point to lib dir for qemu-dm.
+      * debian/patches/qemu-disable-blktap.diff
+        Blktap never went upstream.
+      * debian/patches/ubuntu-qemu-disable-qemu-upstream.diff
+        We want to use the binary from qemu-system-x86.
+      * debian/patches/ubuntu-qemu-upstream-location.patch
+        Modify tools to look for qemu-system-i386 in public path.
+    - Fixup hvmloader build to find the correct PXE boot roms.
+      * ubuntu-tools-firmware-etherboot-kvm-ipxe.diff
+    - Add packaging dependency on libxenstore to libxen (otherwise
+      libtool fails to find references for libxenlight).
+      * debian/rules.real
+    - Add migration helper that removes private paths from xend domain
+      configs.
+      * debian/scripts/Makefile
+      * debian/scripts/xend-domain-config-path-strip
+      * debian/xen-utils-common.postinst
+    - Fix for using ulong instead of unsigned long in gdbsx.
+      * debian/patches/toolchain.diff
+  * First test for suitable toolstack in xendomains before using the list
+    command as that causes the xapi daemon to hang.
+    - debian/xen-utils-common.xendomains.init
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 27 Sep 2013 15:12:17 +0200
 
 xen (4.3.0-1) unstable; urgency=low
 
@@ -434,6 +1091,117 @@ xen (4.3.0-1) unstable; urgency=low
 
  -- Bastian Blank <waldi@debian.org>  Thu, 05 Sep 2013 13:54:03 +0200
 
+xen (4.3.0-0ubuntu4) saucy; urgency=low
+
+  * Re-introduce xen-hypervisor-amd64 for i386 builds. Otherwise i386
+    would be rendered uninstallable.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Thu, 19 Sep 2013 15:28:06 -0500
+
+xen (4.3.0-0ubuntu3) saucy; urgency=low
+
+  * Avoid building libxenlight with blktap support (at least for now).
+    - ubuntu-tools-force-build-without-blktap2.patch
+    - debian/rules.real: Do not install libblktapctl
+    - debian/libxen-dev.install: Do not package libblktapctl
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Thu, 15 Aug 2013 10:07:46 +0200
+
+xen (4.3.0-0ubuntu2) saucy; urgency=low
+
+  * debian/rules.real: Avoid ocaml install and trying to strip hvmload
+    which does not exist on Arm.
+  * debian/rules.gen: Remove i386 related rules for arch-flavour which
+    would try to build the hypervisor (not supported anymore).
+  * debian/rules.gen: Add rules for armhf builds.
+  * debian/control: Add armhf to packages (except ocaml related) and
+    create hypervisor and system-meta package.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Sat, 03 Aug 2013 10:23:42 +0100
+
+xen (4.3.0-0ubuntu1) saucy; urgency=low
+
+  * debian/rules.real: Drop installing pdf for docs. Upstream dropped
+    the xen-abi documentation.
+  * debian/rules.real: Add --prefix=/usr to configure calls.
+    (Default prefix is now /usr/local)
+  * debian/rules -> debian/rules.real: Move modification of LDFLAGS as
+    the latter does the compile and since 4.2.2 includes default.mk
+    which would set the values back (either to the gcc version or
+    to nothing).
+  * debian/rules.real: Hack around checks for wget which the Debian build
+    does not allow to use.
+  * debian/control: Drop i386 versions of xen-hypervisor and xen-system.
+    Upstream dropped i386 support for those.
+  * debian/control: Add recommends for qemu-system-x86 to xen-utils-4.3.
+    Utils (xl stack) will use the generic qemu-system-i386 when being
+    told to use qemu-xen and qemu-dm for qemu-xen-traditional.
+  * xen-utils-common.xen.init: Create /var/run/xen if not present on
+    startup (this directory is used by libxl for qmp sockets).
+  * Add support to allow libvirt to build the libxl driver:
+    - tools/libxl: Create versioned variants of libxenlight.so and
+      libblktapctl.so
+    - debian/rules.real: Add packaging dependency on libxenstore to
+      libxen (otherwise libtool fails to find references).
+    - debian/libxen-dev.install: Package headers and library files
+      of libxenlight.
+  * Carried over from previous versions:
+    - Keep qemu-dm for now (upstream qemu would not support
+      migration, yet). Forward-port some patches from the old Debian
+      package which still included qemu-dm:
+      - qemu-prefix (modify LDFLAGS to point to lib dir for qemu-dm)
+      - qemu-disable-blktap (this is not present in upstream)
+      - ubuntu-qemu-disable-qemu-upstream (breaks build and also should
+        be provided by qemu/kvm package)
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 25 Jun 2013 16:39:42 +0200
+
+xen (4.2.2-1ubuntu1) saucy; urgency=low
+
+  * Merge with Debian unstable. Dropping the following patches in favour
+    of Debian ones:
+    - xsa52-4.2-unstable.patch
+    - xsa53-4.2.patch
+    - xsa54.patch
+    - xsa56.patch
+  * Remaining changes:
+    - Use dpkg-buildflags and strip the gcc prefix for getting LDFLAGS.
+      This will again use the Ubuntu specific LDFLAGS (using some
+      hardening options). Older releases would always pass those options
+      in the environment but that changed.
+    - Ressurrect qemu-dm for now (upstream qemu would not support
+      migration, yet). Forward-port some patches from the old Debian
+      package which still included qemu-dm:
+      - qemu-prefix (modify LDFLAGS to point to lib dir for qemu-dm)
+      - qemu-disable-blktap (this is not present in upstream)
+      - ubuntu-qemu-disable-qemu-upstream (breaks build and also should
+        be provided by qemu/kvm package)
+  * Remaining additional patches:
+    - qemu-fix-librt-test.patch
+      Fix build regression caused by glibc not requiring to link against
+      librt for the clock_gettime function. Patch picked from xen-devel
+      mailing list.
+    - tools-gdbsx-fix-build-failure-with-glibc-2.17.patch
+      Add direct include to sys/types.h for xg_main.c which likely was
+      indirectly done before. Needed to get ulong type definition.
+    - tools-ocaml-fix-build: refresh and reenable (and fix the description
+      of) this patch.  Without it the ocam native libraries (*.cmxa)
+      build in /build local paths rather than appropriatly versioned
+      library references.
+    - APIC Register Virtualization (backported from Xen 4.3)
+      - 0001-xen-enable-APIC-Register-Virtualization.patch
+      - 0002-xen-enable-Virtual-interrupt-delivery.patch
+      - 0003-xen-add-virtual-x2apic-support-for-apicv.patch
+    - TSC Adjust Support (backported from Xen 4.3)
+      - 0004-x86-Implement-TSC-adjust-feature-for-HVM-guest.patch
+      - 0005-x86-Save-restore-TSC-adjust-during-HVM-guest-migrati.patch
+      - 0006-x86-Expose-TSC-adjust-to-HVM-guest.patch
+    - Fix FTBS on i386
+      - 0007-x86-Fix-i386-virtual-apic.patch
+    - silence-gcc-warnings.patch: Silence gcc warnings.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 17 Jul 2013 09:41:37 +0200
+
 xen (4.2.2-1) unstable; urgency=low
 
   * New upstream release.
@@ -452,6 +1220,108 @@ xen (4.2.2-1) unstable; urgency=low
 
  -- Bastian Blank <waldi@debian.org>  Thu, 11 Jul 2013 00:28:24 +0200
 
+xen (4.2.1-2ubuntu2) saucy; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2013-2194, CVE-2013-2195, CVE-2013-2196 / XSA55
+      * libelf: abolish libelf-relocate.c
+      * libxc: introduce xc_dom_seg_to_ptr_pages
+      * libxc: Fix range checking in xc_dom_pfn_to_ptr etc.
+      * libelf: add `struct elf_binary*' parameter to elf_load_image
+      * libelf: abolish elf_sval and elf_access_signed
+      * libelf: move include of <asm/guest_access.h> to top of file
+      * libelf/xc_dom_load_elf_symtab: Do not use "syms" uninitialised
+      * libelf: introduce macros for memory access and pointer handling
+      * tools/xcutils/readnotes: adjust print_l1_mfn_valid_note
+      * libelf: check nul-terminated strings properly
+      * libelf: check all pointer accesses
+      * libelf: Check pointer references in elf_is_elfbinary
+      * libelf: Make all callers call elf_check_broken
+      * libelf: use C99 bool for booleans
+      * libelf: use only unsigned integers
+      * libelf: check loops for running away
+      * libelf: abolish obsolete macros
+      * libxc: Add range checking to xc_dom_binloader
+      * libxc: check failure of xc_dom_*_to_ptr, xc_map_foreign_range
+      * libxc: check return values from malloc
+      * libxc: range checks in xc_dom_p2m_host and _guest
+      * libxc: check blob size before proceeding in xc_dom_check_gzip
+      * libxc: Better range check in xc_dom_alloc_segment
+    - CVE-XXXX-XXXX / XSA57
+      * libxl: Restrict permissions on PV console device xenstore nodes
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 21 Jun 2013 14:23:14 +0200
+
+xen (4.2.1-2ubuntu1) saucy; urgency=low
+
+  * Merge with Debian unstable. Dropping the following patches in favour
+    of Debian ones:
+    - xsa33-4.2-unstable.patch
+    - xsa36-4.2.patch
+    - xsa44-4.2.patch
+    - xsa45-4.2-01-vcpu-destroy-pagetables-preemptible.patch
+    - xsa45-4.2-02-new-guest-cr3-preemptible.patch
+    - xsa45-4.2-03-new-user-base-preemptible.patch
+    - xsa45-4.2-04-vcpu-reset-preemptible.patch
+    - xsa45-4.2-05-set-info-guest-preemptible.patch
+    - xsa45-4.2-06-unpin-preemptible.patch
+    - xsa45-4.2-07-mm-error-paths-preemptible.patch
+    - xsa46-4.2.patch
+    - xsa47-4.2-unstable.patch
+    - xsa49-4.2.patch
+  * Remaining changes:
+    - debian/control: Depend on libssl-dev
+    - Use dpkg-buildflags and strip the gcc prefix for getting LDFLAGS.
+      This will again use the Ubuntu specific LDFLAGS (using some
+      hardening options). Older releases would always pass those options
+      in the environment but that changed.
+    - Ressurrect qemu-dm for now (upstream qemu would not support
+      migration, yet). Forward-port some patches from the old Debian
+      package which still included qemu-dm:
+      - qemu-prefix (modify LDFLAGS to point to lib dir for qemu-dm)
+      - qemu-disable-blktap (this is not present in upstream)
+      - ubuntu-qemu-disable-qemu-upstream (breaks build and also should
+        be provided by qemu/kvm package)
+  * Remaining additional patches:
+    - qemu-cve-2012-6075-1.patch / qemu-cve-2012-6075-2.patch
+    - xsa34-4.2.patch
+    - xsa35-4.2-with-xsa34.patch
+    - xsa38.patch
+    - xsa52-4.2-unstable.patch
+    - xsa53-4.2.patch
+    - xsa54.patch
+    - xsa56.patch
+    - qemu-fix-librt-test.patch
+      Fix build regression caused by glibc not requiring to link against
+      librt for the clock_gettime function. Patch picked from xen-devel
+      mailing list.
+    - tools-gdbsx-fix-build-failure-with-glibc-2.17.patch
+      Add direct include to sys/types.h for xg_main.c which likely was
+      indirectly done before. Needed to get ulong type definition.
+    - tools-ocaml-fix-build: refresh and reenable (and fix the description
+      of) this patch.  Without it the ocam native libraries (*.cmxa)
+      build in /build local paths rather than appropriatly versioned
+      library references.
+    - APIC Register Virtualization (backported from Xen 4.3)
+      - 0001-xen-enable-APIC-Register-Virtualization.patch
+      - 0002-xen-enable-Virtual-interrupt-delivery.patch
+      - 0003-xen-add-virtual-x2apic-support-for-apicv.patch
+    - TSC Adjust Support (backported from Xen 4.3)
+      - 0004-x86-Implement-TSC-adjust-feature-for-HVM-guest.patch
+      - 0005-x86-Save-restore-TSC-adjust-during-HVM-guest-migrati.patch
+      - 0006-x86-Expose-TSC-adjust-to-HVM-guest.patch
+    - Fix FTBS on i386
+      - 0007-x86-Fix-i386-virtual-apic.patch
+    - Fix HVM regression when host supports SMEP
+      - 0008-vmx-Simplify-cr0-update-handling-by-deferring-cr4-ch.patch
+      - 0009-VMX-disable-SMEP-feature-when-guest-is-in-non-paging.patch
+      - 0010-VMX-Always-disable-SMEP-when-guest-is-in-non-paging-.patch
+    - silence-gcc-warnings.patch: Silence gcc warnings.
+    - gcc48-ftbfs.patch
+    - gcc48-ftbfs-2.patch
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 14 Jun 2013 10:01:32 +0200
+
 xen (4.2.1-2) unstable; urgency=low
 
   * Actually upload to unstable.
@@ -466,11 +1336,228 @@ xen (4.2.1-1) experimental; urgency=low
 
  -- Bastian Blank <waldi@debian.org>  Sat, 11 May 2013 23:55:46 +0200
 
+xen (4.2.1-0ubuntu4) saucy; urgency=low
+
+  [ Stefan Bader ]
+  * Applying Xen Security Advisories:
+    - CVE-2013-1918 / XSA-45
+      * x86: make vcpu_destroy_pagetables() preemptible
+      * x86: make new_guest_cr3() preemptible
+      * x86: make MMUEXT_NEW_USER_BASEPTR preemptible
+      * x86: make vcpu_reset() preemptible
+      * x86: make arch_set_info_guest() preemptible
+      * x86: make page table unpinning preemptible
+      * x86: make page table handling error paths preemptible
+    - CVE-2013-1952 / XSA-49
+      * VT-d: don't permit SVT_NO_VERIFY entries for known device types
+    - CVE-2013-2076 / XSA-52
+      * x86/xsave: fix information leak on AMD CPUs
+    - CVE-2013-2077 / XSA-53
+      * x86/xsave: recover from faults on XRSTOR
+    - CVE-2013-2078 / XSA-54
+      * x86/xsave: properly check guest input to XSETBV
+    - CVE-2013-2072 / XSA-56
+      * libxc: limit cpu values when setting vcpu affinity
+
+  [ Marc Deslauriers ]
+  * debian/patches/gcc48-ftbfs.patch: Add -Wno-unused-local-typedefs to
+    CFLAGS.
+  * debian/patches/gcc48-ftbfs-2.patch: fix memset(&p,0,sizeof(p)) idiom in
+    several places.
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Mon, 10 Jun 2013 15:03:13 -0400
+
+xen (4.2.1-0ubuntu3.1) raring-security; urgency=low
+
+  * Applying Xen Security Advisories:
+    - CVE-2013-1917 / XSA-44
+      x86: clear EFLAGS.NT in SYSENTER entry path
+    - CVE-2013-1919 / XSA-46
+      x86: fix various issues with handling guest IRQs
+    - CVE-2013-1920 / XSA-47
+      defer event channel bucket pointer store until after XSM checks
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 10 Apr 2013 14:21:15 +0200
+
+xen (4.2.1-0ubuntu3) raring; urgency=low
+
+  * Fix FTBS on i386
+    - 0007-x86-Fix-i386-virtual-apic.patch
+  * Fix HVM VCPUs getting stuck on boot when host supports SMEP (LP: #1157757)
+    - 0008-vmx-Simplify-cr0-update-handling-by-deferring-cr4-ch.patch
+    - 0009-VMX-disable-SMEP-feature-when-guest-is-in-non-paging.patch
+    - 0010-VMX-Always-disable-SMEP-when-guest-is-in-non-paging-.patch
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 05 Apr 2013 16:39:45 +0200
+
+xen (4.2.1-0ubuntu2) raring; urgency=low
+
+  * Backporting support for Intel APIC virtualization (LP: #1160373)
+    - 0001-xen-enable-APIC-Register-Virtualization.patch
+    - 0002-xen-enable-Virtual-interrupt-delivery.patch
+    - 0003-xen-add-virtual-x2apic-support-for-apicv.patch
+  * Backporting support for Intel TSC adjust (LP: #1160378)
+    - 0004-x86-Implement-TSC-adjust-feature-for-HVM-guest.patch
+    - 0005-x86-Save-restore-TSC-adjust-during-HVM-guest-migrati.patch
+    - 0006-x86-Expose-TSC-adjust-to-HVM-guest.patch
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 26 Mar 2013 09:41:25 +0100
+
+xen (4.2.1-0ubuntu1) raring; urgency=low
+
+  * New upstream stable release. Remaining changes:
+    - Fix to qemu for CVE-2012-6075
+    - Patches for XSA33-36 and 38
+    - qemu-fix-librt-test.patch
+      Fix build regression caused by glibc not requiring to link against
+      librt for the clock_gettime function. Patch picked from xen-devel
+      mailing list.
+    - tools-gdbsx-fix-build-failure-with-glibc-2.17.patch
+      Add direct include to sys/types.h for xg_main.c which likely was
+      indirectly done before. Needed to get ulong type definition.
+    - tools-ocaml-fix-build: refresh and reenable (and fix the description
+      of) this patch.  Without it the ocam native libraries (*.cmxa)
+      build in /build local paths rather than appropriatly versioned
+      library references.
+    - Use dpkg-buildflags and strip the gcc prefix for getting LDFLAGS.
+      This will again use the Ubuntu specific LDFLAGS (using some
+      hardening options). Older releases would always pass those options
+      in the environment but that changed.
+    - Ressurrect qemu-dm for now (upstream qemu would not support
+      migration, yet). Forward-port some patches from the old Debian
+      package which still included qemu-dm:
+      - qemu-prefix (modify LDFLAGS to point to lib dir for qemu-dm)
+      - qemu-disable-blktap (this is not present in upstream)
+      - ubuntu-qemu-disable-qemu-upstream (breaks build and also should
+        be provided by qemu/kvm package)
+    - Build depend on kvm-ipxe (instead of ipxe) as it is smaller and fix
+      up hvmloader build. kvm-ipxe contains a subset of the rom files from
+      which the Xen build only uses two to be embedded in the hvmloader.
+    - debian/patches/silence-gcc-warnings.patch: Silence gcc warnings.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Fri, 08 Mar 2013 10:34:54 +0100
+
 xen (4.2.0-2) experimental; urgency=low
 
   * Support JSON output in domain init script helper.
 
  -- Bastian Blank <waldi@debian.org>  Mon, 01 Oct 2012 15:11:30 +0200
+
+xen (4.2.0-1ubuntu6) raring; urgency=low
+
+  * Applying Xen Security Advisory:
+    - VT-d: fix interrupt remapping source validation for devices behind
+      legacy bridges
+      CVE-2012-5634 / XSA-33
+    - x86_32: don't allow use of nested HVM
+      CVE-2013-0151 / XSA-34
+    - xen: Do not allow guests to enable nested HVM on themselves
+      CVE-2013-0152 / XSA-35
+    - ACPI: acpi_table_parse() should return handler's error code
+      CVE-2013-0153 / XSA-36
+    - oxenstored incorrect handling of certain Xenbus ring states
+      CVE-2013-0215 / XSA-38
+  * Applying qemu security fixes:
+    - e1000: Discard packets that are too long if !SBP and !LPE
+      CVE-2012-6075 / XSA-41
+    - Discard packets longer than 16384 when !SBP to match the hardware
+      behavior.
+      CVE-2012-6075 / XSA-41
+  * qemu-fix-librt-test.patch
+    Fix build regression caused by glibc not requiring to link against
+    librt for the clock_gettime function. Patch picked from xen-devel
+    mailing list.
+  * tools-gdbsx-fix-build-failure-with-glibc-2.17.patch
+    Add direct include to sys/types.h for xg_main.c which likely was
+    indirectly done before. Needed to get ulong type definition.
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 29 Jan 2013 15:48:47 +0100
+
+xen (4.2.0-1ubuntu5) raring; urgency=low
+
+  * Add libssl-dev to Build-Depends. 
+
+ -- Chris J Arges <chris.j.arges@canonical.com>  Tue, 15 Jan 2013 11:13:48 -0600
+
+xen (4.2.0-1ubuntu4) raring; urgency=low
+
+  * Applying Xen Security fixes (LP: #1086875)
+    - gnttab: fix releasing of memory upon switches between versions
+      CVE-2012-5510
+    - hvm: Limit the size of large HVM op batches
+      CVE-2012-5511
+    - xen: add missing guest address range checks to XENMEM_exchange handlers
+      CVE-2012-5513
+    - xen: fix error handling of guest_physmap_mark_populate_on_demand()
+      CVE-2012-5514
+    - memop: limit guest specified extent order
+      CVE-2012-5515
+    - x86: get_page_from_gfn() must return NULL for invalid GFNs
+      CVE-2012-5525
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Wed, 05 Dec 2012 18:13:25 +0100
+
+xen (4.2.0-1ubuntu3) raring; urgency=low
+
+  * tools-ocaml-fix-build: refresh and reenable (and fix the description
+    of) this patch.  Without it the ocam native libraries (*.cmxa)
+    build in /build local paths rather than appropriatly versioned
+    library references.
+
+ -- Andy Whitcroft <apw@ubuntu.com>  Thu, 29 Nov 2012 21:49:00 +0000
+
+xen (4.2.0-1ubuntu2) raring; urgency=low
+
+  * Drop replaces and conflicts for xen3 packages (they are no longer
+    in the upgrade path) from debian/control:
+    - libxenstore3.0: Conflict and replaces libxen3.
+    - libxen-dev: Conflict and replaces libxen3-dev.
+    - xenstore-utils: Conflict and replaces libxen3
+    - xen-utils-4.1: Conflict and replaces libxen3, python-xen-3.3,
+      and xen-utils-3.3
+  * Use dpkg-buildflags and strip the gcc prefix for getting LDFLAGS.
+    This will again use the Ubuntu specific LDFLAGS (using some
+    hardening options). Older releases would always pass those options
+    in the environment but that changed.
+  * Ressurrect qemu-dm for now (upstream qemu would not support
+    migration, yet). Forward-port some patches from the old Debian
+    package which still included qemu-dm:
+    - qemu-prefix (modify LDFLAGS to point to lib dir for qemu-dm)
+    - qemu-disable-blktap (this is not present in upstream)
+    - ubuntu-qemu-disable-qemu-upstream (breaks build and also should
+      be provided by qemu/kvm package)
+  * Build depend on kvm-ipxe (instead of ipxe) as it is smaller and fix
+    up hvmloader build. kvm-ipxe contains a subset of the rom files from
+    which the Xen build only uses two to be embedded in the hvmloader.
+  * XSA-20: Prevent overflow in calculations, leading to DoS vulnerability
+    - CVE-2012-4535
+  * XSA-22: Prevent incorrect updates of m2p mappings
+    - CVE-2012-4537
+  * XSA-23: check toplevel pagetables are present before unhooking them
+    - CVE-2012-4538
+  * XSA-24: Prevent infinite loop in compat code
+    - CVE-2012-4539
+  * XSA-25: limit maximum size of kernel/ramdisk
+    - CVE-2012-4544
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 13 Nov 2012 09:03:58 +0100
+
+xen (4.2.0-1ubuntu1) raring; urgency=low
+
+  * Merge from Debian Experimental, Remaining changes:
+    - debian/control:
+      - Build depends on ipxe-qemu.
+      - libxenstore3.0: Conflict and replaces libxen3.
+      - libxen-dev: Conflict and replaces libxen3-dev.
+      - xenstore-utils: Conflict and replaces libxen3
+      - xen-utils-4.1: Conflict and replaces libxen3, python-xen-3.3,
+        and xen-utils-4.1.
+      - Make sure the LDFLAGS value passed is suitable for use by ld
+        rather than gcc.
+    - disable debian/patches/config-etherboot.diff.
+    - debian/patches/silence-gcc-warnings.patch: Silence gcc warnings.
+
+ -- Chuck Short <zulcss@ubuntu.com>  Thu, 08 Nov 2012 12:14:30 -0600
 
 xen (4.2.0-1) experimental; urgency=low
 
@@ -605,6 +1692,27 @@ xen (4.1.3-4) unstable; urgency=high
 
  -- Bastian Blank <waldi@debian.org>  Tue, 20 Nov 2012 15:51:01 +0100
 
+xen (4.1.3-3ubuntu1) quantal; urgency=low
+
+  * Merge from Debian unstable. Remaining changes:
+    - libxenstore3.0: Conflict and replaces libxen3.
+    - libxen-dev: Conflict and replaces libxen3-dev.
+    - xenstore-utils: Conflict and replaces libxen3.
+    - xen-utils-4.1: Conflict and replaces libxen3, python-xen-3.3,
+      and xen-utils-4.1.
+    - Change depend back to ipxe as we do not have ipxe-qemu.
+    - etherboot: Change the config back to include the 8086100e.rom
+    - Dropped:
+      - Make sure the LDFLAGS value passed is suitable for use by ld
+        rather than gcc. Right now there seem to be no LDFLAGS passed.
+  * Backported AMD specific improvements from upstream Xen (LP: #1009098):
+    - svm: Do not intercept RDTSC(P) when TSC scaling is supported by hardware
+    - x86: Use deep C states for off-lined CPUs
+    - x86/AMD: Add support for AMD's OSVW feature in guests.
+    - hvm: vpmu: Enable HVM VPMU for AMD Family 12h and 14h processors
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Thu, 27 Sep 2012 21:27:44 +0200
+
 xen (4.1.3-3) unstable; urgency=low
 
   * Xen domain init script:
@@ -663,6 +1771,25 @@ xen (4.1.3~rc1+hg-20120614.a9c0a89c08f2-5) unstable; urgency=low
     automatic upgrades and this package is missing. (closes: #681376)
 
  -- Bastian Blank <waldi@debian.org>  Sat, 28 Jul 2012 10:23:26 +0200
+
+xen (4.1.3~rc1+hg-20120614.a9c0a89c08f2-4ubuntu1) quantal; urgency=low
+
+  [ Ubuntu Merge-o-Matic ]
+  * Merge from Debian unstable.  Remaining changes:
+      - Thanks to Stefan Bader.
+      - libxenstore3.0: Conflict and replaces libxen3.
+      - libxen-dev: Conflict and replaces libxen3-dev.
+      - xenstore-utils: Conflict and replaces libxen3.
+      - xen-utils-4.1: Conflict and replaces libxen3, python-xen-3.3,
+        and xen-utils-4.1.
+      - Change depend back to ipxe as we do not have ipxe-qemu.
+      - etherboot: Change the config back to include the 8086100e.rom
+      - Dropped:
+        - Make sure the LDFLAGS value passed is suitable for use by ld
+          rather than gcc. Right now there seem to be no LDFLAGS passed.
+
+
+ -- Chuck Short <zulcss@ubuntu.com>  Tue, 03 Jul 2012 08:43:03 -0400
 
 xen (4.1.3~rc1+hg-20120614.a9c0a89c08f2-4) unstable; urgency=low
 
@@ -766,6 +1893,32 @@ xen (4.1.2-3) unstable; urgency=low
 
  -- Bastian Blank <waldi@debian.org>  Wed, 01 Feb 2012 19:28:28 +0100
 
+xen (4.1.2-2ubuntu2) precise; urgency=low
+
+  * etherboot: Change the config back to include the 8086100e.rom
+    (LP: #948333)
+
+ -- Stefan Bader <stefan.bader@canonical.com>  Tue, 06 Mar 2012 20:58:14 +0100
+
+xen (4.1.2-2ubuntu1) precise; urgency=low
+
+  * Merge from Debian testing.  Remaining changes:
+      - libxenstore3.0: Conflict and replaces libxen3.
+      - libxen-dev: Conflict and replaces libxen3-dev.
+      - xenstore-utils: Conflict and replaces libxen3.
+      - xen-utils-4.1: Conflict and replaces libxen3, python-xen-3.3,
+        and xen-utils-4.1.
+      - Make sure the LDFLAGS value passed is suitable for use by ld
+        rather than gcc.
+      - Dropped:
+        - debian/patches/upstream-23044:d4ca456c0c25
+        - debian/patches/upstream-23104:1976adbf2b80
+        - debian/patches/upstream-changeset-23146.patch
+        - debian/patches/upstream-changeset-23147.patch
+        - debian/patches/xen-pirq-resubmit-irq.patch
+
+ -- Chuck Short <zulcss@ubuntu.com>  Thu, 22 Dec 2011 04:53:35 +0000
+
 xen (4.1.2-2) unstable; urgency=low
 
   [ Jon Ludlam ]
@@ -787,6 +1940,24 @@ xen (4.1.2-1) unstable; urgency=low
 
  -- Bastian Blank <waldi@debian.org>  Sat, 26 Nov 2011 18:28:06 +0100
 
+xen (4.1.1-3ubuntu1) precise; urgency=low
+
+  * Merge from Debian testing.  Remaining changes:
+      - libxenstore3.0: Conflict and replaces libxen3.
+      - libxen-dev: Conflict and replaces libxen3-dev.
+      - xenstore-utils: Conflict and replaces libxen3.
+      - xen-utils-4.1: Conflict and replaces libxen3, python-xen-3.3,
+        and xen-utils-4.1.
+      - Make sure the LDFLAGS value passed is suitable for use by ld
+        rather than gcc.
+      - debian/patches/upstream-changeset-23146.patch,
+        debian/patches/upstream-changeset-23147.patch: Fix booting with hvm
+        domU. (LP: #832207)
+      - debian/patches/xen-pirq-resubmit-irq.patch: Retrigger pirq events
+        when asserted while processing. (LP: #854829)
+
+ -- Chuck Short <zulcss@ubuntu.com>  Sun, 06 Nov 2011 05:51:08 +0000
+
 xen (4.1.1-3) unstable; urgency=low
 
   [ Julien Danjou ]
@@ -801,11 +1972,68 @@ xen (4.1.1-3) unstable; urgency=low
 
  -- Bastian Blank <waldi@debian.org>  Wed, 26 Oct 2011 14:42:33 +0200
 
+xen (4.1.1-2ubuntu4.1) oneiric-proposed; urgency=low
+
+  * debian/patches/xen-pirq-resubmit-irq.patch: Retrigger
+    pirq events when asserted while processing. Thanks to Stefan Bader
+    (LP: #854829) 
+
+ -- Chuck Short <zulcss@ubuntu.com>  Mon, 10 Oct 2011 19:30:09 -0400
+
+xen (4.1.1-2ubuntu4) oneiric; urgency=low
+
+  * Rebuild to drop build records on armel and powerpc. LP: #823714.
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 06 Oct 2011 14:15:35 +0200
+
+xen (4.1.1-2ubuntu2) oneiric; urgency=low
+
+  * Clean up patches. 
+  * debian/patches/upstream-changeset-23146.patch,
+    debian/patches/upstream-changeset-23147.patch: Fix booting with hvm
+    domU. (LP: #832207)
+
+ -- Chuck Short <zulcss@ubuntu.com>  Thu, 01 Sep 2011 13:13:47 -0400
+
+xen (4.1.1-2ubuntu1) oneiric; urgency=low
+
+  * Merge from debian unstable.  Remaining changes:
+      - libxenstore3.0: Conflict and replaces libxen3.
+      - libxen-dev: Conflict and replaces libxen3-dev.
+      - xenstore-utils: Conflict and replaces libxen3.
+      - xen-utils-4.1: Conflict and replaces libxen3, python-xen-3.3,
+        and xen-utils-4.1.
+    + Make sure the LDFLAGS value passed is suitable for use by ld
+      rather than gcc.
+
+ -- Chuck Short <zulcss@ubuntu.com>  Thu, 11 Aug 2011 14:18:41 +0000
+
 xen (4.1.1-2) unstable; urgency=low
 
   * Fix hvmloader with gcc 4.6.
 
  -- Bastian Blank <waldi@debian.org>  Fri, 05 Aug 2011 23:58:36 +0200
+
+xen (4.1.1-1ubuntu1) oneiric; urgency=low
+
+  * Merge from debian unstable.  Remaining changes:
+    + Xen 3.3 -> Xen 4.1 migration:
+      - libxenstore3.0: Conflict and replaces libxen3.
+      - libxen-dev: Conflict and replaces libxen3-dev.
+      - xenstore-utils: Conflict and replaces libxen3.
+      - xen-utils-4.1: Conflict and replaces libxen3, python-xen-3.3,
+        and xen-utils-4.1.
+    + Make sure the LDFLAGS value passed is suitable for use by ld
+      rather than gcc.
+    + Dropped upstream patches:
+      - debian/patches/disable-unused-but-not-set-error.patch:
+        Applied upstream.
+      - debian/patches/xc-dom-restore-set-but-not-used.patch:
+        Applied upstream.
+      - debian/patches/xc-dom-restore-set-but-not-used.patch:
+        Applied upstream.
+
+ -- Chuck Short <zulcss@ubuntu.com>  Tue, 19 Jul 2011 00:11:08 +0000
 
 xen (4.1.1-1) unstable; urgency=low
 
@@ -814,6 +2042,43 @@ xen (4.1.1-1) unstable; urgency=low
   * Use dh_python2.
 
  -- Bastian Blank <waldi@debian.org>  Mon, 18 Jul 2011 19:38:38 +0200
+
+xen (4.1.0-3ubuntu4) oneiric; urgency=low
+
+  * Fix xen 3.3 -> xen 4.1 migration. 
+
+ -- Chuck Short <zulcss@ubuntu.com>  Sat, 04 Jun 2011 15:37:17 -0400
+
+xen (4.1.0-3ubuntu3) oneiric; urgency=low
+
+  * debian/control: Use python2.7 as a build dependency. 
+
+ -- Chuck Short <zulcss@ubuntu.com>  Tue, 31 May 2011 14:50:03 -0400
+
+xen (4.1.0-3ubuntu2) oneiric; urgency=low
+
+  * debian/control: 
+     + Move to python 2.7. 
+     + Xen 3.3 -> Xen4.1 migration:
+       - libxenstore3.0: Conflict and replaces libxen3.
+       - libxen-dev: Conflict and replaces libxen3-dev.
+       - xenstore-tuils: Conflict and replaces libxen3
+       - xen-utils-4.1: Confflict and replaces libxen3, python-xen3.3, 
+         and xen-utils-3.3
+
+ -- Chuck Short <zulcss@ubuntu.com>  Tue, 31 May 2011 13:15:08 -0400
+
+xen (4.1.0-3ubuntu1) oneiric; urgency=low
+
+  * Make sure the LDFLAGS value passed is suitable for use by ld,
+    rather than gcc.
+  * Import a set of gcc 4.6 related build fixes from upstream hg.
+    (disable-unused-but-not-set-error.patch,
+     ioapic-uninitialised-variables.patch,
+     patches/xc-dom-restore-set-but-not-used.patch,
+     xc-tmem-set-but-not-used.patch)
+
+ -- Soren Hansen <soren@ubuntu.com>  Thu, 26 May 2011 14:27:18 +0200
 
 xen (4.1.0-3) unstable; urgency=low
 

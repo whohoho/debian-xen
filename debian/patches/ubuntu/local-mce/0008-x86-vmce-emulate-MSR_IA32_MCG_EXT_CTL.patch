@@ -1,0 +1,132 @@
+From e2fea563b9764933fa4e6623217c046e64890114 Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Fri, 14 Jul 2017 12:43:27 +0200
+Subject: [PATCH] x86/vmce: emulate MSR_IA32_MCG_EXT_CTL
+
+If MCG_LMCE_P is present in guest MSR_IA32_MCG_CAP, then allow guest
+to read/write MSR_IA32_MCG_EXT_CTL.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit e2fea563b9764933fa4e6623217c046e64890114)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/cpu/mcheck/vmce.c         | 34 +++++++++++++++++++++++++++++++++-
+ xen/arch/x86/domctl.c                  |  2 ++
+ xen/include/asm-x86/mce.h              |  1 +
+ xen/include/public/arch-x86/hvm/save.h |  1 +
+ 4 files changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/xen/arch/x86/cpu/mcheck/vmce.c b/xen/arch/x86/cpu/mcheck/vmce.c
+index 1356f61..060e2d0 100644
+--- a/xen/arch/x86/cpu/mcheck/vmce.c
++++ b/xen/arch/x86/cpu/mcheck/vmce.c
+@@ -91,6 +91,7 @@ int vmce_restore_vcpu(struct vcpu *v, const struct hvm_vmce_vcpu *ctxt)
+     v->arch.vmce.mcg_cap = ctxt->caps;
+     v->arch.vmce.bank[0].mci_ctl2 = ctxt->mci_ctl2_bank0;
+     v->arch.vmce.bank[1].mci_ctl2 = ctxt->mci_ctl2_bank1;
++    v->arch.vmce.mcg_ext_ctl = ctxt->mcg_ext_ctl;
+ 
+     return 0;
+ }
+@@ -200,6 +201,26 @@ int vmce_rdmsr(uint32_t msr, uint64_t *val)
+         mce_printk(MCE_VERBOSE, "MCE: %pv: rd MCG_CTL %#"PRIx64"\n", cur, *val);
+         break;
+ 
++    case MSR_IA32_MCG_EXT_CTL:
++        /*
++         * If MCG_LMCE_P is present in guest MSR_IA32_MCG_CAP, the LMCE and LOCK
++         * bits are always set in guest MSR_IA32_FEATURE_CONTROL by Xen, so it
++         * does not need to check them here.
++         */
++        if ( cur->arch.vmce.mcg_cap & MCG_LMCE_P )
++        {
++            *val = cur->arch.vmce.mcg_ext_ctl;
++            mce_printk(MCE_VERBOSE, "MCE: %pv: rd MCG_EXT_CTL %#"PRIx64"\n",
++                       cur, *val);
++        }
++        else
++        {
++            ret = -1;
++            mce_printk(MCE_VERBOSE, "MCE: %pv: rd MCG_EXT_CTL, not supported\n",
++                       cur);
++        }
++        break;
++
+     default:
+         ret = mce_bank_msr(cur, msr) ? bank_mce_rdmsr(cur, msr, val) : 0;
+         break;
+@@ -309,6 +330,16 @@ int vmce_wrmsr(uint32_t msr, uint64_t val)
+         mce_printk(MCE_VERBOSE, "MCE: %pv: MCG_CAP is r/o\n", cur);
+         break;
+ 
++    case MSR_IA32_MCG_EXT_CTL:
++        if ( (cur->arch.vmce.mcg_cap & MCG_LMCE_P) &&
++             !(val & ~MCG_EXT_CTL_LMCE_EN) )
++            cur->arch.vmce.mcg_ext_ctl = val;
++        else
++            ret = -1;
++        mce_printk(MCE_VERBOSE, "MCE: %pv: wr MCG_EXT_CTL %"PRIx64"%s\n",
++                   cur, val, (ret == -1) ? ", not supported" : "");
++        break;
++
+     default:
+         ret = mce_bank_msr(cur, msr) ? bank_mce_wrmsr(cur, msr, val) : 0;
+         break;
+@@ -327,7 +358,8 @@ static int vmce_save_vcpu_ctxt(struct domain *d, hvm_domain_context_t *h)
+         struct hvm_vmce_vcpu ctxt = {
+             .caps = v->arch.vmce.mcg_cap,
+             .mci_ctl2_bank0 = v->arch.vmce.bank[0].mci_ctl2,
+-            .mci_ctl2_bank1 = v->arch.vmce.bank[1].mci_ctl2
++            .mci_ctl2_bank1 = v->arch.vmce.bank[1].mci_ctl2,
++            .mcg_ext_ctl = v->arch.vmce.mcg_ext_ctl,
+         };
+ 
+         err = hvm_save_entry(VMCE_VCPU, v->vcpu_id, h, &ctxt);
+diff --git a/xen/arch/x86/domctl.c b/xen/arch/x86/domctl.c
+index 60d95fe..c1d016b 100644
+--- a/xen/arch/x86/domctl.c
++++ b/xen/arch/x86/domctl.c
+@@ -315,6 +315,7 @@ static int vcpu_set_vmce(struct vcpu *v,
+ 
+     static const unsigned int valid_sizes[] = {
+         sizeof(evc->vmce),
++        VMCE_SIZE(mci_ctl2_bank1),
+         VMCE_SIZE(caps),
+     };
+ #undef VMCE_SIZE
+@@ -908,6 +909,7 @@ long arch_do_domctl(
+             evc->vmce.caps = v->arch.vmce.mcg_cap;
+             evc->vmce.mci_ctl2_bank0 = v->arch.vmce.bank[0].mci_ctl2;
+             evc->vmce.mci_ctl2_bank1 = v->arch.vmce.bank[1].mci_ctl2;
++            evc->vmce.mcg_ext_ctl = v->arch.vmce.mcg_ext_ctl;
+ 
+             ret = 0;
+             vcpu_unpause(v);
+diff --git a/xen/include/asm-x86/mce.h b/xen/include/asm-x86/mce.h
+index 56ad1f9..35f9962 100644
+--- a/xen/include/asm-x86/mce.h
++++ b/xen/include/asm-x86/mce.h
+@@ -27,6 +27,7 @@ struct vmce_bank {
+ struct vmce {
+     uint64_t mcg_cap;
+     uint64_t mcg_status;
++    uint64_t mcg_ext_ctl;
+     spinlock_t lock;
+     struct vmce_bank bank[GUEST_MC_BANK_NUM];
+ };
+diff --git a/xen/include/public/arch-x86/hvm/save.h b/xen/include/public/arch-x86/hvm/save.h
+index 816973b..fd7bf3f 100644
+--- a/xen/include/public/arch-x86/hvm/save.h
++++ b/xen/include/public/arch-x86/hvm/save.h
+@@ -610,6 +610,7 @@ struct hvm_vmce_vcpu {
+     uint64_t caps;
+     uint64_t mci_ctl2_bank0;
+     uint64_t mci_ctl2_bank1;
++    uint64_t mcg_ext_ctl;
+ };
+ 
+ DECLARE_HVM_SAVE_TYPE(VMCE_VCPU, 18, struct hvm_vmce_vcpu);
+-- 
+2.7.4
+

@@ -1,0 +1,36 @@
+From 106b735df9deffab55603cb9ed4636c067a49d64 Mon Sep 17 00:00:00 2001
+From: Haozhong Zhang <haozhong.zhang@intel.com>
+Date: Mon, 3 Jul 2017 17:43:36 +0200
+Subject: [PATCH] x86/mce: fix comment of struct mc_telem_cpu_ctl
+
+Since c/s cbc585158f ("x86/mce: eliminate unnecessary NR_CPUS-sized
+arrays"), struct mc_telem_cpu_ctl was introduced and has been used as
+the type of per-cpu variables rather than global variables. However,
+some comments within it have not been updated accordingly.
+
+Signed-off-by: Haozhong Zhang <haozhong.zhang@intel.com>
+Acked-by: Jan Beulich <jbeulich@suse.com>
+(cherry-picked from commit 106b735df9deffab55603cb9ed4636c067a49d64)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ xen/arch/x86/cpu/mcheck/mctelem.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/xen/arch/x86/cpu/mcheck/mctelem.c b/xen/arch/x86/cpu/mcheck/mctelem.c
+index 96048eb..57abeab 100644
+--- a/xen/arch/x86/cpu/mcheck/mctelem.c
++++ b/xen/arch/x86/cpu/mcheck/mctelem.c
+@@ -108,9 +108,7 @@ static struct mc_telem_ctl {
+ struct mc_telem_cpu_ctl {
+ 	/*
+ 	 * Per-CPU processing lists, used for deferred (softirq)
+-	 * processing of telemetry. @pending is indexed by the
+-	 * CPU that the telemetry belongs to. @processing is indexed
+-	 * by the CPU that is processing the telemetry.
++	 * processing of telemetry.
+ 	 */
+ 	struct mctelem_ent *pending;
+ 	struct mctelem_ent *processing;
+-- 
+2.7.4
+
