@@ -253,7 +253,7 @@ install-utils-common: $(STAMPS_DIR)/install-utils-common
 	dh_systemd_enable xen-qemu-dom0-disk-backend.service
 	dh_systemd_enable xenstored.service
 	dh_systemd_enable xen-watchdog.service
-	dh_systemd_enable xen.service
+	dh_systemd_enable --name=xen xen.service
 	dh_systemd_start --restart-after-upgrade xenconsoled.service
 	dh_systemd_start --restart-after-upgrade xendomains.service
 	dh_systemd_start --restart-after-upgrade xendriverdomain.service
