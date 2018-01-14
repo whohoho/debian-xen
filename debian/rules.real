@@ -90,10 +90,6 @@ $(STAMPS_DIR)/build-hypervisor_$(ARCH)_$(FLAVOUR): $(STAMPS_DIR)/setup-hyperviso
 		XEN_COMPILE_ARCH=$(XEN_ARCH) \
 		XEN_TARGET_ARCH=$(XEN_ARCH) \
 		LANG=C.UTF-8
-	+$(MAKE_CLEAN) -C $(DIR)/stubdom \
-		XEN_COMPILE_ARCH=$(XEN_ARCH) \
-		XEN_TARGET_ARCH=$(XEN_ARCH) \
-		LANG=C.UTF-8 all
 
 	touch $@
 
@@ -113,6 +109,11 @@ $(STAMPS_DIR)/build-utils_$(ARCH): DIR=$(BUILD_DIR)/build-utils_$(ARCH)
 $(STAMPS_DIR)/build-utils_$(ARCH): $(STAMPS_DIR)/setup-utils_$(ARCH)
 	+$(MAKE_CLEAN) -C $(DIR) $(CONFIG) build-tools-public-headers
 	+$(MAKE_CLEAN) -C $(DIR)/tools $(CONFIG)
+	+$(MAKE_CLEAN) -C $(DIR)/stubdom \
+		XEN_COMPILE_ARCH=$(XEN_ARCH) \
+		XEN_TARGET_ARCH=$(XEN_ARCH) \
+		LANG=C.UTF-8 all
+
 	touch $@
 
 $(STAMPS_DIR)/install-utils_$(ARCH): DIR = $(BUILD_DIR)/build-utils_$(ARCH)

@@ -49,7 +49,8 @@ Build-Depends:
  e2fslibs-dev, 
  libsystemd-dev, 
  ocaml-nox, 
- dh-python
+ dh-python,
+ texinfo
 Standards-Version: 3.9.4
 XS-Python-Version: current
 
