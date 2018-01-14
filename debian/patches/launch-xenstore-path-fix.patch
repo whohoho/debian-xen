@@ -1,0 +1,25 @@
+From 68076e4a3b50ddda4f813117f176c3a2ca74330b Mon Sep 17 00:00:00 2001
+From: hark <hark@puscii.nl>
+Date: Sun, 14 Jan 2018 19:02:24 +0000
+Subject: [PATCH] launch-xenstore path fix
+
+---
+ tools/hotplug/Linux/launch-xenstore.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/hotplug/Linux/launch-xenstore.in b/tools/hotplug/Linux/launch-xenstore.in
+index 991dec8d25..9a684e3e61 100644
+--- a/tools/hotplug/Linux/launch-xenstore.in
++++ b/tools/hotplug/Linux/launch-xenstore.in
+@@ -15,7 +15,7 @@
+ # License along with this library; If not, see <http://www.gnu.org/licenses/>.
+ #
+ 
+-XENSTORED=@XENSTORED@
++XENSTORED=/usr/lib/xen-4.10/bin/oxenstored
+ 
+ . @XEN_SCRIPT_DIR@/hotplugpath.sh
+ 
+-- 
+2.11.0
+
