@@ -68,3 +68,23 @@ make[1]: Leaving directory '/root/src/xenpkg/debian-xen/debian/build/build-utils
 //usr/lib/xen-4.10/bin/stubdom-dm
 //usr/lib/xen-4.10/bin/stubdompath.sh
 //usr/lib/xen-4.10/boot/ioemu-stubdom.gz
+
+
+(Reading database ... 203919 files and directories currently installed.)
+Removing xen-utils-common (4.10.0-1~yolo4) ...
+Failed to stop xenstored.service: Operation refused, unit xenstored.service may be requested by dependency only (it is configured to refuse manual start/stop).
+See system logs and 'systemctl status xenstored.service' for details.
+dpkg: error processing package xen-utils-common (--remove):
+ installed xen-utils-common package pre-removal script subprocess returned error exit status 4
+A dependency job for xenconsoled.service failed. See 'journalctl -xe' for details.
+A dependency job for xendomains.service failed. See 'journalctl -xe' for details.
+A dependency job for xen-init-dom0.service failed. See 'journalctl -xe' for details.
+A dependency job for xen-qemu-dom0-disk-backend.service failed. See 'journalctl -xe' for details.
+Job for xenstored.service failed because the control process exited with error code.
+See "systemctl status xenstored.service" and "journalctl -xe" for details.
+Job for xen-watchdog.service failed because the control process exited with error code.
+See "systemctl status xen-watchdog.service" and "journalctl -xe" for details.
+Errors were encountered while processing:
+ xen-utils-common
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+

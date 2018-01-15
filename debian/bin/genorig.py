@@ -78,7 +78,13 @@ class Main(object):
         subprocess.call(('./configure'), cwd='../orig/%s/stubdom' % self.orig_dir)
         for tar in tars:
             subprocess.call(('make', tar), cwd='../orig/%s/stubdom' % self.orig_dir)
+
+        #dpkg-source: error: cannot represent change to extras/mini-os-remote/include/mini-os:
+        #dpkg-source: error: cannot represent change to extras/mini-os-remote/include/x86/mini-os:
+
         subprocess.call(('rm', 'extras/mini-os-remote/include/x86/mini-os'), cwd='../orig/%s/' % self.orig_dir)
+        subprocess.call(('rm', 'extras/mini-os-remote/include/mini-os'), cwd='../orig/%s/' % self.orig_dir)
+
 
         self.log("pack again \n" )
         subprocess.call(('tar','--xz','-cvf', out, self.orig_dir), cwd='../orig/')
