@@ -62,3 +62,9 @@ Resolving deltas: 100% (32793/32793), done.
 Switched to a new branch 'dummy'
 make[1]: Leaving directory '/root/src/xenpkg/debian-xen/debian/build/build-utils_amd64/tools'
 
+
+//usr/lib/xen-4.10/boot/pv-grub-x86_64.gz
+ //usr/lib/xen-4.10/boot/xenstore-stubdom.gz
+//usr/lib/xen-4.10/bin/stubdom-dm
+//usr/lib/xen-4.10/bin/stubdompath.sh
+//usr/lib/xen-4.10/boot/ioemu-stubdom.gz
