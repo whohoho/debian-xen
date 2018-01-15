@@ -88,3 +88,7 @@ Errors were encountered while processing:
  xen-utils-common
 E: Sub-process /usr/bin/dpkg returned an error code (1)
 
+
+strip:debian/build/install-utils_amd64/usr/lib/xen-4.10/boot/pv-grub-x86_64.gz: File format not recognized
+strip:debian/build/install-utils_amd64/usr/lib/xen-4.10/boot/xenstore-stubdom.gz: File format not recognized
+

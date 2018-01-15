@@ -124,7 +124,7 @@ $(STAMPS_DIR)/install-utils_$(ARCH): $(STAMPS_DIR)/build-utils_$(ARCH)
 
 ifneq ($(filter i386 amd64,$(ARCH)),)
 	# hvmloader
-	strip --remove-section=.comment --remove-section=.note $(INSTALL_DIR)/usr/lib/xen*/boot/*
+	strip --remove-section=.comment --remove-section=.note $(INSTALL_DIR)/usr/lib/xen*/boot/hvmloader
 endif
 	touch $@
 
