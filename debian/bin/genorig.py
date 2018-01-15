@@ -73,7 +73,8 @@ class Main(object):
         self.log("fetch files \n" )
         #subprocess.call(('ls', '-lhtr'), cwd='../orig/%s' % self.orig_dir)
         subprocess.call(('make', 'mini-os-dir'), cwd='../orig/%s' % self.orig_dir)  
-        tars = ["gmp-4.3.2.tar.bz2", "grub-0.97.tar.gz",  "lwip-1.3.0.tar.gz",  "newlib-1.16.0.tar.gz",  "pciutils-2.2.9.tar.bz2",  "tpm_emulator-0.7.4.tar.gz",  "zlib-1.2.3.tar.gz"]
+
+        tars = ["polarssl-1.1.4-gpl.tgz", "ocaml-3.11.0.tar.gz", "gmp-4.3.2.tar.bz2", "grub-0.97.tar.gz",  "lwip-1.3.0.tar.gz",  "newlib-1.16.0.tar.gz",  "pciutils-2.2.9.tar.bz2",  "tpm_emulator-0.7.4.tar.gz",  "zlib-1.2.3.tar.gz"]
         subprocess.call(('./configure'), cwd='../orig/%s/stubdom' % self.orig_dir)
         for tar in tars:
             subprocess.call(('make', tar), cwd='../orig/%s/stubdom' % self.orig_dir)
