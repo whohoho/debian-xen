@@ -6,8 +6,10 @@ Patch-Name: tools-xenmon-install.diff
 
 ---
 
---- a/tools/xenmon/Makefile
-+++ b/tools/xenmon/Makefile
+Index: debian-xen/tools/xenmon/Makefile
+===================================================================
+--- debian-xen.orig/tools/xenmon/Makefile
++++ debian-xen/tools/xenmon/Makefile
 @@ -13,6 +13,10 @@
  XEN_ROOT=$(CURDIR)/../..
  include $(XEN_ROOT)/tools/Rules.mk

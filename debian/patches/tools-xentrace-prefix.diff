@@ -6,8 +6,10 @@ Patch-Name: tools-xentrace-prefix.diff
 
 ---
 
---- a/tools/xentrace/Makefile
-+++ b/tools/xentrace/Makefile
+Index: debian-xen/tools/xentrace/Makefile
+===================================================================
+--- debian-xen.orig/tools/xentrace/Makefile
++++ debian-xen/tools/xentrace/Makefile
 @@ -8,6 +8,7 @@ CFLAGS += $(CFLAGS_libxenctrl)
  LDLIBS += $(LDLIBS_libxenevtchn)
  LDLIBS += $(LDLIBS_libxenctrl)

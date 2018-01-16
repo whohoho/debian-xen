@@ -6,8 +6,10 @@ Patch-Name: tools-libxc-abiname.diff
 
 ---
 
---- a/tools/libxc/Makefile
-+++ b/tools/libxc/Makefile
+Index: debian-xen/tools/libxc/Makefile
+===================================================================
+--- debian-xen.orig/tools/libxc/Makefile
++++ debian-xen/tools/libxc/Makefile
 @@ -1,9 +1,6 @@
  XEN_ROOT = $(CURDIR)/../..
  include $(XEN_ROOT)/tools/Rules.mk

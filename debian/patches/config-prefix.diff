@@ -6,8 +6,10 @@ Patch-Name: config-prefix.diff
 
 ---
 
---- a/Config.mk
-+++ b/Config.mk
+Index: debian-xen/Config.mk
+===================================================================
+--- debian-xen.orig/Config.mk
++++ debian-xen/Config.mk
 @@ -82,7 +82,7 @@ EXTRA_LIB += $(EXTRA_PREFIX)/lib
  endif
  
@@ -17,8 +19,10 @@ Patch-Name: config-prefix.diff
  # The above requires that prefix contains *no spaces*. This variable is here
  # to permit the user to set PYTHON_PREFIX_ARG to '' to workaround this bug:
  #  https://bugs.launchpad.net/ubuntu/+bug/362570
---- a/config/Paths.mk.in
-+++ b/config/Paths.mk.in
+Index: debian-xen/config/Paths.mk.in
+===================================================================
+--- debian-xen.orig/config/Paths.mk.in
++++ debian-xen/config/Paths.mk.in
 @@ -13,6 +13,7 @@
  # http://wiki.xen.org/wiki/Category:Host_Configuration#System_wide_xen_configuration
  

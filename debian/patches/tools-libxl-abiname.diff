@@ -5,8 +5,10 @@ Subject: tools-libxl-abiname.diff
 Patch-Name: tools-libxl-abiname.diff
 ---
 
---- a/tools/libxl/Makefile
-+++ b/tools/libxl/Makefile
+Index: debian-xen/tools/libxl/Makefile
+===================================================================
+--- debian-xen.orig/tools/libxl/Makefile
++++ debian-xen/tools/libxl/Makefile
 @@ -5,12 +5,6 @@
  XEN_ROOT = $(CURDIR)/../..
  include $(XEN_ROOT)/tools/Rules.mk

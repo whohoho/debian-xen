@@ -6,8 +6,10 @@ Patch-Name: tools-xenmon-prefix.diff
 
 ---
 
---- a/tools/xenmon/Makefile
-+++ b/tools/xenmon/Makefile
+Index: debian-xen/tools/xenmon/Makefile
+===================================================================
+--- debian-xen.orig/tools/xenmon/Makefile
++++ debian-xen/tools/xenmon/Makefile
 @@ -18,6 +18,7 @@ CFLAGS  += $(CFLAGS_libxenevtchn)
  CFLAGS  += $(CFLAGS_libxenctrl)
  LDLIBS  += $(LDLIBS_libxenctrl)

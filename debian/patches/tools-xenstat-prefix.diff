@@ -6,8 +6,10 @@ Patch-Name: tools-xenstat-prefix.diff
 
 ---
 
---- a/tools/xenstat/libxenstat/Makefile
-+++ b/tools/xenstat/libxenstat/Makefile
+Index: debian-xen/tools/xenstat/libxenstat/Makefile
+===================================================================
+--- debian-xen.orig/tools/xenstat/libxenstat/Makefile
++++ debian-xen/tools/xenstat/libxenstat/Makefile
 @@ -20,7 +20,7 @@ MAKE_LINK=ln -sf
  
  LIB=src/libxenstat.a
@@ -40,8 +42,10 @@ Patch-Name: tools-xenstat-prefix.diff
  
  PYLIB=bindings/swig/python/_xenstat.so
  PYMOD=bindings/swig/python/xenstat.py
---- a/tools/xenstat/xentop/Makefile
-+++ b/tools/xenstat/xentop/Makefile
+Index: debian-xen/tools/xenstat/xentop/Makefile
+===================================================================
+--- debian-xen.orig/tools/xenstat/xentop/Makefile
++++ debian-xen/tools/xenstat/xentop/Makefile
 @@ -19,7 +19,9 @@ all install xentop uninstall:
  else
  

@@ -1,5 +1,7 @@
---- a/tools/libs/toolcore/Makefile
-+++ b/tools/libs/toolcore/Makefile
+Index: debian-xen/tools/libs/toolcore/Makefile
+===================================================================
+--- debian-xen.orig/tools/libs/toolcore/Makefile
++++ debian-xen/tools/libs/toolcore/Makefile
 @@ -59,22 +59,22 @@ include/_xentoolcore_list.h: $(XEN_INCLU
  libxentoolcore.a: $(LIB_OBJS)
  	$(AR) rc $@ $^

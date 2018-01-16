@@ -6,8 +6,10 @@ Patch-Name: tools-pygrub-remove-static-solaris-support
 
 ---
 
---- a/tools/pygrub/src/pygrub
-+++ b/tools/pygrub/src/pygrub
+Index: debian-xen/tools/pygrub/src/pygrub
+===================================================================
+--- debian-xen.orig/tools/pygrub/src/pygrub
++++ debian-xen/tools/pygrub/src/pygrub
 @@ -16,7 +16,6 @@ import os, sys, string, struct, tempfile
  import copy
  import logging

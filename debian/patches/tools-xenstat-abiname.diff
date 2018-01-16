@@ -6,8 +6,10 @@ Patch-Name: tools-xenstat-abiname.diff
 
 ---
 
---- a/tools/xenstat/libxenstat/Makefile
-+++ b/tools/xenstat/libxenstat/Makefile
+Index: debian-xen/tools/xenstat/libxenstat/Makefile
+===================================================================
+--- debian-xen.orig/tools/xenstat/libxenstat/Makefile
++++ debian-xen/tools/xenstat/libxenstat/Makefile
 @@ -18,18 +18,14 @@ include $(XEN_ROOT)/tools/Rules.mk
  LDCONFIG=ldconfig
  MAKE_LINK=ln -sf

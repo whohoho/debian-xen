@@ -7,8 +7,10 @@ Patch-Name: tools-libxl-prefix.diff
 Note: SMB: Added change for LIBEXEC_BIN for tools/xl/Makefile
 ---
 
---- a/tools/libxl/Makefile
-+++ b/tools/libxl/Makefile
+Index: debian-xen/tools/libxl/Makefile
+===================================================================
+--- debian-xen.orig/tools/libxl/Makefile
++++ debian-xen/tools/libxl/Makefile
 @@ -13,6 +13,9 @@ ifeq ($(CONFIG_Linux),y)
  LIBUUID_LIBS += -luuid
  endif
@@ -28,8 +30,10 @@ Note: SMB: Added change for LIBEXEC_BIN for tools/xl/Makefile
  
  libxenlight_test.so: $(LIBXL_OBJS) $(LIBXL_TEST_OBJS)
  	$(CC) $(LDFLAGS) -Wl,$(SONAME_LDFLAG),$@ $(SHLIB_LDFLAGS) -o $@ $^ $(LIBXL_LIBS) $(APPEND_LDFLAGS)
---- a/tools/xl/Makefile
-+++ b/tools/xl/Makefile
+Index: debian-xen/tools/xl/Makefile
+===================================================================
+--- debian-xen.orig/tools/xl/Makefile
++++ debian-xen/tools/xl/Makefile
 @@ -41,15 +41,15 @@ xl: $(XL_OBJS)
  
  .PHONY: install

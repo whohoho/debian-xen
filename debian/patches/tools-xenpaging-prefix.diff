@@ -6,8 +6,10 @@ Patch-Name: tools-xenpaging-prefix.diff
 
 ---
 
---- a/tools/xenpaging/Makefile
-+++ b/tools/xenpaging/Makefile
+Index: debian-xen/tools/xenpaging/Makefile
+===================================================================
+--- debian-xen.orig/tools/xenpaging/Makefile
++++ debian-xen/tools/xenpaging/Makefile
 @@ -4,7 +4,7 @@ include $(XEN_ROOT)/tools/Rules.mk
  # xenpaging.c and file_ops.c incorrectly use libxc internals
  CFLAGS += $(CFLAGS_libxentoollog) $(CFLAGS_libxenevtchn) $(CFLAGS_libxenctrl) $(CFLAGS_libxenstore) $(PTHREAD_CFLAGS) -I$(XEN_ROOT)/tools/libxc $(CFLAGS_libxencall)

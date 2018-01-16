@@ -6,9 +6,11 @@ Patch-Name: version.diff
 
 ---
 
---- a/xen/Makefile
-+++ b/xen/Makefile
-@@ -161,7 +161,7 @@ delete-unfresh-files:
+Index: debian-xen/xen/Makefile
+===================================================================
+--- debian-xen.orig/xen/Makefile
++++ debian-xen/xen/Makefile
+@@ -171,7 +171,7 @@ delete-unfresh-files:
  	@mv -f $@.tmp $@
  
  # compile.h contains dynamic build info. Rebuilt on every 'make' invocation.
@@ -17,7 +19,7 @@ Patch-Name: version.diff
  	@sed -e 's/@@date@@/$(XEN_BUILD_DATE)/g' \
  	    -e 's/@@time@@/$(XEN_BUILD_TIME)/g' \
  	    -e 's/@@whoami@@/$(XEN_WHOAMI)/g' \
-@@ -172,9 +172,11 @@ include/xen/compile.h: include/xen/compi
+@@ -182,9 +182,11 @@ include/xen/compile.h: include/xen/compi
  	    -e 's/@@subversion@@/$(XEN_SUBVERSION)/g' \
  	    -e 's/@@extraversion@@/$(XEN_EXTRAVERSION)/g' \
  	    -e 's!@@changeset@@!$(shell tools/scmversion $(XEN_ROOT) || echo "unavailable")!g' \
@@ -31,8 +33,10 @@ Patch-Name: version.diff
  	@mv -f $@.new $@
  
  include/asm-$(TARGET_ARCH)/asm-offsets.h: arch/$(TARGET_ARCH)/asm-offsets.s
---- a/xen/common/kernel.c
-+++ b/xen/common/kernel.c
+Index: debian-xen/xen/common/kernel.c
+===================================================================
+--- debian-xen.orig/xen/common/kernel.c
++++ debian-xen/xen/common/kernel.c
 @@ -330,8 +330,8 @@ DO(xen_version)(int cmd, XEN_GUEST_HANDL
  
          memset(&info, 0, sizeof(info));
@@ -44,8 +48,10 @@ Patch-Name: version.diff
          safe_strcpy(info.compile_date,   deny ? xen_deny() : xen_compile_date());
          if ( copy_to_guest(arg, &info, 1) )
              return -EFAULT;
---- a/xen/common/version.c
-+++ b/xen/common/version.c
+Index: debian-xen/xen/common/version.c
+===================================================================
+--- debian-xen.orig/xen/common/version.c
++++ debian-xen/xen/common/version.c
 @@ -20,19 +20,24 @@ const char *xen_compile_time(void)
      return XEN_COMPILE_TIME;
  }
@@ -89,10 +95,12 @@ Patch-Name: version.diff
  const char *xen_deny(void)
  {
      return "<denied>";
---- a/xen/drivers/char/console.c
-+++ b/xen/drivers/char/console.c
-@@ -783,14 +783,11 @@ void __init console_init_preirq(void)
-     serial_set_rx_handler(sercon_handle, serial_rx);
+Index: debian-xen/xen/drivers/char/console.c
+===================================================================
+--- debian-xen.orig/xen/drivers/char/console.c
++++ debian-xen/xen/drivers/char/console.c
+@@ -847,14 +847,11 @@ void __init console_init_preirq(void)
+ #endif
  
      /* HELLO WORLD --- start-of-day banner text. */
 -    spin_lock(&console_lock);
@@ -109,8 +117,10 @@ Patch-Name: version.diff
  
      if ( opt_sync_console )
      {
---- a/xen/include/xen/compile.h.in
-+++ b/xen/include/xen/compile.h.in
+Index: debian-xen/xen/include/xen/compile.h.in
+===================================================================
+--- debian-xen.orig/xen/include/xen/compile.h.in
++++ debian-xen/xen/include/xen/compile.h.in
 @@ -1,8 +1,9 @@
  #define XEN_COMPILE_DATE	"@@date@@"
  #define XEN_COMPILE_TIME	"@@time@@"
@@ -129,8 +139,10 @@ Patch-Name: version.diff
  
  #define XEN_CHANGESET		"@@changeset@@"
 -#define XEN_BANNER		\
---- a/xen/include/xen/version.h
-+++ b/xen/include/xen/version.h
+Index: debian-xen/xen/include/xen/version.h
+===================================================================
+--- debian-xen.orig/xen/include/xen/version.h
++++ debian-xen/xen/include/xen/version.h
 @@ -6,9 +6,10 @@
  
  const char *xen_compile_date(void);
