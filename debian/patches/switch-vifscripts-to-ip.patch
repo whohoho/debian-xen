@@ -1,0 +1,54 @@
+From 60be6da6f3ae82366236289c9226ba8e927a1e68 Mon Sep 17 00:00:00 2001
+From: hark <hark@puscii.nl>
+Date: Thu, 18 Jan 2018 03:43:15 +0000
+Subject: [PATCH] switch vifscripts to ip
+
+---
+ tools/hotplug/Linux/vif-bridge | 2 +-
+ tools/hotplug/Linux/vif-nat    | 2 +-
+ tools/hotplug/Linux/vif-route  | 3 ++-
+ 3 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/tools/hotplug/Linux/vif-bridge b/tools/hotplug/Linux/vif-bridge
+index 6956dea66a..dcb3f04fdd 100644
+--- a/tools/hotplug/Linux/vif-bridge
++++ b/tools/hotplug/Linux/vif-bridge
+@@ -83,7 +83,7 @@ case "$command" in
+ 
+     offline)
+         do_without_error brctl delif "$bridge" "$dev"
+-        do_without_error ifconfig "$dev" down
++        do_without_error ip link set "$dev" down
+         ;;
+ 
+     add)
+diff --git a/tools/hotplug/Linux/vif-nat b/tools/hotplug/Linux/vif-nat
+index a76d9c784b..d06d31d50d 100644
+--- a/tools/hotplug/Linux/vif-nat
++++ b/tools/hotplug/Linux/vif-nat
+@@ -174,7 +174,7 @@ case "$command" in
+         ;;
+     offline)
+         [ "$dhcp" != 'no' ] && dhcp_down
+-        do_without_error ifconfig "${dev}" down
++        do_without_error ip link set "${dev}" down
+         ;;
+ esac
+ 
+diff --git a/tools/hotplug/Linux/vif-route b/tools/hotplug/Linux/vif-route
+index c149ffca73..e3d0da6d7c 100644
+--- a/tools/hotplug/Linux/vif-route
++++ b/tools/hotplug/Linux/vif-route
+@@ -23,7 +23,8 @@ main_ip=$(dom0_ip)
+ 
+ case "${command}" in
+     online)
+-        ifconfig ${dev} ${main_ip} netmask 255.255.255.255 up
++	ip addr add ${main_ip}/32 dev ${dev}
++	ip link set ${dev} up
+         echo 1 >/proc/sys/net/ipv4/conf/${dev}/proxy_arp
+         ipcmd='add'
+         cmdprefix=''
+-- 
+2.11.0
+
