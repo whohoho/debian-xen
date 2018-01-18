@@ -5,8 +5,10 @@ Subject: ubuntu-tools-libs-abiname
 
 ---
 
---- a/tools/libs/call/Makefile
-+++ b/tools/libs/call/Makefile
+Index: debian-xen/tools/libs/call/Makefile
+===================================================================
+--- debian-xen.orig/tools/libs/call/Makefile
++++ debian-xen/tools/libs/call/Makefile
 @@ -56,22 +56,22 @@ headers.chk: $(wildcard include/*.h)
  libxencall.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
@@ -57,8 +59,10 @@ Subject: ubuntu-tools-libs-abiname
  	rm -f headers.chk
  	rm -f xencall.pc
  
---- a/tools/libs/toollog/Makefile
-+++ b/tools/libs/toollog/Makefile
+Index: debian-xen/tools/libs/toollog/Makefile
+===================================================================
+--- debian-xen.orig/tools/libs/toollog/Makefile
++++ debian-xen/tools/libs/toollog/Makefile
 @@ -50,22 +50,22 @@ headers.chk: $(wildcard include/*.h)
  libxentoollog.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
@@ -109,8 +113,10 @@ Subject: ubuntu-tools-libs-abiname
  	rm -f headers.chk
  	rm -f xentoollog.pc
  
---- a/tools/libs/evtchn/Makefile
-+++ b/tools/libs/evtchn/Makefile
+Index: debian-xen/tools/libs/evtchn/Makefile
+===================================================================
+--- debian-xen.orig/tools/libs/evtchn/Makefile
++++ debian-xen/tools/libs/evtchn/Makefile
 @@ -55,22 +55,22 @@ headers.chk: $(wildcard include/*.h)
  libxenevtchn.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
@@ -150,8 +156,10 @@ Subject: ubuntu-tools-libs-abiname
  	rm -f $(DESTDIR)$(libdir)/libxenevtchn.so.$(MAJOR).$(MINOR)
  	rm -f $(DESTDIR)$(libdir)/libxenevtchn.a
  
---- a/tools/libs/foreignmemory/Makefile
-+++ b/tools/libs/foreignmemory/Makefile
+Index: debian-xen/tools/libs/foreignmemory/Makefile
+===================================================================
+--- debian-xen.orig/tools/libs/foreignmemory/Makefile
++++ debian-xen/tools/libs/foreignmemory/Makefile
 @@ -56,22 +56,22 @@ headers.chk: $(wildcard include/*.h)
  libxenforeignmemory.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
@@ -202,8 +210,10 @@ Subject: ubuntu-tools-libs-abiname
  	rm -f headers.chk
  	rm -f xenforeignmemory.pc
  
---- a/tools/libs/gnttab/Makefile
-+++ b/tools/libs/gnttab/Makefile
+Index: debian-xen/tools/libs/gnttab/Makefile
+===================================================================
+--- debian-xen.orig/tools/libs/gnttab/Makefile
++++ debian-xen/tools/libs/gnttab/Makefile
 @@ -58,22 +58,22 @@ headers.chk: $(wildcard include/*.h)
  libxengnttab.a: $(LIB_OBJS)
  	$(AR) rc $@ $^
@@ -254,8 +264,10 @@ Subject: ubuntu-tools-libs-abiname
  	rm -f headers.chk
  	rm -f xengnttab.pc
  
---- a/tools/libs/devicemodel/Makefile
-+++ b/tools/libs/devicemodel/Makefile
+Index: debian-xen/tools/libs/devicemodel/Makefile
+===================================================================
+--- debian-xen.orig/tools/libs/devicemodel/Makefile
++++ debian-xen/tools/libs/devicemodel/Makefile
 @@ -58,22 +58,22 @@ headers.chk: $(wildcard include/*.h)
  libxendevicemodel.a: $(LIB_OBJS)
  	$(AR) rc $@ $^

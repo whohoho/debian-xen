@@ -6,8 +6,10 @@ Description: Re-introduce fake xs_restrict API call
 Author: Stefan Bader <stefan.bader@canonical.com>
 Forwarded: No
 
---- a/tools/xenstore/include/xenstore.h
-+++ b/tools/xenstore/include/xenstore.h
+Index: debian-xen/tools/xenstore/include/xenstore.h
+===================================================================
+--- debian-xen.orig/tools/xenstore/include/xenstore.h
++++ debian-xen/tools/xenstore/include/xenstore.h
 @@ -133,6 +133,11 @@ bool xs_mkdir(struct xs_handle *h, xs_tr
  bool xs_rm(struct xs_handle *h, xs_transaction_t t,
  	   const char *path);
@@ -20,8 +22,10 @@ Forwarded: No
  /* Get permissions of node (first element is owner, first perms is "other").
   * Returns malloced array, or NULL: call free() after use.
   */
---- a/tools/xenstore/xs.c
-+++ b/tools/xenstore/xs.c
+Index: debian-xen/tools/xenstore/xs.c
+===================================================================
+--- debian-xen.orig/tools/xenstore/xs.c
++++ debian-xen/tools/xenstore/xs.c
 @@ -792,6 +792,12 @@ unwind:
  	return false;
  }

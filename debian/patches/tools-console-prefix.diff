@@ -6,8 +6,10 @@ Patch-Name: tools-console-prefix.diff
 
 ---
 
---- a/tools/console/Makefile
-+++ b/tools/console/Makefile
+Index: debian-xen/tools/console/Makefile
+===================================================================
+--- debian-xen.orig/tools/console/Makefile
++++ debian-xen/tools/console/Makefile
 @@ -8,6 +8,7 @@ CFLAGS  += $(CFLAGS_libxenstore)
  LDLIBS += $(LDLIBS_libxenctrl)
  LDLIBS += $(LDLIBS_libxenstore)

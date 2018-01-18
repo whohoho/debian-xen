@@ -32,8 +32,10 @@ Signed-off-by: Ian Jackson <ian.jackson@citrix.com>
 
 ---
 
---- a/tools/tests/x86_emulator/Makefile
-+++ b/tools/tests/x86_emulator/Makefile
+Index: debian-xen/tools/tests/x86_emulator/Makefile
+===================================================================
+--- debian-xen.orig/tools/tests/x86_emulator/Makefile
++++ debian-xen/tools/tests/x86_emulator/Makefile
 @@ -104,6 +104,10 @@ HOSTCFLAGS-x86_64 := -fno-PIE
  $(call cc-option-add,HOSTCFLAGS-x86_64,HOSTCC,-no-pie)
  HOSTCFLAGS += $(CFLAGS_xeninclude) -I. $(HOSTCFLAGS-$(XEN_COMPILE_ARCH))

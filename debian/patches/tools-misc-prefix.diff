@@ -6,8 +6,10 @@ Patch-Name: tools-misc-prefix.diff
 
 ---
 
---- a/tools/misc/Makefile
-+++ b/tools/misc/Makefile
+Index: debian-xen/tools/misc/Makefile
+===================================================================
+--- debian-xen.orig/tools/misc/Makefile
++++ debian-xen/tools/misc/Makefile
 @@ -55,18 +55,16 @@ all build: $(TARGETS_BUILD)
  
  .PHONY: install

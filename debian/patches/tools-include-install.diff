@@ -6,8 +6,10 @@ Patch-Name: tools-include-install.diff
 
 ---
 
---- a/tools/include/Makefile
-+++ b/tools/include/Makefile
+Index: debian-xen/tools/include/Makefile
+===================================================================
+--- debian-xen.orig/tools/include/Makefile
++++ debian-xen/tools/include/Makefile
 @@ -14,7 +14,6 @@ xen-foreign:
  xen/.dir:
  	@rm -rf xen

@@ -6,8 +6,10 @@ Patch-Name: tools-xenstore-prefix.diff
 
 ---
 
---- a/tools/helpers/Makefile
-+++ b/tools/helpers/Makefile
+Index: debian-xen/tools/helpers/Makefile
+===================================================================
+--- debian-xen.orig/tools/helpers/Makefile
++++ debian-xen/tools/helpers/Makefile
 @@ -31,7 +31,7 @@ xen-init-dom0: $(XEN_INIT_DOM0_OBJS)
  $(INIT_XENSTORE_DOMAIN_OBJS): _paths.h
  
@@ -17,8 +19,10 @@ Patch-Name: tools-xenstore-prefix.diff
  
  .PHONY: install
  install: all
---- a/tools/xenstore/Makefile
-+++ b/tools/xenstore/Makefile
+Index: debian-xen/tools/xenstore/Makefile
+===================================================================
+--- debian-xen.orig/tools/xenstore/Makefile
++++ debian-xen/tools/xenstore/Makefile
 @@ -21,6 +21,8 @@ LDFLAGS-$(CONFIG_SYSTEMD) += $(SYSTEMD_L
  CFLAGS  += $(CFLAGS-y)
  LDFLAGS += $(LDFLAGS-y)

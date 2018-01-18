@@ -6,8 +6,10 @@ Patch-Name: tools-rpath.diff
 
 ---
 
---- a/tools/Rules.mk
-+++ b/tools/Rules.mk
+Index: debian-xen/tools/Rules.mk
+===================================================================
+--- debian-xen.orig/tools/Rules.mk
++++ debian-xen/tools/Rules.mk
 @@ -9,6 +9,8 @@ include $(XEN_ROOT)/Config.mk
  export _INSTALL := $(INSTALL)
  INSTALL = $(XEN_ROOT)/tools/cross-install

@@ -6,8 +6,10 @@ Patch-Name: tools-xenpmd-prefix.diff
 
 ---
 
---- a/tools/xenpmd/Makefile
-+++ b/tools/xenpmd/Makefile
+Index: debian-xen/tools/xenpmd/Makefile
+===================================================================
+--- debian-xen.orig/tools/xenpmd/Makefile
++++ debian-xen/tools/xenpmd/Makefile
 @@ -11,8 +11,8 @@ all: xenpmd
  
  .PHONY: install

@@ -6,8 +6,10 @@ Patch-Name: tools-xenstore-compatibility.diff
 
 ---
 
---- a/tools/xenstore/include/xenstore.h
-+++ b/tools/xenstore/include/xenstore.h
+Index: debian-xen/tools/xenstore/include/xenstore.h
+===================================================================
+--- debian-xen.orig/tools/xenstore/include/xenstore.h
++++ debian-xen/tools/xenstore/include/xenstore.h
 @@ -25,6 +25,7 @@
  
  #define XS_OPEN_READONLY	1UL<<0
@@ -16,8 +18,10 @@ Patch-Name: tools-xenstore-compatibility.diff
  
  /*
   * Setting XS_UNWATCH_FILTER arranges that after xs_unwatch, no
---- a/tools/xenstore/xenstore_client.c
-+++ b/tools/xenstore/xenstore_client.c
+Index: debian-xen/tools/xenstore/xenstore_client.c
+===================================================================
+--- debian-xen.orig/tools/xenstore/xenstore_client.c
++++ debian-xen/tools/xenstore/xenstore_client.c
 @@ -636,7 +636,7 @@ main(int argc, char **argv)
  	    max_width = ws.ws_col - 2;
      }
@@ -27,8 +31,10 @@ Patch-Name: tools-xenstore-compatibility.diff
      if (xsh == NULL) err(1, "xs_open");
  
  again:
---- a/tools/xenstore/xs.c
-+++ b/tools/xenstore/xs.c
+Index: debian-xen/tools/xenstore/xs.c
+===================================================================
+--- debian-xen.orig/tools/xenstore/xs.c
++++ debian-xen/tools/xenstore/xs.c
 @@ -301,17 +301,19 @@ struct xs_handle *xs_daemon_open_readonl
  
  struct xs_handle *xs_domain_open(void)

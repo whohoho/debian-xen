@@ -6,8 +6,10 @@ Patch-Name: tools-pygrub-prefix.diff
 
 ---
 
---- a/tools/pygrub/Makefile
-+++ b/tools/pygrub/Makefile
+Index: debian-xen/tools/pygrub/Makefile
+===================================================================
+--- debian-xen.orig/tools/pygrub/Makefile
++++ debian-xen/tools/pygrub/Makefile
 @@ -18,11 +18,6 @@ install: all
  	CC="$(CC)" CFLAGS="$(PY_CFLAGS)" LDFLAGS="$(PY_LDFLAGS)" $(PYTHON) \
  		setup.py install --record $(INSTALL_LOG) $(PYTHON_PREFIX_ARG) \
@@ -20,8 +22,10 @@ Patch-Name: tools-pygrub-prefix.diff
  
  .PHONY: uninstall
  uninstall:
---- a/tools/pygrub/setup.py
-+++ b/tools/pygrub/setup.py
+Index: debian-xen/tools/pygrub/setup.py
+===================================================================
+--- debian-xen.orig/tools/pygrub/setup.py
++++ debian-xen/tools/pygrub/setup.py
 @@ -4,11 +4,13 @@ import os
  import sys
  
@@ -36,8 +40,10 @@ Patch-Name: tools-pygrub-prefix.diff
      include_dirs = [ XEN_ROOT + "/tools/libfsimage/common/" ],
      library_dirs = [ XEN_ROOT + "/tools/libfsimage/common/" ],
      libraries = ["fsimage"],
---- a/tools/pygrub/src/pygrub
-+++ b/tools/pygrub/src/pygrub
+Index: debian-xen/tools/pygrub/src/pygrub
+===================================================================
+--- debian-xen.orig/tools/pygrub/src/pygrub
++++ debian-xen/tools/pygrub/src/pygrub
 @@ -21,6 +21,8 @@ import xen.lowlevel.xc
  import curses, _curses, curses.wrapper, curses.textpad, curses.ascii
  import getopt
