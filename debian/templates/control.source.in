@@ -23,6 +23,7 @@ Build-Depends:
  pkg-config,
  uuid-dev,
  zlib1g-dev,
+ ovmf
 Standards-Version: 3.9.4
 XS-Python-Version: current
 

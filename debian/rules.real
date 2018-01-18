@@ -72,8 +72,10 @@ $(STAMPS_DIR)/setup-utils_$(ARCH):
 			--disable-blktap2 \
 			--disable-ocamltools \
 			--disable-qemu-traditional --disable-rombios \
+			--enable-ovmf \
 			--with-system-qemu=/usr/bin/qemu-system-i386 \
 			--with-system-seabios=/usr/share/seabios/bios-256k.bin
+			--with-system-ovmf=/usr/share/ovmf/OVMF.fd
 	@$(stamp)
 
 $(STAMPS_DIR)/build-docs: DIR=$(BUILD_DIR)/build-docs
