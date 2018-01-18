@@ -1,0 +1,21 @@
+From a4f1417dd059f9ab49d1884acfe047b8cff73777 Mon Sep 17 00:00:00 2001
+From: hark <hark@puscii.nl>
+Date: Mon, 29 Jan 2018 17:05:52 +0000
+Subject: [PATCH] completion for xen command
+
+---
+ tools/xl/bash-completion | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/xl/bash-completion b/tools/xl/bash-completion
+index b7cd6b3992..15a2fc90d6 100644
+--- a/tools/xl/bash-completion
++++ b/tools/xl/bash-completion
+@@ -18,3 +18,4 @@ _xl()
+ }
+ 
+ complete -F _xl -o nospace -o default xl
++complete -F _xl -o nospace -o default xen
+-- 
+2.15.1
+
