@@ -1,0 +1,8 @@
+[Unit]
+Description=Dummy xen service (so systemd doesn't try to start sysvinit service)
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=yes
+StandardOutput=journal

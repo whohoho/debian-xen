@@ -1,0 +1,23 @@
+From 5062bdfc6f48ad62e50a46dff58c990ceb79580e Mon Sep 17 00:00:00 2001
+From: hark <hark@puscii.nl>
+Date: Sun, 14 Jan 2018 07:42:54 +0000
+Subject: [PATCH] add alias to systemd file, so systemd will not run sysvinit
+ script
+
+---
+ tools/hotplug/Linux/systemd/xendriverdomain.service.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/hotplug/Linux/systemd/xendriverdomain.service.in b/tools/hotplug/Linux/systemd/xendriverdomain.service.in
+index c39ec04182..04348d7237 100644
+--- a/tools/hotplug/Linux/systemd/xendriverdomain.service.in
++++ b/tools/hotplug/Linux/systemd/xendriverdomain.service.in
+@@ -9,4 +9,5 @@ Type=forking
+ ExecStart=@sbindir@/xl devd
+ 
+ [Install]
++Alias=xen.service
+ WantedBy=multi-user.target
+-- 
+2.11.0
+
