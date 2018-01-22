@@ -134,6 +134,7 @@ $(STAMPS_DIR)/install-utils-common: $(STAMPS_DIR)/build-docs
 	+$(MAKE_CLEAN) -C $(SOURCE_DIR)/tools/hotplug/common install-scripts
 	+$(MAKE_CLEAN) -C $(SOURCE_DIR)/tools/hotplug/Linux install-scripts
 	+$(MAKE_CLEAN) -C debian/scripts install
+	dh_install debian/xl_bash_completion /etc/bash_completion.d/xl.sh
 	touch $@
 
 install-base:
