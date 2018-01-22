@@ -133,6 +133,8 @@ $(STAMPS_DIR)/install-utils-common: $(STAMPS_DIR)/build-docs
 	+$(MAKE_CLEAN) -C $(SOURCE_DIR)/tools/examples install-configs
 	+$(MAKE_CLEAN) -C $(SOURCE_DIR)/tools/hotplug/common install-scripts
 	+$(MAKE_CLEAN) -C $(SOURCE_DIR)/tools/hotplug/Linux install-scripts
+	mkdir -p $(INSTALL_DIR)/etc/bash_completion.d/
+	cp $(SOURCE_DIR)/tools/xl/bash-completion $(INSTALL_DIR)/etc/bash_completion.d/xl.sh
 	+$(MAKE_CLEAN) -C debian/scripts install
 	touch $@
 
@@ -241,7 +243,6 @@ install-utils-common: $(STAMPS_DIR)/install-utils-common
 	dh_testroot
 	dh_prep
 	dh_install -X .svn --sourcedir=$(DIR)
-	dh_install debian/xl_bash_completion /etc/bash_completion.d/xl.sh
 	dh_installinit --name xen -- defaults 20 21
 	dh_installinit --name xendriverdomain -- defaults 20 21
 	dh_installinit --name xend
