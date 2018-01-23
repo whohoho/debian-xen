@@ -21,12 +21,12 @@
 # (e.g. because you rather shut domains down).
 # If domain saving does succeed, SHUTDOWN will not be executed.
 #
-XENDOMAINS_SAVE=/var/lib/xen/save
+#XENDOMAINS_SAVE=/var/lib/xen/save
 
 # This variable determines whether saved domains from XENDOMAINS_SAVE
 # will be restored on system startup. 
 #
-XENDOMAINS_RESTORE=true
+#XENDOMAINS_RESTORE=true
 
 # This variable sets the directory where domains configurations
 # are stored that should be started on system startup automatically.
