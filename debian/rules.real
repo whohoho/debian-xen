@@ -243,6 +243,7 @@ install-utils-common: $(STAMPS_DIR)/install-utils-common
 	dh_testroot
 	dh_prep
 	dh_install -X .svn --sourcedir=$(DIR)
+	dh_install --sourcedir=$(DIR) /etc/bash_completion.d/xl.sh
 	dh_installinit --name xen -- defaults 20 21
 	dh_installinit --name xend
 	dh_installinit --name xendomains --no-start -- defaults 21 20
