@@ -29,9 +29,9 @@ Description: Public headers and libs for Xen
  domains running on the same Xen host. See http://wiki.xen.org/wiki/XenStore
  for more information.
  .
- The libxenctrl and libxenguest libraries are internal libraries intended for
- use by the Xen toolstack and are not intended to be used directly. Toolstack
- authors should use libxenlight.
+ The libxenctrl, libxenguest and other remaining included libraries are
+ internal libraries intended for use by the Xen toolstack and are not intended
+ to be used directly. Toolstack authors should use libxenlight.
 
 Package: xenstore-utils
 Section: admin
