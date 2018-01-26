@@ -53,6 +53,11 @@ class Main(object):
         except OSError: pass
 
         try:
+            os.mkdir("../orig")
+        except OSError:
+            pass
+
+        try:
             with open(out, 'wb') as f:
                 _cmd = ('git', 'archive', '--prefix', '%s/' % self.orig_dir, treeish)
                 p1 = subprocess.Popen(_cmd, stdout=subprocess.PIPE, cwd=self.repo)
